@@ -1,0 +1,15 @@
+services:
+  db:
+    image: mysql:8.0
+    platform: linux/x86_64
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=app
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ALLOW_EMPTY_PASSWORD=false
+
+volumes:
+  mysql-data:
