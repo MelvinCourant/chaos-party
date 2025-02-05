@@ -1,0 +1,53 @@
+@use 'fonts';
+@use "variables";
+@use "mixins";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  body {
+    min-height: 100vh;
+
+    #app,
+    main {
+      min-height: 100vh;
+    }
+
+    video,
+    img,
+    svg,
+    object {
+      max-width: 100%;
+      height: auto;
+      vertical-align: middle;
+    }
+
+    li {
+      list-style: none;
+      text-decoration: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-family: "Lilita One", cursive;
+    }
+
+    .hidden-title {
+      font-size: fonts.$hidden;
+    }
+  }
+}

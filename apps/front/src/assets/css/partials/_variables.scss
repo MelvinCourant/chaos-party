@@ -1,0 +1,44 @@
+$colors: (
+  // global colors
+  "orange": #EB5E28,
+  "text": #FDF1ED,
+  "placeholder": #FDF1EDB2,
+  "black": #1A120F,
+  "blue": #28B4EB,
+  "yellow": #EBC128,
+  "red": #E22929,
+  "pink": #EB2870,
+  "purple": #792BFF,
+
+  // darkened colors
+  "dark-orange": #A73509,
+  "dark-blue": #2852EB,
+  "dark-green": #0F590F,
+  "dark-yellow": #B2931E,
+
+  // lightened colors
+  "light-orange": #FF9166,
+
+  // transparent colors
+  "black-transparent-10": rgba(31, 22, 18, 0.1),
+  "black-transparent-30": rgba(31, 22, 18, 0.3),
+  "black-transparent-50": rgba(31, 22, 18, 0.5),
+  "white-transparent-30": rgba(253, 241, 237, 0.3),
+  "blue-transparent-30": rgba(40, 180, 235, 0.3),
+
+  // gradient colors
+  "gradient-orange-red": linear-gradient(236deg, #E23D3D 15.8%, #EB5E28 84.2%),
+  "gradient-blue": radial-gradient(50% 50% at 50% 50%, #28B4EB 0%, #2852EB 100%),
+
+  // drawing colors
+  "green": #21BF21,
+  "beige": #FF9066,
+  "gray": #807978,
+  "dark-red-2": #B20000,
+);
+
+:root {
+  @each $name, $value in $colors {
+    --#{$name}: #{$value};
+  }
+}

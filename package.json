@@ -1,0 +1,13 @@
+{
+  "name": "chaos-party",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "pnpm recursive run dev",
+    "build": "pnpm recursive run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

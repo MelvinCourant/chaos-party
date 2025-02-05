@@ -1,0 +1,15 @@
+@use "fonts" as fonts;
+
+@mixin font($text-type) {
+  @if($text-type == 'title') {
+    font-family: "Lilita One", cursive;
+  } @else if($text-type == 'text') {
+    font-family: "Inter", sans-serif;
+  }
+}
+
+@mixin resetButton($border, $background) {
+  cursor: pointer;
+  background: $background;
+  border: $border;
+}
