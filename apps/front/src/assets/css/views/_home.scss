@@ -10,5 +10,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 80px;
   flex: 1;
+
+  &__logo {
+    width: 350px;
+  }
+
+  &__onboarding {
+    display: flex;
+    gap: 40px;
+  }
 }

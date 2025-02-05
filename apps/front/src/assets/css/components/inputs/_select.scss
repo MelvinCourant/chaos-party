@@ -1,0 +1,80 @@
+@use '../../partials/mixins';
+
+.select {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  height: 50px;
+  padding: 10px 15px;
+  border-radius: var(--input-radius);
+
+  &--white {
+    border: var(--input-white-border);
+
+    svg {
+      path {
+        fill: var(--text);
+      }
+    }
+  }
+
+  &--black {
+    border: var(--input-black-border);
+
+    svg {
+      path {
+        fill: var(--black);
+      }
+    }
+
+    .select__label {
+      color: var(--black);
+    }
+  }
+
+  &--disabled {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  &--opened {
+    .select__arrow {
+      transform: rotate(180deg);
+    }
+  }
+
+  svg {
+    + {
+      .select__label {
+        margin-left: 7px;
+      }
+    }
+  }
+
+  &__label {
+    @include mixins.font('title');
+    color: var(--text);
+  }
+
+  &__icon {
+    width: auto;
+    height: 26px;
+  }
+
+  &__arrow {
+    margin-left: 20px;
+    transform-origin: center;
+    transition: transform 0.3s;
+  }
+
+  select {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+}
