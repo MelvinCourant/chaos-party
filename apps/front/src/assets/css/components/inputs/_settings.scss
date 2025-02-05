@@ -1,0 +1,9 @@
+@use '../../partials/mixins';
+
+.settings {
+  @include mixins.resetButton(0, transparent);
+}
+
+.popin {
+  width: 500px;
+}

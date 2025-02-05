@@ -4,4 +4,10 @@
   padding: 20px 30px;
   background: var(--black-transparent-10);
   border-radius: var(--card-radius);
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 }

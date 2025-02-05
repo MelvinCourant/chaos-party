@@ -1,0 +1,39 @@
+@use '../../partials/mixins';
+
+.popin {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: var(--card-border);
+  border-radius: var(--card-radius);
+  background: var(--yellow);
+  box-shadow: var(--3d-shadow);
+  padding: 30px 60px 50px 60px;
+  min-height: 300px;
+
+  &::backdrop {
+    background: var(--black-transparent-50);
+  }
+
+  &__title {
+    @include mixins.font('xl title');
+    margin-bottom: 40px;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  &__range {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    overflow: hidden;
+
+    .range {
+      flex: 1;
+    }
+  }
+}

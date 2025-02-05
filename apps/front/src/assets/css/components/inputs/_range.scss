@@ -1,0 +1,23 @@
+.range {
+  appearance: none;
+  height: 12px;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    border: none;
+    background: var(--orange);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+  }
+
+  &::-moz-range-thumb {
+    appearance: none;
+    border: none;
+    background: var(--orange);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+  }
+}

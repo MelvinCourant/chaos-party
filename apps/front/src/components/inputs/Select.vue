@@ -17,7 +17,7 @@ defineProps({
   }
 });
 
-const emit = defineEmits(["change"]);
+defineEmits(["change"]);
 
 const isOpened = ref(false);
 
@@ -50,7 +50,7 @@ document.addEventListener("click", (event) => {
         color="white"
         :disabled="disabled"
         :id="attributes.id"
-        @change="emit('change', $event.target.value)"
+        @change="$emit('change', $event.target.value)"
         @click="isOpened = !isOpened"
     >
       <option
