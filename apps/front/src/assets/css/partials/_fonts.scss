@@ -1,1 +1,36 @@
+@use "sass:map";
+
+// Inter
+@font-face {
+  font-family: 'Inter';
+  src:
+    url('../fonts/Inter/Inter.woff2') format('woff2 supports variations'),
+    url('../fonts/Inter/Inter.woff2') format('woff2-variations');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src:
+    url('../fonts/Inter/Inter-Italic.woff2') format('woff2 supports variations'),
+    url('../fonts/Inter/Inter-Italic.woff2') format('woff2-variations');
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+$inter: 'Inter', sans-serif;
+
+// Lilita One
+@font-face {
+  font-family: 'Lilita One';
+  src: url('../fonts/Lilita-One/Lilita-One.woff2') format('woff2');
+  font-style: normal;
+  font-display: swap;
+}
+
+$lilita-one: 'Lilita One', cursive;
+
 $hidden: 0;

@@ -1,34 +1,34 @@
-@use "fonts" as fonts;
+@use "fonts";
 
 @mixin font($text-type) {
   @if($text-type == 'xxl title') {
-    font-family: "Lilita One", cursive;
+    font-family: fonts.$lilita-one;
     font-size: 3rem; // 48px
     text-transform: uppercase;
   } @else if($text-type == 'xl title') {
-    font-family: "Lilita One", cursive;
+    font-family: fonts.$lilita-one;
     font-size: 2rem; // 32px
     text-transform: uppercase;
   } @else if($text-type == 'title') {
-    font-family: "Lilita One", cursive;
+    font-family: fonts.$lilita-one;
     font-size: 1.5rem; // 24px
     text-transform: uppercase;
   } @else if($text-type == 'small title') {
-    font-family: "Lilita One", cursive;
+    font-family: fonts.$lilita-one;
     font-size: 1.25rem; // 20px
     text-transform: uppercase;
   } @else if($text-type == 'input') {
-    font-family: "Lilita One", cursive;
+    font-family: fonts.$lilita-one;
     font-size: 1.5rem; // 24px
   } @else if($text-type == 'footer') {
-    font-family: "Lilita One", cursive;
+    font-family: fonts.$lilita-one;
     font-size: 1rem; // 16px
     text-transform: uppercase;
   } @else if($text-type == 'username') {
-    font-family: "Lilita One", cursive;
+    font-family: fonts.$lilita-one;
     font-size: 1rem; // 16px
   }  @else if($text-type == 'text') {
-    font-family: "Inter", sans-serif;
+    font-family: fonts.$inter;
     font-weight: 600;
     font-size: 0.938rem; // 15px
   }
