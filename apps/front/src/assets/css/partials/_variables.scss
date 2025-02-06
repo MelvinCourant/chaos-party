@@ -50,6 +50,7 @@ $box-shadows: (
   "shadow": 0 4px 4px rgba(26, 18, 15, 0.25),
   "3d-shadow": 0 4px 4px var(--black),
   "avatar-shadow": 0 5px 0 0 var(--text),
+  "icon-shadow": drop-shadow(0 2px 0 var(--black))
 );
 
 $radius: (

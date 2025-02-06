@@ -27,10 +27,7 @@ defineEmits(['input']);
   <input
     type="range"
     class="range"
-    :min="attributes.min"
-    :max="attributes.max"
-    :step="attributes.step"
-    :value="attributes.value"
+    v-bind="attributes"
     :style="`background: ${linearGradient};`"
     @input="$emit('input', $event.target.value)"
   />

@@ -7,6 +7,10 @@ const router = createRouter({
     {
       path: "/",
       component: Home,
+    },
+    {
+      path: "/:id",
+      component: Home,
     }
   ],
 });

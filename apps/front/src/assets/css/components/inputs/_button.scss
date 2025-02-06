@@ -27,7 +27,11 @@
   &__input {
     position: relative;
     z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 15px;
     height: 50px;
+    @include mixins.font('small title');
     transition: 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
   }
 
@@ -39,10 +43,18 @@
     }
   }
 
+  &--primary {
+    .button {
+      &__input {
+        @include mixins.resetButton(var(--input-black-border), var(--blue));
+      }
+    }
+  }
+
   &:not(&--rounded) {
     .button {
       &__input {
-        padding: 9px 20px;
+        padding: 0 20px;
         border-radius: var(--card-radius);
       }
     }
@@ -57,6 +69,7 @@
       }
 
       &__input {
+        justify-content: center;
         width: 50px;
         padding: 0;
         border-radius: 50%;
