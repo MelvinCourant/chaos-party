@@ -1,8 +1,29 @@
 {
   "create_party": "Créer la partie",
   "choose_pseudo": "Choisis un pseudo",
+  "how_to_play": "Comment on joue",
   "join_party": "Rejoindre la partie",
   "legal_notices": "Mentions légales",
   "melvin_role": "Fondateur, designer et développeur du jeu",
-  "settings": "Paramètres"
+  "settings": "Paramètres",
+  "tutorial_1": {
+    "title": "Votre mission si vous l’acceptez",
+    "description": "Chaque équipe recevra un dessin à réaliser en coopération (une voiture futuriste, un animal légendaire...etc)"
+  },
+  "tutorial_2": {
+    "title": "Accomplissez vos objectifs",
+    "description": "Vous aurez un objectif secret à accomplir (intègre un détail loufoque, rajoute des roues...etc)"
+  },
+  "tutorial_3": {
+    "title": "Attention au sabotage !",
+    "description": "Un saboteur s'est infiltré dans votre équipe pour vous empêcher de réussir votre mission. Débusquez-le!"
+  },
+  "tutorial_4": {
+    "title": "Évaluer vos oeuvres",
+    "description": "Notez les dessins des autres équipes sur le respect de la mission, la créativité, les objectifs cachés et le niveau de sabotage"
+  },
+  "tutorial_5": {
+    "title": "Trouver l’imposteur !",
+    "description": "Votez pour le joueur qui a saboté la mission pour gagner des points bonus, attention à ne pas vous tromper !"
+  }
 }

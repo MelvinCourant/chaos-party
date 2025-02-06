@@ -1,8 +1,29 @@
 {
   "create_party": "Create party",
   "choose_pseudo": "Choose a pseudo",
+  "how_to_play": "How to play",
   "join_party": "Join party",
   "legal_notices": "Legal notices",
   "melvin_role": "Founder, designer and developer of the game",
-  "settings": "Settings"
+  "settings": "Settings",
+  "tutorial_1": {
+    "title": "Your mission if you accept it",
+    "description": "Each team will be given a drawing to work on together (a futuristic car, a legendary animal, etc.)."
+  },
+  "tutorial_2": {
+    "title": "Achieve your goals",
+    "description": "You will have a secret goal to achieve (integrate a wacky detail, add wheels, etc.)."
+  },
+  "tutorial_3": {
+    "title": "Beware of sabotage!",
+    "description": "A saboteur has infiltrated your team to prevent you from completing your mission. Unmask him!"
+  },
+  "tutorial_4": {
+    "title": "Evaluate your works",
+    "description": "Rate the drawings of the other teams on the respect of the mission, creativity, hidden objectives and the level of sabotage."
+  },
+  "tutorial_5": {
+    "title": "Find the impostor!",
+    "description": "Vote for the player who sabotaged the mission to earn bonus points, be careful not to make a mistake!"
+  }
 }

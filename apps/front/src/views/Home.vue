@@ -2,6 +2,7 @@
 import "../assets/css/views/_home.scss";
 import Footer from "../components/layouts/Footer.vue";
 import PlayerPanel from "../components/home/PlayerPanel.vue";
+import Tutorial from "../components/home/Tutorial.vue";
 </script>
 
 <template>
@@ -14,6 +15,7 @@ import PlayerPanel from "../components/home/PlayerPanel.vue";
     />
     <div class="home__onboarding">
       <PlayerPanel />
+      <Tutorial />
     </div>
   </main>
   <Footer />

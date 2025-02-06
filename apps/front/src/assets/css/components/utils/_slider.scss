@@ -1,0 +1,62 @@
+@use "../../partials/mixins";
+
+.slider {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 370px;
+  overflow: hidden;
+
+  .slide {
+    color: var(--text);
+    transition: opacity 0.5s;
+
+    &:not(&--active) {
+      opacity: 0;
+      pointer-events: none;
+      height: 0;
+    }
+
+    &__image {
+      width: 200px;
+      height: 200px;
+      margin-bottom: 16px;
+    }
+
+    &__title,
+    &__description {
+      text-align: center;
+    }
+
+    &__title {
+      @include mixins.font('small title');
+      max-width: 250px;
+      margin: 0 auto 8px;
+    }
+
+    &__description {
+      @include mixins.font('text');
+    }
+  }
+
+  .dots {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .dot {
+    &:not(&--active) {
+      .dot__button {
+        background: var(--white-transparent-30);
+      }
+    }
+
+    &__button {
+      @include mixins.resetButton(none, var(--text));
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
