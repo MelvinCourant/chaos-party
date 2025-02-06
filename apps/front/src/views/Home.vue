@@ -3,6 +3,10 @@ import "../assets/css/views/_home.scss";
 import Footer from "../components/layouts/Footer.vue";
 import PlayerPanel from "../components/home/PlayerPanel.vue";
 import Tutorial from "../components/home/Tutorial.vue";
+import { io } from "socket.io-client";
+const env = import.meta.env;
+
+io(env.VITE_URL);
 </script>
 
 <template>
