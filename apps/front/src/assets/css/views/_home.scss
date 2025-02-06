@@ -4,6 +4,12 @@
   height: 100vh;
   padding: 40px 70px;
   background: var(--gradient-orange-red);
+
+  @media screen and (max-width: 992px) {
+    padding: 40px 20px;
+    height: fit-content;
+    gap: 40px;
+  }
 }
 
 .home {
@@ -13,12 +19,24 @@
   gap: 80px;
   flex: 1;
 
+  @media screen and (max-width: 768px) {
+    gap: 40px;
+  }
+
   &__logo {
     width: 350px;
+
+    @media screen and (max-width: 768px) {
+      width: 250px;
+    }
   }
 
   &__onboarding {
     display: flex;
     gap: 40px;
+
+    @media screen and (max-width: 992px) {
+      width: 100%;
+    }
   }
 }

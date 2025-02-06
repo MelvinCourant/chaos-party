@@ -8,11 +8,19 @@
   background: var(--black-transparent-10);
   border-radius: var(--card-radius);
 
+  @media screen and (max-width: 992px) {
+    flex: 1;
+  }
+
   &__head {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
+
+    @media screen and (max-width: 768px) {
+      margin-bottom: 20px;
+    }
   }
 
   &__form {
