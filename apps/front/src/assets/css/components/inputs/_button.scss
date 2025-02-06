@@ -1,0 +1,66 @@
+@use '../../partials/mixins';
+
+.button {
+  &__container {
+    position: relative;
+
+    &:after {
+      content: '';
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: var(--card-radius);
+      background: var(--black);
+      transform: translateY(4px);
+    }
+
+    &:hover {
+      .button__input {
+        transform: translateY(4px);
+      }
+    }
+  }
+
+  &__input {
+    position: relative;
+    z-index: 2;
+    height: 50px;
+    transition: 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  }
+
+  &--default {
+    .button {
+      &__input {
+        @include mixins.resetButton(var(--input-black-border), var(--yellow));
+      }
+    }
+  }
+
+  &:not(&--rounded) {
+    .button {
+      &__input {
+        padding: 9px 20px;
+        border-radius: var(--card-radius);
+      }
+    }
+  }
+
+  &--rounded {
+    .button {
+      &__container {
+        &:after {
+          border-radius: 50% !important;
+        }
+      }
+
+      &__input {
+        width: 50px;
+        padding: 0;
+        border-radius: 50%;
+      }
+    }
+  }
+}

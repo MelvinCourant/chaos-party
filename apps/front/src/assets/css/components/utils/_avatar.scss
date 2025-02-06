@@ -1,0 +1,23 @@
+.avatar {
+  &--choice {
+    .avatar {
+      &__container {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 170px;
+        height: 170px;
+        border-radius: 50%;
+        border: var(--avatar-border);
+        box-shadow: var(--avatar-shadow);
+
+        .button {
+          position: absolute;
+          right: 0;
+          bottom: -5px;
+        }
+      }
+    }
+  }
+}

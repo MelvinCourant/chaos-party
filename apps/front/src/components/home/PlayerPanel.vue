@@ -4,6 +4,7 @@ import Select from "../inputs/Select.vue";
 import {reactive} from "vue";
 import { useUserStore } from "../../stores/user.js";
 import Settings from "../inputs/Settings.vue";
+import Avatar from "../utils/Avatar.vue";
 
 const userStore = useUserStore();
 const selectOptions = reactive([
@@ -56,6 +57,9 @@ function updateLanguage(value) {
       </form>
 
       <Settings />
+    </div>
+    <div class="player-planel__body">
+      <Avatar type="choice"/>
     </div>
   </div>
 </template>
