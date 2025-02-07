@@ -8,12 +8,18 @@
 */
 
 import router from '@adonisjs/core/services/router'
-import PartiesController from "#controllers/parties_controller";
+import PartiesController from '#controllers/parties_controller'
 
-router.group(() => {
-  const partiesController = new PartiesController()
+router
+  .group(() => {
+    const partiesController = new PartiesController()
 
-  router.post('/create-party', async (data) => {
-    return partiesController.create(data)
+    router.post('/create-party', async (data) => {
+      return partiesController.create(data)
+    })
+
+    router.post('/join-party', async (data) => {
+      return partiesController.join(data)
+    })
   })
-}).prefix('api/parties')
+  .prefix('api/parties')

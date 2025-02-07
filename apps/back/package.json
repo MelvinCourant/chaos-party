@@ -30,7 +30,7 @@
     "#start/*": "./start/*.js",
     "#tests/*": "./tests/*.js",
     "#config/*": "./config/*.js",
-    "#ressources/*" :  "./app/ressources/*.js"
+    "#ressources/*": "./app/ressources/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^7.8.2",
@@ -55,6 +55,7 @@
     "@adonisjs/auth": "^9.2.4",
     "@adonisjs/core": "^6.17.0",
     "@adonisjs/cors": "^2.2.1",
+    "@adonisjs/i18n": "^2.2.0",
     "@adonisjs/lucid": "^21.5.1",
     "@vinejs/vine": "^3.0.0",
     "luxon": "^3.5.0",
