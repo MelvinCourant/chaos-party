@@ -20,9 +20,16 @@ const route = useRoute();
 const router = useRouter();
 const partyId = route.params.id;
 const players = ref([]);
+const linkCopied = ref(false);
 
 function copyLink() {
   navigator.clipboard.writeText(window.location.href.replace("/lobby", ""));
+
+  linkCopied.value = true;
+
+  setTimeout(() => {
+    linkCopied.value = false;
+  }, 2000);
 }
 
 async function getParty() {
@@ -45,6 +52,7 @@ async function getParty() {
 
 onMounted(() => {
   getParty();
+
   socket.on("join", (player) => {
     players.value.push(player);
   });
@@ -58,11 +66,17 @@ onMounted(() => {
       :players="players"
     />
     <Settings />
-    <div class="lobby__copy-link">
+    <div class="copy-link">
       <Button @click="copyLink">
         <Icon icon="link" type="button" />
         {{ t("copy_link") }}
       </Button>
+      <p
+        class="copy-link__text"
+        v-show="linkCopied"
+      >
+        {{ t("link_copied_clipboard") }}
+      </p>
     </div>
   </main>
 </template>
