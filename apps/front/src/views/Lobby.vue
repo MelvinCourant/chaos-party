@@ -56,6 +56,10 @@ onMounted(() => {
   socket.on("join", (player) => {
     players.value.push(player);
   });
+
+  socket.on("leave", (player) => {
+    players.value = players.value.filter((p) => p.id !== player.id);
+  });
 });
 </script>
 

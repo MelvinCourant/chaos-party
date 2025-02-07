@@ -2,49 +2,47 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { randomUUID } from 'node:crypto'
 import Ws from '#services/Ws'
 import { createPartyValidator, joinPartyValidator } from '#validators/party'
-let players: {
-  id: `${string}-${string}-${string}-${string}-${string}`
-  pseudo: string
-  image: string | null
-  role: string
-}[] = []
+import User from '#models/user'
+import Party from "#models/party";
 
 export default class PartiesController {
   public async create({ request, response }: HttpContext) {
     const payload = await request.validateUsing(createPartyValidator)
     const pseudo = payload.pseudo
     const image = payload.image
-    const user = {
-      id: randomUUID(),
-      pseudo: pseudo,
-      image: image,
-      role: 'host',
-    }
-    const party = {
-      id: randomUUID(),
-      user: user,
-    }
+
+    const party = await Party.create({
+      drawTime: 3,
+      voteTime: 1,
+      defilement: 'auto',
+    })
+    let user = {}
 
     const socket = Ws.sockets.values().next().value
     if (socket) {
       socket.join(party.id)
-      players.push(user)
+
+      user = await User.create({
+        socketId: socket.id,
+        pseudo: pseudo,
+        image: image,
+        partyId: party.id,
+        role: 'host',
+      })
     }
 
-    return response.json(party)
+    return response.json({
+      id: party.id,
+      user: user,
+    })
   }
 
   public async join({ i18n, request, response }: HttpContext) {
     const payload = await request.validateUsing(joinPartyValidator)
     const pseudo = payload.pseudo
     const image = payload.image
-    const user = {
-      id: randomUUID(),
-      pseudo: pseudo,
-      image: image,
-      role: 'player',
-    }
     const partyId = payload.partyId
+    let user = {}
 
     const socket = Ws.sockets.values().next().value
     if (socket) {
@@ -53,7 +51,15 @@ export default class PartiesController {
       }
 
       socket.join(partyId)
-      players.push(user)
+
+      user = await User.create({
+        socketId: socket.id,
+        pseudo: pseudo,
+        image: image,
+        partyId: partyId,
+        role: 'host',
+      })
+
       Ws?.io?.to(partyId).emit('join', user)
     }
 
@@ -74,6 +80,8 @@ export default class PartiesController {
     } else if (!Ws.io?.sockets.adapter.rooms.get(partyId).has(socket.id)) {
       return response.status(403).json({ message: i18n.t('forbidden') })
     }
+
+    const players = await User.query().where('partyId', partyId).exec()
 
     return response.json({ players: players })
   }
