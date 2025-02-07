@@ -12,6 +12,7 @@ export default class PartiesController {
       id: randomUUID(),
       pseudo: pseudo,
       image: image,
+      host: true,
     }
     const party = {
       id: randomUUID(),

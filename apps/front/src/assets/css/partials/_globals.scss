@@ -41,5 +41,15 @@ html {
       font-size: fonts.$hidden;
       position: absolute;
     }
+
+    main {
+      position: relative;
+      min-height: 100vh;
+      width: 100%;
+
+      &:not(.home) {
+        padding: 120px 220px 120px 19.27%;
+      }
+    }
   }
 }

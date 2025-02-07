@@ -1,0 +1,11 @@
+.lobby {
+  display: flex;
+  gap: 40px;
+  background: var(--orange-red-gradient);
+
+  .settings {
+    position: absolute;
+    top: 120px;
+    right: 120px;
+  }
+}

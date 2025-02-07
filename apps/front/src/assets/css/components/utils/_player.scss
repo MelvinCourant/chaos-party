@@ -1,0 +1,95 @@
+@use '../../partials/mixins';
+
+.player {
+  border: var(--player-transparent-border);
+  overflow: hidden;
+  border-radius: 60px;
+
+  &__container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 60px;
+    padding: 10px 25px 10px 10px;
+  }
+
+  &__profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .avatar {
+    &__container {
+      border: var(--avatar-orange-border);
+    }
+  }
+
+  &__pseudo {
+    @include mixins.font('input');
+  }
+
+  &__host {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: var(--dark-orange);
+  }
+
+  &:not(&--you):not(&--empty) {
+    .player {
+      &__container {
+        background: var(--orange);
+      }
+    }
+  }
+
+  &:not(&--you) {
+    .player {
+      &__pseudo {
+        color: var(--text);
+      }
+
+      &__host {
+        svg {
+          path {
+            fill: var(--orange);
+            stroke: var(--orange);
+          }
+        }
+      }
+    }
+  }
+
+  &--you {
+    .player {
+      &__container {
+        background: var(--light-orange);
+      }
+
+      &__host {
+        svg {
+          path {
+            fill: var(--light-orange);
+            stroke: var(--light-orange);
+          }
+        }
+      }
+    }
+  }
+
+  &--empty {
+    .player {
+      &__container {
+        background: var(--black-transparent-10);
+      }
+
+      &__pseudo {
+        opacity: 0.5;
+      }
+    }
+  }
+}

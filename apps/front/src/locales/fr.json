@@ -1,10 +1,12 @@
 {
   "create_party": "Créer la partie",
   "choose_pseudo": "Choisis un pseudo",
+  "empty": "Vide",
   "how_to_play": "Comment on joue",
   "join_party": "Rejoindre la partie",
   "legal_notices": "Mentions légales",
   "melvin_role": "Fondateur, designer et développeur du jeu",
+  "players": "Joueurs",
   "settings": "Paramètres",
   "tutorial_1": {
     "title": "Votre mission si vous l’acceptez",

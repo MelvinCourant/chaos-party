@@ -68,6 +68,6 @@ async function joinParty() {
       />
       <Tutorial />
     </div>
+    <Footer />
   </main>
-  <Footer />
 </template>

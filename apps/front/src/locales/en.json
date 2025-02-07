@@ -1,10 +1,12 @@
 {
   "create_party": "Create party",
   "choose_pseudo": "Choose a pseudo",
+  "empty": "Empty",
   "how_to_play": "How to play",
   "join_party": "Join party",
   "legal_notices": "Legal notices",
   "melvin_role": "Founder, designer and developer of the game",
+  "players": "Players",
   "settings": "Settings",
   "tutorial_1": {
     "title": "Your mission if you accept it",

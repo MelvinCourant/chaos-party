@@ -30,7 +30,7 @@
     font-size: 1rem; // 16px
     font-weight: 400;
     text-transform: uppercase;
-  } @else if($text-type == 'username') {
+  } @else if($text-type == 'pseudo') {
     font-family: fonts.$lilita-one;
     font-weight: 400;
     font-size: 1rem; // 16px
