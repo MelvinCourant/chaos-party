@@ -3,7 +3,6 @@ import "../assets/css/views/_home.scss";
 import Footer from "../components/layouts/Footer.vue";
 import PlayerPanel from "../components/home/PlayerPanel.vue";
 import Tutorial from "../components/home/Tutorial.vue";
-import { io } from "socket.io-client";
 import {useRoute, useRouter} from "vue-router";
 import {ref} from "vue";
 import { useUserStore } from "../stores/user.js";
@@ -18,12 +17,11 @@ const userStore = useUserStore();
 const partyStore = usePartyStore();
 const formValues = ref({});
 
-io(env.VITE_URL);
-
 function saveValues(values) {
   formValues.value = values;
 
   if(id) {
+    formValues.value.partyId = id;
     joinParty(formValues.value);
   } else {
     createParty(formValues.value);
@@ -42,16 +40,30 @@ async function createParty() {
 
   if (response.ok) {
     const party = await response.json();
-    const user = party.players[0];
 
-    userStore.updateUser(user);
+    userStore.updateUser(party.user);
     partyStore.updatePartyId(party.id);
     await router.push({ path: '/lobby', params: { id: party.id } });
   }
 }
 
 async function joinParty() {
-  console.log("join party");
+  const response = await fetch(`${env.VITE_URL}/api/parties/join-party`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Language": userStore.language,
+    },
+    body: JSON.stringify(formValues.value),
+  });
+
+  if (response.ok) {
+    const party = await response.json();
+
+    userStore.updateUser(party.user);
+    partyStore.updatePartyId(party.id);
+    await router.push({ path: '/lobby', params: { id: party.id } });
+  }
 }
 </script>
 

@@ -9,7 +9,7 @@ export default class PartiesController {
     const payload = await request.validateUsing(createPartyValidator)
     const pseudo = payload.pseudo
     const image = payload.image
-    const player = {
+    const user = {
       id: randomUUID(),
       pseudo: pseudo,
       image: image,
@@ -17,7 +17,7 @@ export default class PartiesController {
     }
     const party = {
       id: randomUUID(),
-      players: [player],
+      user: user,
     }
 
     const socket = Ws.sockets.values().next().value
@@ -32,7 +32,7 @@ export default class PartiesController {
     const payload = await request.validateUsing(joinPartyValidator)
     const pseudo = payload.pseudo
     const image = payload.image
-    const player = {
+    const user = {
       id: randomUUID(),
       pseudo: pseudo,
       image: image,
@@ -48,9 +48,14 @@ export default class PartiesController {
       }
 
       socket.join(partyId)
-      Ws?.io?.to(partyId).emit('join', player)
+      Ws?.io?.to(partyId).emit('join', user)
     }
 
-    return response.json(player)
+    const party = {
+      id: partyId,
+      user: user,
+    }
+
+    return response.json(party)
   }
 }

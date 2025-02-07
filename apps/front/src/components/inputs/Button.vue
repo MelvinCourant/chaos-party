@@ -15,6 +15,8 @@ defineProps({
     default: ''
   }
 })
+
+defineEmits(['click'])
 </script>
 
 <template>
@@ -28,6 +30,7 @@ defineProps({
     <div class="button__container">
       <button
         class="button__input"
+        @click="$emit('click')"
       >
         <slot></slot>
         {{ text }}
