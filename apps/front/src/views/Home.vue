@@ -14,11 +14,16 @@ const params = route.params;
 const id = params.id;
 const router = useRouter();
 const userStore = useUserStore();
+const user = userStore.user;
 const partyStore = usePartyStore();
 const formValues = ref({});
 
 function saveValues(values) {
   formValues.value = values;
+
+  if(user.id) {
+    formValues.value.userId = user.id;
+  }
 
   if(id) {
     formValues.value.partyId = id;
