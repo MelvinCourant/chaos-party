@@ -11,6 +11,8 @@ defineProps({
     required: true
   },
 });
+
+defineEmits(["updateValue"]);
 </script>
 
 <template>
@@ -24,6 +26,8 @@ defineProps({
     <input
       v-bind="attributes"
       class="field__input"
+      v-model="attributes.value"
+      @input="$emit('updateValue', $event.target.value)"
     />
   </div>
 </template>

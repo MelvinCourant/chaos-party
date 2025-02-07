@@ -11,6 +11,8 @@ import Field from "../inputs/Field.vue";
 import Button from "../inputs/Button.vue";
 import Icon from "../utils/Icon.vue";
 
+defineEmits(["submitPlayer"]);
+
 const userStore = useUserStore();
 const route = useRoute();
 const params = route.params;
@@ -37,6 +39,10 @@ const pseudoInputAttributes = {
 const partyButton = reactive({
   "icon": "play",
   "text": t('create_party')
+});
+const formValues = reactive({
+  "pseudo": userStore.pseudo || "",
+  "image": ""
 });
 
 if(id) {
@@ -80,11 +86,15 @@ function updateLanguage(value) {
 
       <Settings />
     </div>
-    <form class="player-planel__form">
+    <form
+      class="player-planel__form"
+      @submit.prevent="$emit('submitPlayer', formValues)"
+    >
       <Avatar type="choice"/>
       <Field
         :label="t('choose_pseudo')"
         :attributes="pseudoInputAttributes"
+        @updateValue="formValues.pseudo = $event"
       />
       <Button
         type="primary"
