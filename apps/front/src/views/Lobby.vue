@@ -9,26 +9,42 @@ import Button from "../components/inputs/Button.vue";
 import { useI18n } from "vue-i18n";
 import Icon from "../components/utils/Icon.vue";
 import { useSocketStore } from "../stores/socket.js";
+import { useRoute, useRouter } from "vue-router";
 
+const env = import.meta.env;
 const { socket } = useSocketStore();
 const { t } = useI18n();
 const userStore = useUserStore();
 const partyStore = usePartyStore();
-const user = userStore.user;
-const players = ref([
-  {
-    id: user.id,
-    pseudo: user.pseudo,
-    role: "host",
-    image: "",
-  }
-]);
+const route = useRoute();
+const router = useRouter();
+const partyId = route.params.id;
+const players = ref([]);
 
 function copyLink() {
-  navigator.clipboard.writeText(window.location.href.replace("lobby", partyStore.partyId));
+  navigator.clipboard.writeText(window.location.href.replace("/lobby", ""));
+}
+
+async function getParty() {
+  const response = await fetch(`${env.VITE_URL}/api/parties/party-details/${partyId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Language": userStore.language,
+    }
+  });
+
+  if (response.ok) {
+    const party = await response.json();
+    partyStore.updatePartyId(party.id);
+    players.value = party.players;
+  } else {
+    await router.push({ path: '/' });
+  }
 }
 
 onMounted(() => {
+  getParty();
   socket.on("join", (player) => {
     players.value.push(player);
   });

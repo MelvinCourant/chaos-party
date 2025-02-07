@@ -21,5 +21,9 @@ router
     router.post('/join-party', async (data) => {
       return partiesController.join(data)
     })
+
+    router.get('/party-details/:id', async (data) => {
+      return partiesController.show(data)
+    })
   })
   .prefix('api/parties')

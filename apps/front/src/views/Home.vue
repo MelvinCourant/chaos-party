@@ -43,7 +43,7 @@ async function createParty() {
 
     userStore.updateUser(party.user);
     partyStore.updatePartyId(party.id);
-    await router.push({ path: '/lobby', params: { id: party.id } });
+    await router.push({ path: `/lobby/${party.id}` });
   }
 }
 
@@ -62,7 +62,7 @@ async function joinParty() {
 
     userStore.updateUser(party.user);
     partyStore.updatePartyId(party.id);
-    await router.push({ path: '/lobby', params: { id: party.id } });
+    await router.push({ path: `/lobby/${party.id}` });
   }
 }
 </script>
