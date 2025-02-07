@@ -33,12 +33,16 @@ function copyLink() {
 }
 
 async function getParty() {
-  const response = await fetch(`${env.VITE_URL}/api/parties/party-details/${partyId}`, {
-    method: "GET",
+  const response = await fetch(`${env.VITE_URL}/api/parties/party-details`, {
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Accept-Language": userStore.language,
-    }
+    },
+    body: JSON.stringify({
+      partyId: partyId,
+      socketId: socket.id,
+    }),
   });
 
   if (response.ok) {

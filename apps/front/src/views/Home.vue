@@ -7,6 +7,7 @@ import {useRoute, useRouter} from "vue-router";
 import {ref} from "vue";
 import { useUserStore } from "../stores/user.js";
 import { usePartyStore } from "../stores/party.js";
+import { useSocketStore } from "../stores/socket.js";
 
 const env = import.meta.env;
 const route = useRoute();
@@ -16,17 +17,16 @@ const router = useRouter();
 const userStore = useUserStore();
 const user = userStore.user;
 const partyStore = usePartyStore();
+const { socket } = useSocketStore();
 const formValues = ref({});
 
 function saveValues(values) {
   formValues.value = values;
-
-  if(user.id) {
-    formValues.value.userId = user.id;
-  }
+  formValues.value.userId = user.id;
 
   if(id) {
     formValues.value.partyId = id;
+    formValues.value.socketId = socket.id;
     joinParty(formValues.value);
   } else {
     createParty(formValues.value);

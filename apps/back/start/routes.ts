@@ -22,7 +22,7 @@ router
       return partiesController.join(data)
     })
 
-    router.get('/party-details/:id', async (data) => {
+    router.post('/party-details', async (data) => {
       return partiesController.show(data)
     })
   })
