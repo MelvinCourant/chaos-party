@@ -1,6 +1,7 @@
 <script setup>
 import '../../assets/css/components/lobby/_mode.scss';
 import {inject} from "vue";
+import {useUserStore} from "../../stores/user.js";
 
 defineProps({
   mode: {
@@ -9,12 +10,21 @@ defineProps({
   },
 });
 
-defineEmits(["selectMode"]);
+const emit = defineEmits(["selectMode"]);
 
 const modeSelected = inject("modeSelected");
+const hostId = inject("hostId");
+const userStore = useUserStore();
+const user = userStore.user;
 
 function getImageUrl(mode, format) {
   return new URL(`../../assets/imgs/modes/${mode.image}.${format}`, import.meta.url).href;
+}
+
+function modeIsSelectable(modeId) {
+  if (hostId.value === user.id && modeSelected.value !== modeId) {
+    emit("selectMode", modeId);
+  }
 }
 </script>
 
@@ -27,7 +37,7 @@ function getImageUrl(mode, format) {
   >
     <button
       class="mode__card"
-      @click="$emit('selectMode', mode.id)"
+      @click="modeIsSelectable(mode.id)"
     >
       <div class="mode__card-container">
         <div class="mode__image-container">

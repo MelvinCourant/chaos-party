@@ -15,5 +15,6 @@
       "description": "Chaque joueur reçoit un mot à dessiner, mais un joueur aura un mot différent. Saurez-vous le démasquer ?"
     }
   },
+  "mode_updated": "Mode mis à jour",
   "party_not_found": "Partie introuvable"
 }

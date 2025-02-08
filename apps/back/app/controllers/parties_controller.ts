@@ -1,13 +1,18 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Ws from '#services/Ws'
-import { createPartyValidator, joinPartyValidator, showPartyValidator } from '#validators/party'
+import {
+  createPartyValidator,
+  joinPartyValidator,
+  showPartyValidator,
+  updateModeValidator,
+} from '#validators/party'
 import User from '#models/user'
 import Party from '#models/party'
 
 export default class PartiesController {
   public async create({ request, response }: HttpContext) {
     const payload = await request.validateUsing(createPartyValidator)
-    const userId = payload.userId
+    const userId = payload.user_id
     const pseudo = payload.pseudo
     const image = payload.image
 
@@ -57,7 +62,7 @@ export default class PartiesController {
 
   public async join({ i18n, request, response }: HttpContext) {
     const payload = await request.validateUsing(joinPartyValidator)
-    const userId = payload.userId
+    const userId = payload.user_id
     const pseudo = payload.pseudo
     const image = payload.image
     const partyId = payload.party_id
@@ -122,15 +127,43 @@ export default class PartiesController {
 
     if (!Ws.io?.sockets.adapter.rooms.has(partyId)) {
       return response.status(404).json({ message: i18n.t('messages.party_not_found') })
-    } else if (!Ws.io?.sockets.adapter.rooms.get(partyId).has(socketId)) {
-      return response.status(403).json({ message: i18n.t('messages.forbidden') })
+    } else {
+      // @ts-ignore
+      if (!Ws.io?.sockets.adapter.rooms.get(partyId).has(socketId)) {
+        return response.status(403).json({ message: i18n.t('messages.forbidden') })
+      }
     }
+
+    const party = await Party.findOrFail(partyId)
 
     const players = await User.query()
       .where('party_id', partyId)
       .orderBy('updated_at', 'asc')
       .exec()
 
-    return response.json({ players: players })
+    return response.json({
+      players: players,
+      mode_id: party.mode_id,
+    })
+  }
+
+  public async updateMode({ i18n, request, response }: HttpContext) {
+    const payload = await request.validateUsing(updateModeValidator)
+    const userId = payload.user_id
+    const partyId = payload.party_id
+    const modeId = payload.mode_id
+
+    const user = await User.query().where('id', userId).select('role').firstOrFail()
+    const party = await Party.findOrFail(partyId)
+
+    if (user.role !== 'host' || party.mode_id === modeId) {
+      return response.status(403).json({ message: i18n.t('messages.forbidden') })
+    }
+
+    party.mode_id = modeId
+    await party.save()
+    Ws?.io?.to(partyId).emit('update-mode', modeId)
+
+    return response.json({ message: i18n.t('messages.mode_updated') })
   }
 }

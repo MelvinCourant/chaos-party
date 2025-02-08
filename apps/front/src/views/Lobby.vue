@@ -15,15 +15,18 @@ const env = import.meta.env;
 const { socket } = useSocketStore();
 const { t } = useI18n();
 const userStore = useUserStore();
+const user = userStore.user;
 const route = useRoute();
 const router = useRouter();
 const partyId = route.params.id;
 const players = ref([]);
+const hostId = ref(null);
 const modes = ref([]);
 const modeSelected = ref(null);
 const linkCopied = ref(false);
 
 provide("modeSelected", modeSelected);
+provide("hostId", hostId);
 
 function copyLink() {
   navigator.clipboard.writeText(window.location.href.replace("/lobby", ""));
@@ -52,6 +55,9 @@ async function getParty() {
     const party = await response.json();
     players.value = party.players;
     modeSelected.value = party.mode_id;
+
+    const host = party.players.find((player) => player.role === "host");
+    hostId.value = host.id;
   } else {
     await router.push({ path: '/' });
   }
@@ -69,6 +75,23 @@ async function getModes() {
   if (response.ok) {
     modes.value = await response.json();
   }
+}
+
+async function updateMode(modeId) {
+  modeSelected.value = modeId;
+
+  await fetch(`${env.VITE_URL}/api/parties/update-mode`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Language": userStore.language,
+    },
+    body: JSON.stringify({
+      user_id: user.id,
+      party_id: partyId,
+      mode_id: modeId,
+    }),
+  });
 }
 
 onMounted(() => {
@@ -89,6 +112,12 @@ onMounted(() => {
         player.role = "host";
       }
     });
+
+    hostId.value = host.id;
+  });
+
+  socket.on("update-mode", (modeId) => {
+    modeSelected.value = modeId;
   });
 });
 </script>
@@ -103,7 +132,7 @@ onMounted(() => {
     <div class="party">
       <Modes
         :modes="modes"
-        @selectMode="modeSelected = $event"
+        @selectMode="updateMode($event)"
       />
       <div class="party__actions">
         <div class="copy-link">

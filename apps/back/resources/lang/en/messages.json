@@ -15,5 +15,6 @@
       "description": "Each player is given a word to draw, but one player will have a different word. Can you spot it?"
     }
   },
+  "mode_updated": "Mode updated",
   "party_not_found": "Party not found"
 }

@@ -22,7 +22,7 @@ const formValues = ref({});
 
 function saveValues(values) {
   formValues.value = values;
-  formValues.value.userId = user.id;
+  formValues.value.user_id = user.id;
 
   if(id) {
     formValues.value.party_id = id;
