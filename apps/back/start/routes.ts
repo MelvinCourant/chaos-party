@@ -9,6 +9,7 @@
 
 import router from '@adonisjs/core/services/router'
 import PartiesController from '#controllers/parties_controller'
+import ModesController from '#controllers/modes_controller'
 
 router
   .group(() => {
@@ -27,3 +28,13 @@ router
     })
   })
   .prefix('api/parties')
+
+router
+  .group(() => {
+    const modesController = new ModesController()
+
+    router.get('/', async (data) => {
+      return modesController.index(data)
+    })
+  })
+  .prefix('api/modes')

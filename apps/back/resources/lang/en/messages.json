@@ -1,5 +1,19 @@
 {
   "forbidden": "Forbidden",
   "maximum_players_reached": "Maximum number of players reached",
+  "modes": {
+    "chaos": {
+      "name": "Chaos",
+      "description": "Draw as a team to achieve secret objectives, but beware: a saboteur is hiding among you!"
+    },
+    "total_chaos": {
+      "name": "Total Chaos",
+      "description": "You will take it in turns to draw an element of a collective creation, starting from the one you drew earlier."
+    },
+    "undercover": {
+      "name": "Undercover",
+      "description": "Each player is given a word to draw, but one player will have a different word. Can you spot it?"
+    }
+  },
   "party_not_found": "Party not found"
 }
