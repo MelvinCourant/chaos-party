@@ -2,7 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Ws from '#services/Ws'
 import { createPartyValidator, joinPartyValidator, showPartyValidator } from '#validators/party'
 import User from '#models/user'
-import Party from "#models/party";
+import Party from '#models/party'
 
 export default class PartiesController {
   public async create({ request, response }: HttpContext) {
@@ -21,7 +21,7 @@ export default class PartiesController {
     if (socket) {
       socket.join(party.id)
 
-      if(userId) {
+      if (userId) {
         const userExist = await User.find(userId)
 
         if (userExist) {
@@ -64,13 +64,20 @@ export default class PartiesController {
 
     const socket = Ws.sockets.get(socketId)
     if (socket) {
-      if (!Ws.io?.sockets.adapter.rooms.has(partyId)) {
+      const party = await Party.find(partyId)
+      if (!Ws.io?.sockets.adapter.rooms.has(partyId) || !party) {
         return response.status(404).json({ message: i18n.t('messages.party_not_found') })
+      }
+
+      const playersInParty = await User.query().where('partyId', partyId).select('id')
+
+      if (playersInParty.length === 12) {
+        return response.status(403).json({ message: i18n.t('messages.maximum_players_reached') })
       }
 
       socket.join(partyId)
 
-      if(userId) {
+      if (userId) {
         const userExist = await User.find(userId)
 
         if (userExist) {

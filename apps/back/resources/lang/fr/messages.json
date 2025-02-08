@@ -1,4 +1,5 @@
 {
   "forbidden": "Action non autorisée",
+  "maximum_players_reached": "Nombre maximum de joueurs atteint",
   "party_not_found": "Partie introuvable"
 }

@@ -47,7 +47,6 @@ async function getParty() {
 
   if (response.ok) {
     const party = await response.json();
-    partyStore.updatePartyId(party.id);
     players.value = party.players;
   } else {
     await router.push({ path: '/' });
