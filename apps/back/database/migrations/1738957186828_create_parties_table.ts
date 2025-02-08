@@ -9,6 +9,7 @@ export default class extends BaseSchema {
       table.enu('draw_time', [3, 2, 1]).defaultTo(3)
       table.enu('vote_time', [1.5, 1, 0.5]).defaultTo(1)
       table.enum('defilement', ['auto', 'manual']).defaultTo('auto')
+      table.boolean('in_progress').defaultTo(false)
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

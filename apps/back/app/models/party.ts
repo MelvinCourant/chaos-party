@@ -20,6 +20,9 @@ export default class Party extends BaseModel {
   @column()
   declare defilement: 'auto' | 'manual'
 
+  @column()
+  declare inProgress: boolean
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

@@ -64,6 +64,14 @@ onMounted(() => {
   socket.on("leave", (player) => {
     players.value = players.value.filter((p) => p.id !== player.id);
   });
+
+  socket.on("new-host", (host) => {
+    players.value.forEach((player) => {
+      if (player.id === host.id) {
+        player.role = "host";
+      }
+    });
+  });
 });
 </script>
 

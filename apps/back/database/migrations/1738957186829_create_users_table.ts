@@ -9,7 +9,7 @@ export default class extends BaseSchema {
       table.string('socket_id').notNullable()
       table.string('pseudo').notNullable()
       table.string('image').nullable()
-      table.uuid('party_id').references('id').inTable('parties').onDelete('CASCADE')
+      table.uuid('party_id').nullable()
       table.enum('role', ['host', 'player']).notNullable().defaultTo('player')
 
       table.timestamp('created_at')
