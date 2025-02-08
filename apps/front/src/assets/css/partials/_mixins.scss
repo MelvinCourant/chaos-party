@@ -43,6 +43,6 @@
 
 @mixin resetButton($border, $background) {
   cursor: pointer;
-  background: $background;
   border: $border;
+  background: $background;
 }

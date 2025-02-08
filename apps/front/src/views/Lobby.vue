@@ -2,13 +2,14 @@
 import '../assets/css/views/_lobby.scss';
 import Players from "../components/lobby/Players.vue";
 import Settings from "../components/inputs/Settings.vue";
-import {onMounted, ref} from "vue";
+import {onMounted, ref, provide} from "vue";
 import { useUserStore } from "../stores/user.js";
 import Button from "../components/inputs/Button.vue";
 import { useI18n } from "vue-i18n";
 import Icon from "../components/utils/Icon.vue";
 import { useSocketStore } from "../stores/socket.js";
 import { useRoute, useRouter } from "vue-router";
+import Modes from "../components/lobby/Modes.vue";
 
 const env = import.meta.env;
 const { socket } = useSocketStore();
@@ -18,7 +19,11 @@ const route = useRoute();
 const router = useRouter();
 const partyId = route.params.id;
 const players = ref([]);
+const modes = ref([]);
+const modeSelected = ref(null);
 const linkCopied = ref(false);
+
+provide("modeSelected", modeSelected);
 
 function copyLink() {
   navigator.clipboard.writeText(window.location.href.replace("/lobby", ""));
@@ -46,13 +51,29 @@ async function getParty() {
   if (response.ok) {
     const party = await response.json();
     players.value = party.players;
+    modeSelected.value = party.mode_id;
   } else {
     await router.push({ path: '/' });
   }
 }
 
+async function getModes() {
+  const response = await fetch(`${env.VITE_URL}/api/modes`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Language": userStore.language,
+    },
+  });
+
+  if (response.ok) {
+    modes.value = await response.json();
+  }
+}
+
 onMounted(() => {
   getParty();
+  getModes();
 
   socket.on("join", (player) => {
     players.value.push(player);
@@ -79,17 +100,25 @@ onMounted(() => {
       :players="players"
     />
     <Settings />
-    <div class="copy-link">
-      <Button @click="copyLink">
-        <Icon icon="link" type="button" />
-        {{ t("copy_link") }}
-      </Button>
-      <p
-        class="copy-link__text"
-        v-show="linkCopied"
-      >
-        {{ t("link_copied_clipboard") }}
-      </p>
+    <div class="party">
+      <Modes
+        :modes="modes"
+        @selectMode="modeSelected = $event"
+      />
+      <div class="party__actions">
+        <div class="copy-link">
+          <Button @click="copyLink">
+            <Icon icon="link" type="button" />
+            {{ t("copy_link") }}
+          </Button>
+          <p
+              class="copy-link__text"
+              v-show="linkCopied"
+          >
+            {{ t("link_copied_clipboard") }}
+          </p>
+        </div>
+      </div>
     </div>
   </main>
 </template>

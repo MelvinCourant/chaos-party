@@ -3,7 +3,7 @@ import Mode from '#models/mode'
 
 export default class ModesController {
   public async index({ i18n, response }: HttpContext) {
-    const modes = await Mode.all()
+    const modes = await Mode.query().orderBy('created_at', 'asc')
 
     modes.forEach((mode) => {
       mode.name = i18n.t(`messages.modes.${mode.name}`)

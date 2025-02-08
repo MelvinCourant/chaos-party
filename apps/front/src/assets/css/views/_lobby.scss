@@ -7,8 +7,23 @@
 
   .settings {
     position: absolute;
-    top: 120px;
-    right: 120px;
+    top: 40px;
+    right: 6.25vw;
+  }
+
+  .party {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    flex: 1;
+    max-width: 940px;
+    height: fit-content;
+
+    &__actions {
+      display: flex;
+      gap: 40px;
+    }
   }
 
   .copy-link {
