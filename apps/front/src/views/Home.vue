@@ -25,8 +25,8 @@ function saveValues(values) {
   formValues.value.userId = user.id;
 
   if(id) {
-    formValues.value.partyId = id;
-    formValues.value.socketId = socket.id;
+    formValues.value.party_id = id;
+    formValues.value.socket_id = socket.id;
     joinParty(formValues.value);
   } else {
     createParty(formValues.value);

@@ -1,6 +1,8 @@
 import { DateTime } from 'luxon'
-import {BaseModel, beforeCreate, column} from '@adonisjs/lucid/orm'
-import {v4 as uuidv4} from "uuid";
+import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
+import { v4 as uuidv4 } from 'uuid'
+import Mode from '#models/mode'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 
 export default class Party extends BaseModel {
   @column({ isPrimary: true })
@@ -12,16 +14,22 @@ export default class Party extends BaseModel {
   }
 
   @column()
-  declare drawTime: 3 | 2 | 1
+  declare mode_id: number
 
   @column()
-  declare voteTime: 1.5 | 1 | 0.5
+  declare draw_time: 3 | 2 | 1
+
+  @column()
+  declare vote_time: 1.5 | 1 | 0.5
 
   @column()
   declare defilement: 'auto' | 'manual'
 
   @column()
-  declare inProgress: boolean
+  declare in_progress: boolean
+
+  @belongsTo(() => Mode)
+  declare mode: BelongsTo<typeof Mode>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

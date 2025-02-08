@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import {BaseModel, beforeCreate, column} from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, column } from '@adonisjs/lucid/orm'
 import { v4 as uuidv4 } from 'uuid'
 
 export default class User extends BaseModel {
@@ -12,7 +12,7 @@ export default class User extends BaseModel {
   }
 
   @column()
-  declare socketId: string
+  declare socket_id: string
 
   @column()
   declare pseudo: string
@@ -21,7 +21,7 @@ export default class User extends BaseModel {
   declare image: string | null
 
   @column()
-  declare partyId: string | null
+  declare party_id: string | null
 
   @column()
   declare role: 'host' | 'player'

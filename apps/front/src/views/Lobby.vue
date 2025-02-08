@@ -4,7 +4,6 @@ import Players from "../components/lobby/Players.vue";
 import Settings from "../components/inputs/Settings.vue";
 import {onMounted, ref} from "vue";
 import { useUserStore } from "../stores/user.js";
-import { usePartyStore } from "../stores/party.js";
 import Button from "../components/inputs/Button.vue";
 import { useI18n } from "vue-i18n";
 import Icon from "../components/utils/Icon.vue";
@@ -15,7 +14,6 @@ const env = import.meta.env;
 const { socket } = useSocketStore();
 const { t } = useI18n();
 const userStore = useUserStore();
-const partyStore = usePartyStore();
 const route = useRoute();
 const router = useRouter();
 const partyId = route.params.id;
@@ -40,8 +38,8 @@ async function getParty() {
       "Accept-Language": userStore.language,
     },
     body: JSON.stringify({
-      partyId: partyId,
-      socketId: socket.id,
+      party_id: partyId,
+      socket_id: socket.id,
     }),
   });
 

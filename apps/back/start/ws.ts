@@ -15,24 +15,24 @@ app.ready(() => {
     socket.on('disconnect', async () => {
       console.log(`Déconnexion : ${socket.id}`)
 
-      const disconnectedUser = await User.query().where('socketId', socket.id).first()
+      const disconnectedUser = await User.query().where('socket_id', socket.id).first()
 
       if (disconnectedUser) {
-        disconnectedUser.socketId = ''
+        disconnectedUser.socket_id = ''
 
-        if (disconnectedUser.partyId) {
-          io.to(disconnectedUser.partyId).emit('leave', disconnectedUser)
+        if (disconnectedUser.party_id) {
+          io.to(disconnectedUser.party_id).emit('leave', disconnectedUser)
         }
 
-        const party = await Party.find(disconnectedUser.partyId)
+        const party = await Party.find(disconnectedUser.party_id)
 
-        if (party && !party.inProgress) {
-          disconnectedUser.partyId = ''
+        if (party && !party.in_progress) {
+          disconnectedUser.party_id = ''
         }
 
         if (party && disconnectedUser.role === 'host') {
           const remainingUsers = await User.query()
-            .where('partyId', party.id)
+            .where('party_id', party.id)
             .where('id', '!=', disconnectedUser.id)
 
           if (remainingUsers.length) {

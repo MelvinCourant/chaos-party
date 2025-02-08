@@ -12,8 +12,9 @@ export default class PartiesController {
     const image = payload.image
 
     const party = await Party.create({
-      drawTime: 3,
-      voteTime: 1,
+      mode_id: 1,
+      draw_time: 3,
+      vote_time: 1,
       defilement: 'auto',
     })
 
@@ -25,10 +26,10 @@ export default class PartiesController {
         const userExist = await User.find(userId)
 
         if (userExist) {
-          userExist.socketId = socket.id
+          userExist.socket_id = socket.id
           userExist.pseudo = pseudo
           userExist.image = image
-          userExist.partyId = party.id
+          userExist.party_id = party.id
           userExist.role = 'host'
           await userExist.save()
 
@@ -40,10 +41,10 @@ export default class PartiesController {
       }
 
       const newUser = await User.create({
-        socketId: socket.id,
+        socket_id: socket.id,
         pseudo: pseudo,
         image: image,
-        partyId: party.id,
+        party_id: party.id,
         role: 'host',
       })
 
@@ -59,8 +60,8 @@ export default class PartiesController {
     const userId = payload.userId
     const pseudo = payload.pseudo
     const image = payload.image
-    const partyId = payload.partyId
-    const socketId = payload.socketId
+    const partyId = payload.party_id
+    const socketId = payload.socket_id
 
     const socket = Ws.sockets.get(socketId)
     if (socket) {
@@ -69,7 +70,7 @@ export default class PartiesController {
         return response.status(404).json({ message: i18n.t('messages.party_not_found') })
       }
 
-      const playersInParty = await User.query().where('partyId', partyId).select('id')
+      const playersInParty = await User.query().where('party_id', partyId).select('id')
 
       if (playersInParty.length === 12) {
         return response.status(403).json({ message: i18n.t('messages.maximum_players_reached') })
@@ -81,10 +82,10 @@ export default class PartiesController {
         const userExist = await User.find(userId)
 
         if (userExist) {
-          userExist.socketId = socket.id
+          userExist.socket_id = socket.id
           userExist.pseudo = pseudo
           userExist.image = image
-          userExist.partyId = partyId
+          userExist.party_id = partyId
           userExist.role = 'player'
           await userExist.save()
 
@@ -98,10 +99,10 @@ export default class PartiesController {
       }
 
       const newUser = await User.create({
-        socketId: socket.id,
+        socket_id: socket.id,
         pseudo: pseudo,
         image: image,
-        partyId: partyId,
+        party_id: partyId,
         role: 'player',
       })
 
@@ -116,8 +117,8 @@ export default class PartiesController {
 
   public async show({ i18n, request, response }: HttpContext) {
     const payload = await request.validateUsing(showPartyValidator)
-    const partyId = payload.partyId
-    const socketId = payload.socketId
+    const partyId = payload.party_id
+    const socketId = payload.socket_id
 
     if (!Ws.io?.sockets.adapter.rooms.has(partyId)) {
       return response.status(404).json({ message: i18n.t('messages.party_not_found') })
@@ -125,7 +126,10 @@ export default class PartiesController {
       return response.status(403).json({ message: i18n.t('messages.forbidden') })
     }
 
-    const players = await User.query().where('partyId', partyId).orderBy('updated_at', 'asc').exec()
+    const players = await User.query()
+      .where('party_id', partyId)
+      .orderBy('updated_at', 'asc')
+      .exec()
 
     return response.json({ players: players })
   }

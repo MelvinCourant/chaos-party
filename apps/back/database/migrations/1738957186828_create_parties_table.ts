@@ -6,6 +6,13 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary()
+      table
+        .integer('mode_id')
+        .unsigned()
+        .references('id')
+        .inTable('modes')
+        .notNullable()
+        .defaultTo(1)
       table.enu('draw_time', [3, 2, 1]).defaultTo(3)
       table.enu('vote_time', [1.5, 1, 0.5]).defaultTo(1)
       table.enum('defilement', ['auto', 'manual']).defaultTo('auto')
