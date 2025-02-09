@@ -2,6 +2,10 @@
 import '../../assets/css/components/inputs/_button.scss';
 
 defineProps({
+  popovertarget: {
+    type: String,
+    default: ''
+  },
   type: {
     type: String,
     default: 'default'
@@ -30,6 +34,7 @@ defineEmits(['click'])
     <div class="button__container">
       <button
         class="button__input"
+        :popovertarget="popovertarget"
         @click="$emit('click')"
       >
         <slot></slot>

@@ -1,9 +1,16 @@
 <script setup>
+import '../assets/css/views/_creating-teams.scss';
 import { useI18n } from "vue-i18n";
 import { useUserStore } from "../stores/user.js";
 import { useSocketStore } from "../stores/socket.js";
 import { usePartyStore } from "../stores/party.js";
 import router from "../router/index.js";
+import CopyLink from "../components/utils/CopyLink.vue";
+import Settings from "../components/inputs/Settings.vue";
+import Icon from "../components/utils/Icon.vue";
+import Button from "../components/inputs/Button.vue";
+import {reactive} from "vue";
+import Configurations from "../components/creating_teams/Configurations.vue";
 
 const env = import.meta.env;
 const { t } = useI18n();
@@ -12,6 +19,87 @@ const userStore = useUserStore();
 const user = userStore.user;
 const partyStore = usePartyStore();
 const partyId = partyStore.partyId;
+const hostId = partyStore.hostId;
+const numberTeamsSelect = reactive([
+  {
+    "label": t("number_teams", { quantity: 2 }),
+    "value": "2",
+    "selected": true
+  },
+  {
+    "label": t("number_teams", { quantity: 3 }),
+    "value": "3",
+    "selected": false
+  },
+  {
+    "label": t("number_teams", { quantity: 4 }),
+    "value": "4",
+    "selected": false
+  }
+]);
+const configurations = reactive([
+  {
+    "title": t("drawing_time.title"),
+    "description": t("drawing_time.description"),
+    "icon": "time",
+    "options": [
+      {
+        "label": "1 minute",
+        "value": 1,
+        "selected": false
+      },
+      {
+        "label": "2 minutes",
+        "value": 2,
+        "selected": false
+      },
+      {
+        "label": "3 minutes",
+        "value": 3,
+        "selected": true
+      }
+    ]
+  },
+  {
+    "title": t("voting_time.title"),
+    "description": t("voting_time.description"),
+    "icon": "time",
+    "options": [
+      {
+        "label": t("seconds", { number: 30 }),
+        "value": 0.5,
+        "selected": false
+      },
+      {
+        "label": "1 minute",
+        "value": 1,
+        "selected": true
+      },
+      {
+        "label": "1 minute 30",
+        "value": 1.5,
+        "selected": false
+      }
+    ]
+  },
+  {
+    "title": t("defilement.title"),
+    "description": t("defilement.description"),
+    "icon": "defilement",
+    "options": [
+      {
+        "label": t("automatic"),
+        "value": "auto",
+        "selected": true
+      },
+      {
+        "label": t("manual"),
+        "value": "manual",
+        "selected": false
+      }
+    ]
+  }
+]);
 
 async function getPartyConfigurations() {
   const response = await fetch(`${env.VITE_URL}/api/parties/party-configurations`, {
@@ -28,6 +116,12 @@ async function getPartyConfigurations() {
   });
 
   if (response.ok) {
+    const partyConfigurations = await response.json();
+    numberTeamsSelect.forEach((option) => {
+      if (option.value === partyConfigurations.teams.length) {
+        option.selected = true;
+      }
+    });
   } else {
     await router.push({ path: '/' });
   }
@@ -37,5 +131,26 @@ getPartyConfigurations();
 </script>
 
 <template>
-  <h1 class="hidden-title">{{ t('creating_teams') }}</h1>
+  <main class="creating-teams">
+    <h1 class="hidden-title">{{ t('creating_teams') }}</h1>
+    <div class="creating-teams__container">
+      <Configurations
+        :numberTeamsSelect="numberTeamsSelect"
+        :configurations="configurations"
+      />
+      <Settings />
+      <div class="teams-panel">
+        <div class="teams-panel__actions">
+          <CopyLink />
+          <Button
+            type="primary"
+            v-if="hostId === user.id"
+          >
+            <Icon icon="play" type="button" />
+            {{ t("start_game") }}
+          </Button>
+        </div>
+      </div>
+    </div>
+  </main>
 </template>

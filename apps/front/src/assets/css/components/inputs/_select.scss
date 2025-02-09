@@ -22,12 +22,6 @@
   &--black {
     border: var(--input-black-border);
 
-    svg {
-      path {
-        fill: var(--black);
-      }
-    }
-
     .select__label {
       color: var(--black);
     }
@@ -55,17 +49,18 @@
   &__label {
     @include mixins.font('title');
     color: var(--text);
-  }
-
-  &__icon {
-    width: auto;
-    height: 26px;
+    text-wrap: nowrap;
   }
 
   &__arrow {
+    min-width: 14px;
     margin-left: 20px;
     transform-origin: center;
     transition: transform 0.3s;
+
+    path {
+      fill: var(--black);
+    }
   }
 
   select {

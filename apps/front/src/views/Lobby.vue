@@ -11,6 +11,7 @@ import { useSocketStore } from "../stores/socket.js";
 import { usePartyStore } from "../stores/party.js";
 import { useRouter } from "vue-router";
 import Modes from "../components/lobby/Modes.vue";
+import CopyLink from "../components/utils/CopyLink.vue";
 
 const env = import.meta.env;
 const { socket } = useSocketStore();
@@ -24,20 +25,9 @@ const players = ref([]);
 const hostId = ref(null);
 const modes = ref([]);
 const modeSelected = ref({});
-const linkCopied = ref(false);
 
 provide("modeSelected", modeSelected);
 provide("hostId", hostId);
-
-function copyLink() {
-  navigator.clipboard.writeText(window.location.href.replace("/lobby", `/${partyId}`));
-
-  linkCopied.value = true;
-
-  setTimeout(() => {
-    linkCopied.value = false;
-  }, 2000);
-}
 
 async function getParty() {
   const response = await fetch(`${env.VITE_URL}/api/parties/party-details`, {
@@ -59,6 +49,7 @@ async function getParty() {
 
     const host = party.players.find((player) => player.role === "host");
     hostId.value = host.id;
+    partyStore.updateHostId(host.id);
   } else {
     await router.push({ path: '/' });
   }
@@ -136,6 +127,7 @@ onMounted(() => {
     });
 
     hostId.value = host.id;
+    partyStore.updateHostId(host.id);
   });
 
   socket.on("update-mode", (mode) => {
@@ -166,24 +158,16 @@ onMounted(() => {
           @selectMode="updateMode($event)"
         />
         <div class="party__actions">
-          <div class="copy-link">
-            <Button @click="copyLink">
-              <Icon icon="link" type="button" />
-              {{ t("copy_link") }}
-            </Button>
-            <p
-              class="copy-link__text"
-              v-show="linkCopied"
-            >
-              {{ t("link_copied_clipboard") }}
-            </p>
-          </div>
+          <CopyLink />
           <Button
             type="primary"
             @click="createTeams"
             v-if="hostId === user.id && modeSelected.perTeam"
           >
-            <Icon icon="create-teams" type="button" />
+            <Icon
+              icon="create-teams"
+              type="button"
+            />
             {{ t("creating_teams") }}
           </Button>
           <Button
@@ -193,7 +177,10 @@ onMounted(() => {
               !modeSelected.perTeam
             "
           >
-            <Icon icon="play" type="button" />
+            <Icon
+              icon="play"
+              type="button"
+            />
             {{ t("start_game") }}
           </Button>
         </div>

@@ -41,14 +41,13 @@ document.addEventListener("click", (event) => {
     ]"
     :for="attributes.id"
   >
-    <slot class="select__icon"></slot>
+    <slot></slot>
     <span class="select__label">
       {{ options.find(option => option.selected).label }}
     </span>
     <select
         :value="options.find(option => option.selected).value"
-        color="white"
-        :disabled="disabled"
+        :disabled="attributes.disabled"
         :id="attributes.id"
         @change="$emit('change', $event.target.value)"
         @click="isOpened = !isOpened"

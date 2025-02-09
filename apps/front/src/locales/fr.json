@@ -1,16 +1,30 @@
 {
+  "automatic": "Automatique",
   "create_party": "Créer la partie",
   "creating_teams": "Créer les équipes",
   "choose_pseudo": "Choisis un pseudo",
   "copy_link": "Copier le lien",
+  "defilement": {
+    "title": "Défilement",
+    "description": "Enchaîner les dessins et votes en automatique ou en manuel"
+  },
+  "drawing_time": {
+    "title": "Temps de dessin",
+    "description": "La durée pour réaliser le dessin attribué à chaque équipe"
+  },
   "empty": "Vide",
+  "game_configuration": "Configuration de la partie",
   "game_modes": "Modes de jeu",
   "how_to_play": "Comment on joue",
   "join_party": "Rejoindre la partie",
   "legal_notices": "Mentions légales",
   "link_copied_clipboard": "Lien copié dans le presse-papier",
+  "manual": "Manuel",
   "melvin_role": "Fondateur, designer et développeur du jeu",
+  "number_teams": "{quantity} équipes",
   "players": "Joueurs",
+  "random_teams": "Équipes aléatoires",
+  "seconds": "{number} secondes",
   "settings": "Paramètres",
   "start_game": "Démarrer la partie",
   "tutorial_1": {
@@ -32,5 +46,9 @@
   "tutorial_5": {
     "title": "Trouver l’imposteur !",
     "description": "Votez pour le joueur qui a saboté la mission pour gagner des points bonus, attention à ne pas vous tromper !"
+  },
+  "voting_time": {
+    "title": "Temps de vote",
+    "description": "La durée du débat pour trouver le saboteur"
   }
 }

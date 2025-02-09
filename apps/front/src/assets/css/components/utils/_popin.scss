@@ -42,4 +42,21 @@
       flex: 1;
     }
   }
+
+  &__select {
+    display: flex;
+    justify-content: space-between;
+
+    &-title {
+      @include mixins.font('title');
+    }
+
+    &-description {
+      @include mixins.font('text');
+    }
+  }
+
+  &__label {
+    max-width: 230px;
+  }
 }

@@ -1,16 +1,30 @@
 {
+  "automatic": "Automatic",
   "create_party": "Create party",
   "creating_teams": "Creating teams",
   "choose_pseudo": "Choose a pseudo",
   "copy_link": "Copy the link",
+  "defilement": {
+    "title": "Defilement",
+    "description": "Chaining drawings and votes automatically or manually"
+  },
+  "drawing_time": {
+    "title": "Drawing time",
+    "description": "The duration to complete the drawing assigned to each team"
+  },
   "empty": "Empty",
+  "game_configuration": "game configuration",
   "game_modes": "Game modes",
   "how_to_play": "How to play",
   "join_party": "Join party",
   "legal_notices": "Legal notices",
   "link_copied_clipboard": "Link copied to clipboard",
+  "manual": "Manual",
   "melvin_role": "Founder, designer and developer of the game",
+  "number_teams": "{quantity} teams",
   "players": "Players",
+  "random_teams": "Random teams",
+  "seconds": "{number} seconds",
   "settings": "Settings",
   "start_game": "Start game",
   "tutorial_1": {
@@ -32,5 +46,9 @@
   "tutorial_5": {
     "title": "Find the impostor!",
     "description": "Vote for the player who sabotaged the mission to earn bonus points, be careful not to make a mistake!"
+  },
+  "voting_time": {
+    "title": "Voting time",
+    "description": "The duration of the debate to find the saboteur."
   }
 }
