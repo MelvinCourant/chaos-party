@@ -17,6 +17,9 @@ export default class Party extends BaseModel {
   declare mode_id: number
 
   @column()
+  declare step: 'lobby' | 'creating-teams' | 'drawing' | 'voting' | 'results'
+
+  @column()
   declare draw_time: 3 | 2 | 1
 
   @column()

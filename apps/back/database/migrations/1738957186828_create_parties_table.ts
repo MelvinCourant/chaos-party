@@ -13,10 +13,14 @@ export default class extends BaseSchema {
         .inTable('modes')
         .notNullable()
         .defaultTo(1)
-      table.enu('draw_time', [3, 2, 1]).defaultTo(3)
-      table.enu('vote_time', [1.5, 1, 0.5]).defaultTo(1)
-      table.enum('defilement', ['auto', 'manual']).defaultTo('auto')
-      table.boolean('in_progress').defaultTo(false)
+      table
+        .enum('step', ['lobby', 'creating-teams', 'drawing', 'voting', 'results'])
+        .notNullable()
+        .defaultTo('lobby')
+      table.enu('draw_time', [3, 2, 1]).notNullable().defaultTo(3)
+      table.enu('vote_time', [1.5, 1, 0.5]).notNullable().defaultTo(1)
+      table.enum('defilement', ['auto', 'manual']).notNullable().defaultTo('auto')
+      table.boolean('in_progress').notNullable().defaultTo(false)
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { createTeamsValidator } from '#validators/team'
+import Ws from '#services/Ws'
 import Party from '#models/party'
 import Team from '#models/team'
 import User from '#models/user'
@@ -11,7 +12,7 @@ export default class TeamsController {
     const partyId = payload.party_id
     const quantity = payload.quantity
 
-    const party = await Party.query().where('id', partyId).select('id').firstOrFail()
+    const party = await Party.query().where('id', partyId).select('id', 'step').firstOrFail()
     const user = await User.query().where('id', userId).select('role', 'party_id').firstOrFail()
 
     if (user.role !== 'host' || party.id !== user.party_id) {
@@ -25,6 +26,11 @@ export default class TeamsController {
         party_id: party.id,
       }))
     )
+
+    party.step = 'creating-teams'
+    await party.save()
+
+    Ws.io?.to(party.id).emit('new-step', 'creating-teams')
 
     return response.json({
       message: i18n.t('messages.teams_created', { quantity: quantity }),

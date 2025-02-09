@@ -71,7 +71,7 @@ async function joinParty() {
 
     userStore.updateUser(party.user);
     partyStore.updatePartyId(party.id);
-    await router.push({ path: '/lobby' });
+    await router.push({ path: `/${party.step}` });
   }
 }
 </script>

@@ -143,6 +143,12 @@ onMounted(() => {
       modeSelected.value = mode;
     }
   });
+
+  socket.on("new-step", async (step) => {
+    if(user.id !== hostId.value) {
+      await router.push({ path: `/${step}` });
+    }
+  });
 });
 </script>
 

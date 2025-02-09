@@ -20,6 +20,7 @@ export default class PartiesController {
     const image = payload.image
 
     const party = await Party.create({
+      step: 'lobby',
       mode_id: 1,
       draw_time: 3,
       vote_time: 1,
@@ -73,18 +74,18 @@ export default class PartiesController {
 
     const socket = Ws.sockets.get(socketId)
     if (socket) {
-      const party = await Party.findOrFail(partyId)
-      if (!Ws.io?.sockets.adapter.rooms.has(partyId) || !party) {
+      const party = await Party.query().where('id', partyId).select('id', 'step').firstOrFail()
+      if (!Ws.io?.sockets.adapter.rooms.has(party.id)) {
         return response.status(404).json({ message: i18n.t('messages.party_not_found') })
       }
 
-      const playersInParty = await User.query().where('party_id', partyId).select('id')
+      const playersInParty = await User.query().where('party_id', party.id).select('id')
 
       if (playersInParty.length === 12) {
         return response.status(403).json({ message: i18n.t('messages.maximum_players_reached') })
       }
 
-      socket.join(partyId)
+      socket.join(party.id)
 
       if (userId) {
         const userExist = await User.find(userId)
@@ -93,14 +94,14 @@ export default class PartiesController {
           userExist.socket_id = socket.id
           userExist.pseudo = pseudo
           userExist.image = image
-          userExist.party_id = partyId
+          userExist.party_id = party.id
           userExist.role = 'player'
           await userExist.save()
 
           Ws?.io?.to(partyId).emit('join', userExist)
 
           return response.json({
-            id: partyId,
+            id: party.id,
             user: userExist,
           })
         }
@@ -110,15 +111,16 @@ export default class PartiesController {
         socket_id: socket.id,
         pseudo: pseudo,
         image: image,
-        party_id: partyId,
+        party_id: party.id,
         role: 'player',
       })
 
       Ws?.io?.to(partyId).emit('join', newUser)
 
       return response.json({
-        id: partyId,
+        id: party.id,
         user: newUser,
+        step: party.step,
       })
     }
   }
