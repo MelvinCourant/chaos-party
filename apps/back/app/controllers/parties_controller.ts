@@ -203,10 +203,19 @@ export default class PartiesController {
       .select('draw_time', 'vote_time', 'defilement')
       .firstOrFail()
     const teams = await Team.query().where('party_id', partyId).select('id')
+    const playersInTeams = await User.query()
+      .where('party_id', partyId)
+      .andWhere('team_id', '!=', '')
+    const teamsWithPlayers = teams.map((team) => {
+      return {
+        id: team.id,
+        players: playersInTeams.filter((player) => player.team_id === team.id),
+      }
+    })
 
     return response.json({
       configurations: configurations,
-      teams: teams,
+      teams: teamsWithPlayers,
     })
   }
 }
