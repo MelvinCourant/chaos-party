@@ -21,9 +21,12 @@ function getImageUrl(mode, format) {
   return new URL(`../../assets/imgs/modes/${mode.image}.${format}`, import.meta.url).href;
 }
 
-function modeIsSelectable(modeId) {
-  if (hostId.value === user.id && modeSelected.value !== modeId) {
-    emit("selectMode", modeId);
+function modeIsSelectable(mode) {
+  if (
+    hostId.value === user.id &&
+    modeSelected.value.id !== mode.id
+  ) {
+    emit("selectMode", mode);
   }
 }
 </script>
@@ -32,12 +35,12 @@ function modeIsSelectable(modeId) {
   <div
     :class="[
       'mode',
-      { 'mode--selected': modeSelected === mode.id }
+      { 'mode--selected': modeSelected.id === mode.id }
     ]"
   >
     <button
       class="mode__card"
-      @click="modeIsSelectable(mode.id)"
+      @click="modeIsSelectable(mode)"
     >
       <div class="mode__card-container">
         <div class="mode__image-container">
@@ -45,13 +48,13 @@ function modeIsSelectable(modeId) {
               :src="getImageUrl(mode, 'svg')"
               :alt="mode.name"
               class="mode__image"
-              v-show="modeSelected !== mode.id"
+              v-show="modeSelected.id !== mode.id"
           />
           <img
               :src="getImageUrl(mode, 'gif')"
               :alt="mode.name"
               class="mode__image"
-              v-show="modeSelected === mode.id"
+              v-show="modeSelected.id === mode.id"
           />
         </div>
         <div class="mode__content">

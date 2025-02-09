@@ -14,6 +14,9 @@ export default class Mode extends BaseModel {
   @column()
   declare image: string
 
+  @column()
+  declare per_team: boolean
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

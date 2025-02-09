@@ -22,9 +22,8 @@ const partyId = route.params.id;
 const players = ref([]);
 const hostId = ref(null);
 const modes = ref([]);
-const modeSelected = ref(null);
+const modeSelected = ref({});
 const linkCopied = ref(false);
-const scale = ref(1);
 
 provide("modeSelected", modeSelected);
 provide("hostId", hostId);
@@ -55,7 +54,7 @@ async function getParty() {
   if (response.ok) {
     const party = await response.json();
     players.value = party.players;
-    modeSelected.value = party.mode_id;
+    modeSelected.value = party.mode;
 
     const host = party.players.find((player) => player.role === "host");
     hostId.value = host.id;
@@ -78,8 +77,8 @@ async function getModes() {
   }
 }
 
-async function updateMode(modeId) {
-  modeSelected.value = modeId;
+async function updateMode(mode) {
+  modeSelected.value = mode;
 
   await fetch(`${env.VITE_URL}/api/parties/update-mode`, {
     method: "PATCH",
@@ -90,7 +89,7 @@ async function updateMode(modeId) {
     body: JSON.stringify({
       user_id: user.id,
       party_id: partyId,
-      mode_id: modeId,
+      mode_id: mode.id,
     }),
   });
 }
@@ -117,9 +116,9 @@ onMounted(() => {
     hostId.value = host.id;
   });
 
-  socket.on("update-mode", (modeId) => {
-    if(modeSelected.value !== modeId) {
-      modeSelected.value = modeId;
+  socket.on("update-mode", (mode) => {
+    if(modeSelected.value.id !== mode.id) {
+      modeSelected.value = mode;
     }
   });
 });
@@ -131,12 +130,12 @@ onMounted(() => {
     <div class="lobby__container">
       <Settings />
       <Players
-          :players="players"
+        :players="players"
       />
       <div class="party">
         <Modes
-            :modes="modes"
-            @selectMode="updateMode($event)"
+          :modes="modes"
+          @selectMode="updateMode($event)"
         />
         <div class="party__actions">
           <div class="copy-link">
@@ -145,18 +144,28 @@ onMounted(() => {
               {{ t("copy_link") }}
             </Button>
             <p
-                class="copy-link__text"
-                v-show="linkCopied"
+              class="copy-link__text"
+              v-show="linkCopied"
             >
               {{ t("link_copied_clipboard") }}
             </p>
           </div>
           <Button
             type="primary"
-            v-if="hostId === user.id"
+            v-if="hostId === user.id && modeSelected.perTeam"
           >
             <Icon icon="create-teams" type="button" />
             {{ t("creating_teams") }}
+          </Button>
+          <Button
+            type="primary"
+            v-if="
+              hostId === user.id &&
+              !modeSelected.perTeam
+            "
+          >
+            <Icon icon="play" type="button" />
+            {{ t("start_game") }}
           </Button>
         </div>
       </div>

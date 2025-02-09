@@ -8,16 +8,19 @@ export default class extends BaseSeeder {
         name: 'chaos.name',
         description: 'chaos.description',
         image: 'chaos',
+        per_team: true,
       },
       {
         name: 'total_chaos.name',
         description: 'total_chaos.description',
         image: 'total_chaos',
+        per_team: true,
       },
       {
         name: 'undercover.name',
         description: 'undercover.description',
         image: 'undercover',
+        per_team: false,
       },
     ])
   }

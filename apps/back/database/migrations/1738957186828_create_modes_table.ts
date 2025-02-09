@@ -9,6 +9,7 @@ export default class extends BaseSchema {
       table.string('name').notNullable()
       table.string('description').notNullable()
       table.string('image').notNullable()
+      table.boolean('per_team').notNullable().defaultTo(true)
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

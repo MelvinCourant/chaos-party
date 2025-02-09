@@ -8,6 +8,7 @@ import {
 } from '#validators/party'
 import User from '#models/user'
 import Party from '#models/party'
+import Mode from '#models/mode'
 
 export default class PartiesController {
   public async create({ request, response }: HttpContext) {
@@ -141,9 +142,11 @@ export default class PartiesController {
       .orderBy('updated_at', 'asc')
       .exec()
 
+    const mode = await Mode.query().where('id', party.mode_id).firstOrFail()
+
     return response.json({
       players: players,
-      mode_id: party.mode_id,
+      mode: mode,
     })
   }
 
@@ -160,9 +163,11 @@ export default class PartiesController {
       return response.status(403).json({ message: i18n.t('messages.forbidden') })
     }
 
+    const mode = await Mode.query().where('id', modeId).firstOrFail()
+
     party.mode_id = modeId
     await party.save()
-    Ws?.io?.to(partyId).emit('update-mode', modeId)
+    Ws?.io?.to(partyId).emit('update-mode', mode)
 
     return response.json({ message: i18n.t('messages.mode_updated') })
   }
