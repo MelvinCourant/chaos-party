@@ -16,5 +16,6 @@
     }
   },
   "mode_updated": "Mode mis à jour",
-  "party_not_found": "Partie introuvable"
+  "party_not_found": "Partie introuvable",
+  "teams_created": "{quantity} équipes créées"
 }

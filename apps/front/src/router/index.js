@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "../views/Home.vue";
 import Lobby from "../views/Lobby.vue";
+import CreatingTeams from "../views/CreatingTeams.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -14,8 +15,12 @@ const router = createRouter({
       component: Home,
     },
     {
-      path: "/lobby/:id",
+      path: "/lobby",
       component: Lobby,
+    },
+    {
+      path: "/creating-teams",
+      component: CreatingTeams,
     }
   ],
 });

@@ -10,6 +10,7 @@
 import router from '@adonisjs/core/services/router'
 import PartiesController from '#controllers/parties_controller'
 import ModesController from '#controllers/modes_controller'
+import TeamsController from '#controllers/teams_controller'
 
 router
   .group(() => {
@@ -42,3 +43,13 @@ router
     })
   })
   .prefix('api/modes')
+
+router
+  .group(() => {
+    const teamsController = new TeamsController()
+
+    router.post('/create-teams', async (data) => {
+      return teamsController.create(data)
+    })
+  })
+  .prefix('api/teams')

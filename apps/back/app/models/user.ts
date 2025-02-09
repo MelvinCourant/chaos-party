@@ -24,6 +24,9 @@ export default class User extends BaseModel {
   declare party_id: string | null
 
   @column()
+  declare team_id: string | null
+
+  @column()
   declare role: 'host' | 'player'
 
   @column.dateTime({ autoCreate: true })

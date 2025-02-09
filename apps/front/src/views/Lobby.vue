@@ -8,6 +8,7 @@ import Button from "../components/inputs/Button.vue";
 import { useI18n } from "vue-i18n";
 import Icon from "../components/utils/Icon.vue";
 import { useSocketStore } from "../stores/socket.js";
+import { usePartyStore } from "../stores/party.js";
 import { useRoute, useRouter } from "vue-router";
 import Modes from "../components/lobby/Modes.vue";
 
@@ -16,9 +17,9 @@ const { socket } = useSocketStore();
 const { t } = useI18n();
 const userStore = useUserStore();
 const user = userStore.user;
-const route = useRoute();
 const router = useRouter();
-const partyId = route.params.id;
+const partyStore = usePartyStore();
+const partyId = partyStore.partyId;
 const players = ref([]);
 const hostId = ref(null);
 const modes = ref([]);
@@ -29,7 +30,7 @@ provide("modeSelected", modeSelected);
 provide("hostId", hostId);
 
 function copyLink() {
-  navigator.clipboard.writeText(window.location.href.replace("/lobby", ""));
+  navigator.clipboard.writeText(window.location.href.replace("/lobby", `/${partyId}`));
 
   linkCopied.value = true;
 
@@ -94,6 +95,25 @@ async function updateMode(mode) {
   });
 }
 
+async function createTeams() {
+  const response = await fetch(`${env.VITE_URL}/api/teams/create-teams`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Language": userStore.language,
+    },
+    body: JSON.stringify({
+      user_id: user.id,
+      party_id: partyId,
+      quantity: 4,
+    }),
+  });
+
+  if (response.ok) {
+    await router.push({ path: '/create-teams' });
+  }
+}
+
 onMounted(() => {
   getParty();
   getModes();
@@ -152,6 +172,7 @@ onMounted(() => {
           </div>
           <Button
             type="primary"
+            @click="createTeams"
             v-if="hostId === user.id && modeSelected.perTeam"
           >
             <Icon icon="create-teams" type="button" />
