@@ -4,15 +4,15 @@
   "modes": {
     "chaos": {
       "name": "Chaos",
-      "description": "Dessinez en équipe pour atteindre des objectifs secrets, mais méfiez-vous : un saboteur se cache parmi vous !"
+      "description": "Dessinez en équipe pour atteindre des objectifs secrets, mais méfiez-vous : un saboteur se cache parmi vous !"
     },
     "total_chaos": {
       "name": "Chaos Total",
-      "description": "À tour de rôle, vous dessinerez un élément d'une création collective, en partant de celui qui a été dessiné précédemment."
+      "description": "À tour de rôle, ajoutez un élément à une création collective en continuant le dessin précédent."
     },
     "undercover": {
       "name": "Undercover",
-      "description": "Chaque joueur reçoit un mot à dessiner, mais un joueur aura un mot différent. Saurez-vous le démasquer ?"
+      "description": "Chaque joueur reçoit un mot à dessiner, mais un joueur aura un mot différent. Saurez-vous le démasquer ?"
     }
   },
   "mode_updated": "Mode mis à jour",

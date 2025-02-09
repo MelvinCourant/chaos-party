@@ -24,6 +24,7 @@ const hostId = ref(null);
 const modes = ref([]);
 const modeSelected = ref(null);
 const linkCopied = ref(false);
+const scale = ref(1);
 
 provide("modeSelected", modeSelected);
 provide("hostId", hostId);
@@ -117,7 +118,9 @@ onMounted(() => {
   });
 
   socket.on("update-mode", (modeId) => {
-    modeSelected.value = modeId;
+    if(modeSelected.value !== modeId) {
+      modeSelected.value = modeId;
+    }
   });
 });
 </script>
@@ -125,27 +128,29 @@ onMounted(() => {
 <template>
   <main class="lobby">
     <h1 class="hidden-title">Lobby</h1>
-    <Players
-      :players="players"
-    />
-    <Settings />
-    <div class="party">
-      <Modes
-        :modes="modes"
-        @selectMode="updateMode($event)"
+    <div class="lobby__container">
+      <Settings />
+      <Players
+          :players="players"
       />
-      <div class="party__actions">
-        <div class="copy-link">
-          <Button @click="copyLink">
-            <Icon icon="link" type="button" />
-            {{ t("copy_link") }}
-          </Button>
-          <p
-              class="copy-link__text"
-              v-show="linkCopied"
-          >
-            {{ t("link_copied_clipboard") }}
-          </p>
+      <div class="party">
+        <Modes
+            :modes="modes"
+            @selectMode="updateMode($event)"
+        />
+        <div class="party__actions">
+          <div class="copy-link">
+            <Button @click="copyLink">
+              <Icon icon="link" type="button" />
+              {{ t("copy_link") }}
+            </Button>
+            <p
+                class="copy-link__text"
+                v-show="linkCopied"
+            >
+              {{ t("link_copied_clipboard") }}
+            </p>
+          </div>
         </div>
       </div>
     </div>

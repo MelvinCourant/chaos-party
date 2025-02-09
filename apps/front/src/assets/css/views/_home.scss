@@ -1,26 +1,25 @@
 .home {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
   min-height: 100vh;
   padding: 40px 70px;
   background: var(--orange-red-gradient);
-  gap: 80px;
 
-  @media screen and (max-width: 992px) {
+  @media screen and (max-width: 991px) {
     padding: 40px 20px;
-    height: fit-content;
-    gap: 40px;
   }
 
-  @media screen and (max-width: 768px) {
+  @media screen and (max-width: 767px) {
+    height: fit-content;
     gap: 40px;
   }
 
   &__logo {
     width: 350px;
 
-    @media screen and (max-width: 768px) {
+    @media screen and (max-width: 1099px) {
       width: 250px;
     }
   }
@@ -29,7 +28,7 @@
     display: flex;
     gap: 40px;
 
-    @media screen and (max-width: 992px) {
+    @media screen and (max-width: 991px) {
       width: 100%;
     }
   }

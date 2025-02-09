@@ -18,17 +18,19 @@ const { t } = useI18n();
 <template>
   <div class="modes">
     <h2 class="modes__title">{{ t("game_modes") }}</h2>
-    <ul class="modes__list">
-      <li
-        class="modes__item"
-        v-for="mode in modes"
-        :key="mode.id"
-      >
-        <Mode
-          :mode="mode"
-          @selectMode="($event) => $emit('selectMode', $event)"
-        />
-      </li>
-    </ul>
+    <div class="modes__container">
+      <ul class="modes__list">
+        <li
+            class="modes__item"
+            v-for="mode in modes"
+            :key="mode.id"
+        >
+          <Mode
+              :mode="mode"
+              @selectMode="($event) => $emit('selectMode', $event)"
+          />
+        </li>
+      </ul>
+    </div>
   </div>
 </template>

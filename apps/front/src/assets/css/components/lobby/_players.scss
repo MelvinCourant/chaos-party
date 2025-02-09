@@ -11,6 +11,12 @@
   background: var(--black-transparent-10);
   border-radius: var(--card-radius);
 
+  @media screen and (max-width: 1099px) {
+    width: 100%;
+    padding: 15px 0;
+    overflow: hidden;
+  }
+
   &__title {
     @include mixins.font('title');
     color: var(--text);
@@ -26,5 +32,12 @@
     flex-direction: column;
     gap: 7px;
     width: 100%;
+
+    @media screen and (max-width: 1099px) {
+      flex-direction: row;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 0 25px;
+    }
   }
 }

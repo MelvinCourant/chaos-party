@@ -8,6 +8,7 @@
   &__container {
     display: flex;
     justify-content: space-between;
+    gap: 20px;
     align-items: center;
     min-height: 60px;
     padding: 10px 25px 10px 10px;
@@ -27,14 +28,18 @@
 
   &__pseudo {
     @include mixins.font('input');
+
+    @media screen and (max-width: 1099px) {
+      text-wrap: nowrap;
+    }
   }
 
   &__host {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 25px;
-    height: 25px;
+    min-width: 25px;
+    min-height: 25px;
     border-radius: 50%;
     background: var(--dark-orange);
   }

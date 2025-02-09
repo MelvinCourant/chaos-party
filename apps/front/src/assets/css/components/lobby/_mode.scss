@@ -22,9 +22,13 @@
     height: 178px;
     @include mixins.resetButton(var(--card-border), var(--black));
     border-radius: var(--card-radius);
-    padding: 16.5px 10px 16.5px;
+    padding: 16.5px 20px 16.5px;
     overflow: hidden;
     transition: 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+
+    @media screen and (max-width: 1299px) {
+      padding: 16.5px 10px 16.5px;
+    }
 
     &-container {
       display: flex;

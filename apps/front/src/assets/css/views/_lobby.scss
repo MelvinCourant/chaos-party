@@ -2,13 +2,54 @@
 
 .lobby {
   display: flex;
-  gap: 40px;
+  justify-content: center;
   background: var(--orange-red-gradient);
+  padding: 40px 120px 40px 120px;
+
+  @media screen and (max-width: 1499px) {
+    padding: 40px 120px 40px 40px;
+  }
+
+  @media screen and (max-width: 1099px) {
+    padding: 40px;
+  }
+
+  @media screen and (max-width: 767px) {
+    padding: 20px;
+  }
+
+  &__container {
+    position: relative;
+    display: flex;
+    gap: 40px;
+
+    @media screen and (max-width: 1299px) {
+      gap: 30px;
+    }
+
+    @media screen and (max-width: 1099px) {
+      flex-direction: column;
+      align-items: flex-end;
+      max-width: 100%;
+    }
+
+    @media screen and (max-width: 767px) {
+      gap: 20px;
+    }
+  }
 
   .settings {
     position: absolute;
-    top: 40px;
-    right: 6.25vw;
+    top: 0;
+    right: -3.76%;
+    transform: translateX(100%);
+
+    @media screen and (max-width: 1099px) {
+      position: relative;
+      top: initial;
+      right: initial;
+      transform: initial;
+    }
   }
 
   .party {

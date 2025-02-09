@@ -8,7 +8,7 @@
   background: var(--black-transparent-10);
   border-radius: var(--card-radius);
 
-  @media screen and (max-width: 992px) {
+  @media screen and (max-width: 991px) {
     flex: 1;
   }
 
@@ -18,7 +18,7 @@
     align-items: center;
     width: 100%;
 
-    @media screen and (max-width: 992px) {
+    @media screen and (max-width: 991px) {
       margin-bottom: 20px;
     }
   }

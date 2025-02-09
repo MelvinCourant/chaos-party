@@ -10,6 +10,12 @@
   box-shadow: var(--3d-shadow);
   padding: 30px 60px 50px 60px;
   min-height: 300px;
+  
+  @media screen and (max-width: 767px) {
+    padding: 30px 30px 50px 30px;
+    width: 90%;
+    min-height: initial;
+  }
 
   &::backdrop {
     background: var(--black-transparent-50);
