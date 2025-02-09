@@ -3,12 +3,14 @@ import Ws from '#services/Ws'
 import {
   createPartyValidator,
   joinPartyValidator,
+  showConfigurationsValidator,
   showPartyValidator,
   updateModeValidator,
 } from '#validators/party'
 import User from '#models/user'
 import Party from '#models/party'
 import Mode from '#models/mode'
+import Team from '#models/team'
 
 export default class PartiesController {
   public async create({ request, response }: HttpContext) {
@@ -71,7 +73,7 @@ export default class PartiesController {
 
     const socket = Ws.sockets.get(socketId)
     if (socket) {
-      const party = await Party.find(partyId)
+      const party = await Party.findOrFail(partyId)
       if (!Ws.io?.sockets.adapter.rooms.has(partyId) || !party) {
         return response.status(404).json({ message: i18n.t('messages.party_not_found') })
       }
@@ -137,12 +139,9 @@ export default class PartiesController {
 
     const party = await Party.findOrFail(partyId)
 
-    const players = await User.query()
-      .where('party_id', partyId)
-      .orderBy('updated_at', 'asc')
-      .exec()
+    const players = await User.query().where('party_id', partyId).orderBy('updated_at', 'asc')
 
-    const mode = await Mode.query().where('id', party.mode_id).firstOrFail()
+    const mode = await Mode.findOrFail(party.mode_id)
 
     return response.json({
       players: players,
@@ -152,9 +151,19 @@ export default class PartiesController {
 
   public async updateMode({ i18n, request, response }: HttpContext) {
     const payload = await request.validateUsing(updateModeValidator)
+    const socketId = payload.socket_id
     const userId = payload.user_id
     const partyId = payload.party_id
     const modeId = payload.mode_id
+
+    if (!Ws.io?.sockets.adapter.rooms.has(partyId)) {
+      return response.status(404).json({ message: i18n.t('messages.party_not_found') })
+    } else {
+      // @ts-ignore
+      if (!Ws.io?.sockets.adapter.rooms.get(partyId).has(socketId)) {
+        return response.status(403).json({ message: i18n.t('messages.forbidden') })
+      }
+    }
 
     const user = await User.query().where('id', userId).select('role').firstOrFail()
     const party = await Party.findOrFail(partyId)
@@ -163,12 +172,41 @@ export default class PartiesController {
       return response.status(403).json({ message: i18n.t('messages.forbidden') })
     }
 
-    const mode = await Mode.query().where('id', modeId).firstOrFail()
+    const mode = await Mode.findOrFail(modeId)
 
     party.mode_id = modeId
     await party.save()
     Ws?.io?.to(partyId).emit('update-mode', mode)
 
     return response.json({ message: i18n.t('messages.mode_updated') })
+  }
+
+  public async showConfigurations({ i18n, request, response }: HttpContext) {
+    const payload = await request.validateUsing(showConfigurationsValidator)
+    const partyId = payload.party_id
+    const socketId = payload.socket_id
+    const userId = payload.user_id
+
+    if (!Ws.io?.sockets.adapter.rooms.has(partyId)) {
+      return response.status(404).json({ message: i18n.t('messages.party_not_found') })
+    } else {
+      // @ts-ignore
+      if (!Ws.io?.sockets.adapter.rooms.get(partyId).has(socketId)) {
+        return response.status(403).json({ message: i18n.t('messages.forbidden') })
+      }
+    }
+
+    await User.findOrFail(userId)
+
+    const configurations = await Party.query()
+      .where('id', partyId)
+      .select('draw_time', 'vote_time', 'defilement')
+      .firstOrFail()
+    const teams = await Team.query().where('party_id', partyId).select('id')
+
+    return response.json({
+      configurations: configurations,
+      teams: teams,
+    })
   }
 }

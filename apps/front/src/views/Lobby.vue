@@ -9,7 +9,7 @@ import { useI18n } from "vue-i18n";
 import Icon from "../components/utils/Icon.vue";
 import { useSocketStore } from "../stores/socket.js";
 import { usePartyStore } from "../stores/party.js";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import Modes from "../components/lobby/Modes.vue";
 
 const env = import.meta.env;
@@ -88,6 +88,7 @@ async function updateMode(mode) {
       "Accept-Language": userStore.language,
     },
     body: JSON.stringify({
+      socket_id: socket.id,
       user_id: user.id,
       party_id: partyId,
       mode_id: mode.id,
@@ -103,6 +104,7 @@ async function createTeams() {
       "Accept-Language": userStore.language,
     },
     body: JSON.stringify({
+      socket_id: socket.id,
       user_id: user.id,
       party_id: partyId,
       quantity: 4,
@@ -110,7 +112,7 @@ async function createTeams() {
   });
 
   if (response.ok) {
-    await router.push({ path: '/create-teams' });
+    await router.push({ path: '/creating-teams' });
   }
 }
 

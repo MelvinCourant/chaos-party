@@ -20,6 +20,10 @@ const partyStore = usePartyStore();
 const { socket } = useSocketStore();
 const formValues = ref({});
 
+if(!id) {
+  partyStore.updatePartyId("");
+}
+
 function saveValues(values) {
   formValues.value = values;
   formValues.value.user_id = user.id;

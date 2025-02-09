@@ -27,8 +27,17 @@ export const showPartyValidator = vine.compile(
 
 export const updateModeValidator = vine.compile(
   vine.object({
+    socket_id: vine.string().trim(),
     user_id: vine.string().trim().uuid(),
     party_id: vine.string().trim().uuid(),
     mode_id: vine.number().min(1),
+  })
+)
+
+export const showConfigurationsValidator = vine.compile(
+  vine.object({
+    socket_id: vine.string().trim(),
+    user_id: vine.string().trim().uuid(),
+    party_id: vine.string().trim().uuid(),
   })
 )
