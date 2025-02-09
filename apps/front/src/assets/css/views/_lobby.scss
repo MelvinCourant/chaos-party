@@ -64,6 +64,16 @@
     &__actions {
       display: flex;
       gap: 40px;
+
+      @media screen and (max-width: 991px) {
+        gap: 30px;
+      }
+
+      @media screen and (max-width: 767px) {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
     }
   }
 

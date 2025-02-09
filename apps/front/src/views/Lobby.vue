@@ -151,6 +151,13 @@ onMounted(() => {
               {{ t("link_copied_clipboard") }}
             </p>
           </div>
+          <Button
+            type="primary"
+            v-if="hostId === user.id"
+          >
+            <Icon icon="create-teams" type="button" />
+            {{ t("creating_teams") }}
+          </Button>
         </div>
       </div>
     </div>
