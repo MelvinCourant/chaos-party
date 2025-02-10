@@ -38,7 +38,7 @@ const maxPlayers = inject("maxPlayers");
       v-if="step === 'creating-teams'"
     >
       {{ t("players") }}
-      <span class="team__number">{{ team.players.length }}</span>/<slot></slot>
+      <span class="team__number">{{ team.players.length }}</span>/{{maxPlayers}}
     </h2>
     <ul
       class="team__players"

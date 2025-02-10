@@ -20,8 +20,6 @@ defineEmits(['joinTeam', 'leaveTeam'])
       :key="team.id"
       @joinTeam="$emit('joinTeam', $event)"
       @leaveTeam="$emit('leaveTeam', $event)"
-    >
-      {{ teams.length }}
-    </Team>
+    />
   </div>
 </template>

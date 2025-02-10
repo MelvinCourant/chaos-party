@@ -200,15 +200,20 @@ export default class PartiesController {
       }
     }
 
-    await User.findOrFail(userId)
+    const user = await User.query().where('id', userId).select('party_id').firstOrFail()
+    const party = await Party.query().where('id', partyId).select('id').firstOrFail()
+
+    if (user.party_id !== party.id) {
+      return response.status(403).json({ message: i18n.t('messages.forbidden') })
+    }
 
     const configurations = await Party.query()
-      .where('id', partyId)
+      .where('id', party.id)
       .select('drawing_time', 'voting_time', 'defilement')
       .firstOrFail()
-    const teams = await Team.query().where('party_id', partyId).select('id')
+    const teams = await Team.query().where('party_id', party.id).select('id')
     const playersInTeams = await User.query()
-      .where('party_id', partyId)
+      .where('party_id', party.id)
       .andWhere('team_id', '!=', '')
     const teamsWithPlayers = teams.map((team) => {
       return {

@@ -19,7 +19,7 @@ defineProps({
   },
 });
 
-defineEmits(["randomTeams", "change"]);
+defineEmits(["randomTeams", "updateNumberTeams", "updateConfiguration"]);
 
 const { t } = useI18n();
 const userStore = useUserStore();
@@ -31,6 +31,7 @@ const hostId = inject("hostId");
   <div class="configurations">
     <Select
       :options="numberTeamsSelect"
+      @change="$emit('updateNumberTeams', $event)"
     >
       <svg
           style="min-width: 31px;"

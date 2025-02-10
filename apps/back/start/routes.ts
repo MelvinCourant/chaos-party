@@ -71,5 +71,9 @@ router
     router.patch('/random-teams', async (data) => {
       return teamsController.random(data)
     })
+
+    router.put('/update-number-teams', async (data) => {
+      return teamsController.updateNumberTeams(data)
+    })
   })
   .prefix('api/teams')

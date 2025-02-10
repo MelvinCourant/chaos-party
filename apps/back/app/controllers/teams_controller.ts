@@ -4,6 +4,7 @@ import {
   joinTeamValidator,
   leaveTeamValidator,
   randomTeamsValidator,
+  updateNumberTeamsValidator,
 } from '#validators/team'
 import Ws from '#services/Ws'
 import Party from '#models/party'
@@ -166,6 +167,61 @@ export default class TeamsController {
     })
 
     Ws.io?.to(party.id).emit('random-teams', teamsWithPlayers)
+
+    return response.json({
+      teams: teamsWithPlayers,
+    })
+  }
+
+  public async updateNumberTeams({ i18n, request, response }: HttpContext) {
+    const payload = await request.validateUsing(updateNumberTeamsValidator)
+    const userId = payload.user_id
+    const partyId = payload.party_id
+    const quantity = payload.quantity
+    const socketId = payload.socket_id
+
+    if (!Ws.io?.sockets.adapter.rooms.has(partyId)) {
+      return response.status(404).json({ message: i18n.t('messages.party_not_found') })
+    } else {
+      // @ts-ignore
+      if (!Ws.io?.sockets.adapter.rooms.get(partyId).has(socketId)) {
+        return response.status(403).json({ message: i18n.t('messages.forbidden') })
+      }
+    }
+
+    const user = await User.query().where('id', userId).select('role', 'party_id').firstOrFail()
+    const party = await Party.query().where('id', partyId).select('id').firstOrFail()
+
+    if (user.role !== 'host' || party.id !== user.party_id) {
+      return response.status(403).json({ message: i18n.t('messages.forbidden') })
+    }
+
+    const teams = await Team.query().where('party_id', party.id).select('id').orderBy('id', 'desc')
+
+    if (teams.length > quantity) {
+      const teamsToDelete = teams.slice(0, teams.length - quantity)
+      const teamIdsToDelete = teamsToDelete.map((team) => team.id)
+
+      await User.query().whereIn('team_id', teamIdsToDelete).update({ team_id: '' })
+
+      await Team.query().whereIn('id', teamIdsToDelete).delete()
+    } else {
+      await Team.createMany(
+        Array.from({ length: quantity - teams.length }, () => ({
+          party_id: party.id,
+        }))
+      )
+    }
+
+    const newTeams = await Team.query().where('party_id', party.id).select('id')
+    const teamsWithPlayers = newTeams.map((team) => {
+      return {
+        id: team.id,
+        players: [],
+      }
+    })
+
+    Ws.io?.to(party.id).emit('update-number-teams', teamsWithPlayers)
 
     return response.json({
       teams: teamsWithPlayers,

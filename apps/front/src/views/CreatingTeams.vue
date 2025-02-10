@@ -242,6 +242,36 @@ async function randomTeams() {
   }
 }
 
+async function updateNumberTeams(quantity) {
+  const response = await fetch(`${env.VITE_URL}/api/teams/update-number-teams`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Language": userStore.language,
+    },
+    body: JSON.stringify({
+      party_id: partyId,
+      socket_id: socket.id,
+      user_id: user.id,
+      quantity: quantity,
+    }),
+  });
+
+  if (response.ok) {
+    const json = await response.json();
+    numberTeamsSelect.forEach((option) => {
+      option.selected = option.value === json.teams.length;
+    });
+    teams.value = json.teams;
+
+    if(json.teams.length === 2) {
+      maxPlayersInTeam.value = 8;
+    } else if(json.teams.length === 3) {
+      maxPlayersInTeam.value = 6;
+    }
+  }
+}
+
 async function updateConfiguration(configurationId, value) {
   let body = {
     party_id: partyId,
@@ -348,6 +378,15 @@ onMounted(() => {
     }
   });
 
+  socket.on("update-number-teams", (newTeams) => {
+    if(hostId !== user.id) {
+      numberTeamsSelect.forEach((option) => {
+        option.selected = option.value === newTeams.length;
+      });
+      teams.value = newTeams;
+    }
+  });
+
   socket.on("update-configuration", (configuration) => {
     if(hostId !== user.id) {
       if(configuration.drawing_time) {
@@ -376,7 +415,8 @@ onMounted(() => {
         :numberTeamsSelect="numberTeamsSelect"
         :configurations="configurations"
         @randomTeams="randomTeams"
-        @change="updateConfiguration"
+        @updateNumberTeams="updateNumberTeams"
+        @updateConfiguration="updateConfiguration"
       />
       <Settings />
       <div class="teams-panel">
