@@ -55,5 +55,9 @@ router
     router.post('/create-teams', async (data) => {
       return teamsController.create(data)
     })
+
+    router.patch('/join-team', async (data) => {
+      return teamsController.join(data)
+    })
   })
   .prefix('api/teams')

@@ -40,7 +40,10 @@ const maxPlayers = inject("maxPlayers");
       {{ t("players") }}
       <span class="team__number">{{ team.players.length }}</span>/<slot></slot>
     </h2>
-    <ul class="team__players">
+    <ul
+      class="team__players"
+      v-if="team.players.length > 0"
+    >
       <li
         class="team__player"
         v-for="player in team.players"
@@ -56,7 +59,7 @@ const maxPlayers = inject("maxPlayers");
         team.players.find(player => player.id === user.id) === undefined
       "
       :text="t('join')"
-      @click="$emit('joinTeam', user.id, team.id)"
+      @click="$emit('joinTeam', team.id)"
     >
       <Icon
         icon="join-red"
@@ -70,7 +73,7 @@ const maxPlayers = inject("maxPlayers");
       "
       :text="t('leave')"
       type="danger"
-      @click="$emit('leaveTeam', user.id, team.id)"
+      @click="$emit('leaveTeam', team.id)"
     >
       <Icon
         icon="leave"

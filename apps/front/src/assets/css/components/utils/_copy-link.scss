@@ -1,0 +1,17 @@
+@use '../../partials/mixins';
+
+.copy-link {
+  display: flex;
+  height: fit-content;
+  position: relative;
+
+  &__text {
+    position: absolute;
+    left: 50%;
+    bottom: -10px;
+    transform: translate(-50%, 100%);
+    @include mixins.font('text');
+    color: var(--text);
+    text-wrap: nowrap;
+  }
+}

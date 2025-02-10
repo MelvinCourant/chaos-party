@@ -9,7 +9,7 @@ import CopyLink from "../components/utils/CopyLink.vue";
 import Settings from "../components/inputs/Settings.vue";
 import Icon from "../components/utils/Icon.vue";
 import Button from "../components/inputs/Button.vue";
-import {reactive, ref} from "vue";
+import {reactive, ref, provide, onMounted} from "vue";
 import Configurations from "../components/creating_teams/Configurations.vue";
 import Teams from "../components/creating_teams/Teams.vue";
 
@@ -139,15 +139,54 @@ async function getPartyConfigurations() {
   }
 }
 
-getPartyConfigurations();
+async function playerJoinTeam(teamId) {
+  const response = await fetch(`${env.VITE_URL}/api/teams/join-team`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Language": userStore.language,
+    },
+    body: JSON.stringify({
+      party_id: partyId,
+      socket_id: socket.id,
+      user_id: user.id,
+      team_id: teamId,
+    }),
+  });
 
-async function playerJoinTeam(userId, teamId) {
+  if (response.ok) {
+    const json = await response.json();
+    teams.value.forEach((team) => {
+      const playerIndex = team.players.findIndex((player) => player.id === json.user.id);
+      if (playerIndex !== -1) {
+        team.players.splice(playerIndex, 1);
+      }
+      if (team.id === json.team.id) {
+        team.players.push(json.user);
+      }
+    });
+  }
+}
+
+async function playerLeaveTeam(teamId) {
 
 }
 
-async function playerLeaveTeam(userId, teamId) {
+onMounted(() => {
+  getPartyConfigurations();
 
-}
+  socket.on("join-team", (newTeam, userJoining) => {
+    teams.value.forEach((team) => {
+      const playerIndex = team.players.findIndex((player) => player.id === userJoining.id);
+      if (playerIndex !== -1) {
+        team.players.splice(playerIndex, 1);
+      }
+      if (team.id === newTeam.id) {
+        team.players.push(userJoining);
+      }
+    });
+  });
+})
 </script>
 
 <template>

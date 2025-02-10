@@ -61,6 +61,10 @@
     max-width: 940px;
     height: fit-content;
 
+    @media screen and (max-width: 1099px) {
+      max-width: initial;
+    }
+
     &__actions {
       display: flex;
       gap: 40px;
@@ -74,22 +78,6 @@
         align-items: center;
         gap: 20px;
       }
-    }
-  }
-
-  .copy-link {
-    display: flex;
-    height: fit-content;
-    position: relative;
-
-    &__text {
-      position: absolute;
-      left: 50%;
-      bottom: -10px;
-      transform: translate(-50%, 100%);
-      @include mixins.font('text');
-      color: var(--text);
-      text-wrap: nowrap;
     }
   }
 }

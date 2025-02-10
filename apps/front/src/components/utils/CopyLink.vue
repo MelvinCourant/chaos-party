@@ -1,4 +1,5 @@
 <script setup>
+import '../../assets/css/components/utils/_copy-link.scss';
 import { useI18n } from "vue-i18n";
 import Icon from "./Icon.vue";
 import Button from "../inputs/Button.vue";
@@ -11,7 +12,7 @@ const partyStore = usePartyStore();
 const partyId = partyStore.partyId;
 
 function copyLink() {
-  navigator.clipboard.writeText(window.location.href.replace("/lobby", `/${partyId}`));
+  navigator.clipboard.writeText(`${window.location.origin}/${partyId}`);
 
   linkCopied.value = true;
 
