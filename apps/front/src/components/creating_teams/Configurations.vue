@@ -6,7 +6,7 @@ import Select from "../inputs/Select.vue";
 import Button from "../inputs/Button.vue";
 import { useI18n } from "vue-i18n";
 import { useUserStore } from "../../stores/user.js";
-import { usePartyStore } from "../../stores/party.js";
+import {inject} from "vue";
 
 defineProps({
   numberTeamsSelect: {
@@ -24,8 +24,7 @@ defineEmits(["randomTeams", "change"]);
 const { t } = useI18n();
 const userStore = useUserStore();
 const user = userStore.user;
-const partyStore = usePartyStore();
-const hostId = partyStore.hostId;
+const hostId = inject("hostId");
 </script>
 
 <template>

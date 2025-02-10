@@ -20,7 +20,7 @@ const userStore = useUserStore();
 const user = userStore.user;
 const partyStore = usePartyStore();
 const partyId = partyStore.partyId;
-const hostId = partyStore.hostId;
+const hostId = ref(partyStore.hostId);
 const numberTeamsSelect = reactive([
   {
     "label": t("number_teams", { quantity: 2 }),
@@ -44,7 +44,7 @@ const configurations = reactive([
     "description": t("drawing_time.description"),
     "icon": "time",
     "attributes": {
-      "disabled": hostId !== user.id,
+      "disabled": hostId.value !== user.id,
       "id": "drawing-time"
     },
     "options": [
@@ -70,7 +70,7 @@ const configurations = reactive([
     "description": t("voting_time.description"),
     "icon": "time",
     "attributes": {
-      "disabled": hostId !== user.id,
+      "disabled": hostId.value !== user.id,
       "id": "voting-time"
     },
     "options": [
@@ -96,7 +96,7 @@ const configurations = reactive([
     "description": t("defilement.description"),
     "icon": "defilement",
     "attributes": {
-      "disabled": hostId !== user.id,
+      "disabled": hostId.value !== user.id,
       "id": "defilement"
     },
     "options": [
@@ -116,6 +116,7 @@ const configurations = reactive([
 const teams = ref([]);
 const maxPlayersInTeam = ref(4);
 
+provide("hostId", hostId);
 provide("maxPlayers", maxPlayersInTeam);
 
 async function getPartyConfigurations() {
@@ -321,6 +322,23 @@ onMounted(() => {
       if (playerIndex !== -1) {
         team.players.splice(playerIndex, 1);
       }
+    });
+  });
+
+  socket.on("new-host", (host) => {
+    teams.value.forEach((team) => {
+      team.players.forEach((player) => {
+        if (player.id === host.id) {
+          player.role = "host";
+        }
+      });
+    });
+
+    hostId.value = host.id;
+    partyStore.updateHostId(host.id);
+
+    configurations.forEach((configuration) => {
+      configuration.attributes.disabled = host.id !== user.id;
     });
   });
 

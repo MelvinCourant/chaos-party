@@ -104,6 +104,7 @@ export default class PartiesController {
           return response.json({
             id: party.id,
             user: userExist,
+            step: party.step,
           })
         }
       }
