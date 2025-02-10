@@ -59,5 +59,9 @@ router
     router.patch('/join-team', async (data) => {
       return teamsController.join(data)
     })
+
+    router.patch('/leave-team', async (data) => {
+      return teamsController.leave(data)
+    })
   })
   .prefix('api/teams')

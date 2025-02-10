@@ -17,3 +17,12 @@ export const joinTeamValidator = vine.compile(
     team_id: vine.string().trim().uuid(),
   })
 )
+
+export const leaveTeamValidator = vine.compile(
+  vine.object({
+    socket_id: vine.string().trim(),
+    user_id: vine.string().trim().uuid(),
+    party_id: vine.string().trim().uuid(),
+    team_id: vine.string().trim().uuid(),
+  })
+)

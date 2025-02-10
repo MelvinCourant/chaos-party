@@ -169,20 +169,66 @@ async function playerJoinTeam(teamId) {
 }
 
 async function playerLeaveTeam(teamId) {
+  const response = await fetch(`${env.VITE_URL}/api/teams/leave-team`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Language": userStore.language,
+    },
+    body: JSON.stringify({
+      party_id: partyId,
+      socket_id: socket.id,
+      user_id: user.id,
+      team_id: teamId,
+    }),
+  });
 
+  if (response.ok) {
+    const json = await response.json();
+    teams.value.forEach((team) => {
+      if (team.id === json.team.id) {
+        const playerIndex = team.players.findIndex((player) => player.id === json.user.id);
+        if (playerIndex !== -1) {
+          team.players.splice(playerIndex, 1);
+        }
+      }
+    });
+  }
 }
 
 onMounted(() => {
   getPartyConfigurations();
 
   socket.on("join-team", (newTeam, userJoining) => {
+    if(userJoining.id === user.id) {
+      return;
+    }
+
     teams.value.forEach((team) => {
-      const playerIndex = team.players.findIndex((player) => player.id === userJoining.id);
+      const playerIndex =
+        team.players.findIndex((player) => player.id === userJoining.id);
+
       if (playerIndex !== -1) {
         team.players.splice(playerIndex, 1);
       }
+
       if (team.id === newTeam.id) {
         team.players.push(userJoining);
+      }
+    });
+  });
+
+  socket.on("leave-team", (oldTeam, userLeave) => {
+    if(userLeave.id === user.id) {
+      return;
+    }
+
+    teams.value.forEach((team) => {
+      if (team.id === oldTeam.id) {
+        const playerIndex = team.players.findIndex((player) => player.id === userLeave.id);
+        if (playerIndex !== -1) {
+          team.players.splice(playerIndex, 1);
+        }
       }
     });
   });

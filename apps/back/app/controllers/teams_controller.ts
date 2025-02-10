@@ -1,5 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import { createTeamsValidator, joinTeamValidator } from '#validators/team'
+import { createTeamsValidator, joinTeamValidator, leaveTeamValidator } from '#validators/team'
 import Ws from '#services/Ws'
 import Party from '#models/party'
 import Team from '#models/team'
@@ -65,6 +65,41 @@ export default class TeamsController {
     await user.save()
 
     Ws.io?.to(party.id).emit('join-team', team, user)
+
+    return response.json({
+      team: team,
+      user: user,
+    })
+  }
+
+  public async leave({ i18n, request, response }: HttpContext) {
+    const payload = await request.validateUsing(leaveTeamValidator)
+    const userId = payload.user_id
+    const partyId = payload.party_id
+    const teamId = payload.team_id
+    const socketId = payload.socket_id
+
+    if (!Ws.io?.sockets.adapter.rooms.has(partyId)) {
+      return response.status(404).json({ message: i18n.t('messages.party_not_found') })
+    } else {
+      // @ts-ignore
+      if (!Ws.io?.sockets.adapter.rooms.get(partyId).has(socketId)) {
+        return response.status(403).json({ message: i18n.t('messages.forbidden') })
+      }
+    }
+
+    const party = await Party.query().where('id', partyId).select('id').firstOrFail()
+    const user = await User.findOrFail(userId)
+    const team = await Team.findOrFail(teamId)
+
+    if (user.party_id !== party.id || team.party_id !== party.id) {
+      return response.status(403).json({ message: i18n.t('messages.forbidden') })
+    }
+
+    user.team_id = ''
+    await user.save()
+
+    Ws.io?.to(party.id).emit('leave-team', team, user)
 
     return response.json({
       team: team,
