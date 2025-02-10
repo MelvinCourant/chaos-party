@@ -5,7 +5,7 @@ import {
   joinPartyValidator,
   showConfigurationsValidator,
   showPartyValidator,
-  updateConfigurationsValidator,
+  updateConfigurationValidator,
   updateModeValidator,
 } from '#validators/party'
 import User from '#models/user'
@@ -223,7 +223,7 @@ export default class PartiesController {
   }
 
   public async updateConfiguration({ i18n, request, response }: HttpContext) {
-    const payload = await request.validateUsing(updateConfigurationsValidator)
+    const payload = await request.validateUsing(updateConfigurationValidator)
     const socketId = payload.socket_id
     const userId = payload.user_id
     const partyId = payload.party_id

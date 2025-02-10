@@ -42,7 +42,7 @@ export const showConfigurationsValidator = vine.compile(
   })
 )
 
-export const updateConfigurationsValidator = vine.compile(
+export const updateConfigurationValidator = vine.compile(
   vine.object({
     socket_id: vine.string().trim(),
     user_id: vine.string().trim().uuid(),
