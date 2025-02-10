@@ -20,10 +20,10 @@ export default class Party extends BaseModel {
   declare step: 'lobby' | 'creating-teams' | 'drawing' | 'voting' | 'results'
 
   @column()
-  declare draw_time: 3 | 2 | 1
+  declare drawing_time: 3 | 2 | 1
 
   @column()
-  declare vote_time: 1.5 | 1 | 0.5
+  declare voting_time: 1.5 | 1 | 0.5
 
   @column()
   declare defilement: 'auto' | 'manual'

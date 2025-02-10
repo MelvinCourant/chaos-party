@@ -1,4 +1,5 @@
 {
+  "bad_request": "Requête incorrecte",
   "forbidden": "Action non autorisée",
   "maximum_players_reached": "Nombre maximum de joueurs atteint",
   "modes": {

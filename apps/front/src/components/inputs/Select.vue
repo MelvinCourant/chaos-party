@@ -22,9 +22,11 @@ defineEmits(["change"]);
 const isOpened = ref(false);
 
 document.addEventListener("click", (event) => {
+  event.stopImmediatePropagation();
+
   if (
-    !event.target.closest("select") &&
-      isOpened.value
+    !event.target.closest(".select__input") &&
+    isOpened.value
   ) {
     isOpened.value = false;
   }
@@ -46,11 +48,11 @@ document.addEventListener("click", (event) => {
       {{ options.find(option => option.selected).label }}
     </span>
     <select
-        :value="options.find(option => option.selected).value"
-        :disabled="attributes.disabled"
-        :id="attributes.id"
-        @change="$emit('change', $event.target.value)"
-        @click="isOpened = !isOpened"
+      class="select__input"
+      :value="options.find(option => option.selected).value"
+      v-bind="attributes"
+      @change="$emit('change', $event.target.value)"
+      @click="isOpened = !isOpened"
     >
       <option
           v-for="option in options"

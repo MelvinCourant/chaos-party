@@ -19,7 +19,7 @@ defineProps({
   },
 });
 
-defineEmits(["randomTeams"]);
+defineEmits(["randomTeams", "change"]);
 
 const { t } = useI18n();
 const userStore = useUserStore();
@@ -79,6 +79,8 @@ const hostId = partyStore.hostId;
           <Select
             :options="configuration.options"
             color="black"
+            :attributes="configuration.attributes"
+            @change="(value) => $emit('change', configuration.attributes.id, value)"
           >
             <svg
               v-if="configuration.icon === 'time'"

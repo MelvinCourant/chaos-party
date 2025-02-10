@@ -5,6 +5,7 @@ import {
   joinPartyValidator,
   showConfigurationsValidator,
   showPartyValidator,
+  updateConfigurationsValidator,
   updateModeValidator,
 } from '#validators/party'
 import User from '#models/user'
@@ -22,8 +23,8 @@ export default class PartiesController {
     const party = await Party.create({
       step: 'lobby',
       mode_id: 1,
-      draw_time: 3,
-      vote_time: 1,
+      drawing_time: 3,
+      voting_time: 1,
       defilement: 'auto',
     })
 
@@ -202,7 +203,7 @@ export default class PartiesController {
 
     const configurations = await Party.query()
       .where('id', partyId)
-      .select('draw_time', 'vote_time', 'defilement')
+      .select('drawing_time', 'voting_time', 'defilement')
       .firstOrFail()
     const teams = await Team.query().where('party_id', partyId).select('id')
     const playersInTeams = await User.query()
@@ -219,5 +220,52 @@ export default class PartiesController {
       configurations: configurations,
       teams: teamsWithPlayers,
     })
+  }
+
+  public async updateConfiguration({ i18n, request, response }: HttpContext) {
+    const payload = await request.validateUsing(updateConfigurationsValidator)
+    const socketId = payload.socket_id
+    const userId = payload.user_id
+    const partyId = payload.party_id
+    const drawingTime = request.input('drawing_time')
+    const votingTime = request.input('voting_time')
+    const defilement = request.input('defilement')
+
+    if (!Ws.io?.sockets.adapter.rooms.has(partyId)) {
+      return response.status(404).json({ message: i18n.t('messages.party_not_found') })
+    } else {
+      // @ts-ignore
+      if (!Ws.io?.sockets.adapter.rooms.get(partyId).has(socketId)) {
+        return response.status(403).json({ message: i18n.t('messages.forbidden') })
+      }
+    }
+
+    const user = await User.query().where('id', userId).select('role', 'party_id').firstOrFail()
+    const party = await Party.findOrFail(partyId)
+
+    if (user.role !== 'host' || user.party_id !== party.id) {
+      return response.status(403).json({ message: i18n.t('messages.forbidden') })
+    }
+
+    let newConfiguration = {}
+
+    if (drawingTime) {
+      party.drawing_time = drawingTime
+      newConfiguration = { drawing_time: drawingTime }
+    } else if (votingTime) {
+      party.voting_time = votingTime
+      newConfiguration = { voting_time: votingTime }
+    } else if (defilement) {
+      party.defilement = defilement
+      newConfiguration = { defilement: defilement }
+    } else {
+      return response.status(400).json({ message: i18n.t('messages.bad_request') })
+    }
+
+    await party.save()
+
+    Ws?.io?.to(partyId).emit('update-configuration', newConfiguration)
+
+    return response.json({ configuration: newConfiguration })
   }
 }

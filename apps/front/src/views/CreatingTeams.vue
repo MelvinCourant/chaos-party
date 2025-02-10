@@ -43,6 +43,10 @@ const configurations = reactive([
     "title": t("drawing_time.title"),
     "description": t("drawing_time.description"),
     "icon": "time",
+    "attributes": {
+      "disabled": hostId !== user.id,
+      "id": "drawing-time"
+    },
     "options": [
       {
         "label": "1 minute",
@@ -65,6 +69,10 @@ const configurations = reactive([
     "title": t("voting_time.title"),
     "description": t("voting_time.description"),
     "icon": "time",
+    "attributes": {
+      "disabled": hostId !== user.id,
+      "id": "voting-time"
+    },
     "options": [
       {
         "label": t("seconds", { number: 30 }),
@@ -87,6 +95,10 @@ const configurations = reactive([
     "title": t("defilement.title"),
     "description": t("defilement.description"),
     "icon": "defilement",
+    "attributes": {
+      "disabled": hostId !== user.id,
+      "id": "defilement"
+    },
     "options": [
       {
         "label": t("automatic"),
@@ -229,6 +241,50 @@ async function randomTeams() {
   }
 }
 
+async function updateConfiguration(configurationId, value) {
+  let body = {
+    party_id: partyId,
+    socket_id: socket.id,
+    user_id: user.id,
+  }
+
+  if(configurationId === "drawing-time") {
+    body.drawing_time = parseInt(value);
+  } else if(configurationId === "voting-time") {
+    body.voting_time = parseFloat(value);
+  } else if(configurationId === "defilement") {
+    body.defilement = value;
+  }
+
+  const response = await fetch(`${env.VITE_URL}/api/parties/update-configuration`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Language": userStore.language,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    const json = await response.json();
+    const configuration = json.configuration
+
+    if(configuration.drawing_time) {
+      configurations[0].options.forEach((option) => {
+        option.selected = option.value === configuration.drawing_time;
+      });
+    } else if(configuration.voting_time) {
+      configurations[1].options.forEach((option) => {
+        option.selected = option.value === configuration.voting_time;
+      });
+    } else if(configuration.defilement) {
+      configurations[2].options.forEach((option) => {
+        option.selected = option.value === configuration.defilement;
+      });
+    }
+  }
+}
+
 onMounted(() => {
   getPartyConfigurations();
 
@@ -273,6 +329,24 @@ onMounted(() => {
       teams.value = newTeams;
     }
   });
+
+  socket.on("update-configuration", (configuration) => {
+    if(hostId !== user.id) {
+      if(configuration.drawing_time) {
+        configurations[0].options.forEach((option) => {
+          option.selected = option.value === configuration.drawing_time;
+        });
+      } else if(configuration.voting_time) {
+        configurations[1].options.forEach((option) => {
+          option.selected = option.value === configuration.voting_time;
+        });
+      } else if(configuration.defilement) {
+        configurations[2].options.forEach((option) => {
+          option.selected = option.value === configuration.defilement;
+        });
+      }
+    }
+  });
 })
 </script>
 
@@ -284,6 +358,7 @@ onMounted(() => {
         :numberTeamsSelect="numberTeamsSelect"
         :configurations="configurations"
         @randomTeams="randomTeams"
+        @change="updateConfiguration"
       />
       <Settings />
       <div class="teams-panel">
