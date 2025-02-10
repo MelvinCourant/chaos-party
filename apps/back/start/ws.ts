@@ -20,11 +20,15 @@ app.ready(() => {
       if (disconnectedUser) {
         disconnectedUser.socket_id = ''
 
-        if (disconnectedUser.party_id) {
-          io.to(disconnectedUser.party_id).emit('leave', disconnectedUser)
-        }
-
         const party = await Party.find(disconnectedUser.party_id)
+
+        if (disconnectedUser.party_id) {
+          io.to(disconnectedUser.party_id).emit('leave-party', disconnectedUser)
+
+          if (party && party.step === 'creating-teams' && disconnectedUser.team_id) {
+            disconnectedUser.team_id = ''
+          }
+        }
 
         if (party && !party.in_progress) {
           disconnectedUser.party_id = ''

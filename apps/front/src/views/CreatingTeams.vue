@@ -196,39 +196,52 @@ async function playerLeaveTeam(teamId) {
   }
 }
 
+function removePlayerFromTeam(oldTeam, player) {
+  teams.value.forEach((team) => {
+    if (team.id === oldTeam.id) {
+      const playerIndex = team.players.findIndex((p) => p.id === player.id);
+      if (playerIndex !== -1) {
+        team.players.splice(playerIndex, 1);
+      }
+    }
+  });
+}
+
 onMounted(() => {
   getPartyConfigurations();
 
-  socket.on("join-team", (newTeam, userJoining) => {
-    if(userJoining.id === user.id) {
+  socket.on("join-team", (newTeam, playerJoining) => {
+    if(playerJoining.id === user.id) {
       return;
     }
 
     teams.value.forEach((team) => {
       const playerIndex =
-        team.players.findIndex((player) => player.id === userJoining.id);
+        team.players.findIndex((player) => player.id === playerJoining.id);
 
       if (playerIndex !== -1) {
         team.players.splice(playerIndex, 1);
       }
 
       if (team.id === newTeam.id) {
-        team.players.push(userJoining);
+        team.players.push(playerJoining);
       }
     });
   });
 
-  socket.on("leave-team", (oldTeam, userLeave) => {
-    if(userLeave.id === user.id) {
+  socket.on("leave-team", (oldTeam, playerLeaving) => {
+    if(playerLeaving.id === user.id) {
       return;
     }
 
+    removePlayerFromTeam(oldTeam, playerLeaving);
+  });
+
+  socket.on("leave-party", (playerLeaving) => {
     teams.value.forEach((team) => {
-      if (team.id === oldTeam.id) {
-        const playerIndex = team.players.findIndex((player) => player.id === userLeave.id);
-        if (playerIndex !== -1) {
-          team.players.splice(playerIndex, 1);
-        }
+      const playerIndex = team.players.findIndex((player) => player.id === playerLeaving.id);
+      if (playerIndex !== -1) {
+        team.players.splice(playerIndex, 1);
       }
     });
   });

@@ -115,7 +115,7 @@ onMounted(() => {
     players.value.push(player);
   });
 
-  socket.on("leave", (player) => {
+  socket.on("leave-party", (player) => {
     players.value = players.value.filter((p) => p.id !== player.id);
   });
 
