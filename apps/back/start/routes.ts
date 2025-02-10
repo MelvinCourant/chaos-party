@@ -63,5 +63,9 @@ router
     router.patch('/leave-team', async (data) => {
       return teamsController.leave(data)
     })
+
+    router.patch('/random-teams', async (data) => {
+      return teamsController.random(data)
+    })
   })
   .prefix('api/teams')

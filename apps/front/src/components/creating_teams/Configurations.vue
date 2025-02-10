@@ -5,6 +5,8 @@ import Icon from "../utils/Icon.vue";
 import Select from "../inputs/Select.vue";
 import Button from "../inputs/Button.vue";
 import { useI18n } from "vue-i18n";
+import { useUserStore } from "../../stores/user.js";
+import { usePartyStore } from "../../stores/party.js";
 
 defineProps({
   numberTeamsSelect: {
@@ -17,7 +19,13 @@ defineProps({
   },
 });
 
+defineEmits(["randomTeams"]);
+
 const { t } = useI18n();
+const userStore = useUserStore();
+const user = userStore.user;
+const partyStore = usePartyStore();
+const hostId = partyStore.hostId;
 </script>
 
 <template>
@@ -45,7 +53,10 @@ const { t } = useI18n();
       />
       Configuration
     </Button>
-    <Button>
+    <Button
+      @click="$emit('randomTeams')"
+      v-if="hostId === user.id"
+    >
       <Icon
         icon="random"
         type="button"

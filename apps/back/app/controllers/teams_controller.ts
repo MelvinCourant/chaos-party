@@ -1,5 +1,10 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import { createTeamsValidator, joinTeamValidator, leaveTeamValidator } from '#validators/team'
+import {
+  createTeamsValidator,
+  joinTeamValidator,
+  leaveTeamValidator,
+  randomTeamsValidator,
+} from '#validators/team'
 import Ws from '#services/Ws'
 import Party from '#models/party'
 import Team from '#models/team'
@@ -104,6 +109,66 @@ export default class TeamsController {
     return response.json({
       team: team,
       user: user,
+    })
+  }
+
+  public async random({ i18n, request, response }: HttpContext) {
+    const payload = await request.validateUsing(randomTeamsValidator)
+    const userId = payload.user_id
+    const partyId = payload.party_id
+    const socketId = payload.socket_id
+
+    if (!Ws.io?.sockets.adapter.rooms.has(partyId)) {
+      return response.status(404).json({ message: i18n.t('messages.party_not_found') })
+    } else {
+      // @ts-ignore
+      if (!Ws.io?.sockets.adapter.rooms.get(partyId).has(socketId)) {
+        return response.status(403).json({ message: i18n.t('messages.forbidden') })
+      }
+    }
+
+    const user = await User.query().where('id', userId).select('role', 'party_id').firstOrFail()
+    const party = await Party.query().where('id', partyId).select('id').firstOrFail()
+
+    if (user.role !== 'host' || party.id !== user.party_id) {
+      return response.unauthorized({
+        message: i18n.t('messages.forbidden'),
+      })
+    }
+
+    const teams = await Team.query().where('party_id', party.id).select('id')
+    const players = await User.query().where('party_id', party.id)
+    const maxPlayersInTeam = Math.floor(players.length / teams.length)
+
+    // Shuffle users
+    for (let i = players.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[players[i], players[j]] = [players[j], players[i]]
+    }
+
+    // Distribute users to teams
+    let teamIndex = 0
+    for (const player of players) {
+      player.team_id = teams[teamIndex].id
+      await player.save()
+
+      teamIndex = (teamIndex + 1) % teams.length
+      if (teamIndex === 0 && players.length / teams.length > maxPlayersInTeam) {
+        break
+      }
+    }
+
+    const teamsWithPlayers = teams.map((team) => {
+      return {
+        id: team.id,
+        players: players.filter((player) => player.team_id === team.id),
+      }
+    })
+
+    Ws.io?.to(party.id).emit('random-teams', teamsWithPlayers)
+
+    return response.json({
+      teams: teamsWithPlayers,
     })
   }
 }

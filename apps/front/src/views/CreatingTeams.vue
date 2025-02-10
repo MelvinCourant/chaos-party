@@ -24,17 +24,17 @@ const hostId = partyStore.hostId;
 const numberTeamsSelect = reactive([
   {
     "label": t("number_teams", { quantity: 2 }),
-    "value": "2",
+    "value": 2,
     "selected": true
   },
   {
     "label": t("number_teams", { quantity: 3 }),
-    "value": "3",
+    "value": 3,
     "selected": false
   },
   {
     "label": t("number_teams", { quantity: 4 }),
-    "value": "4",
+    "value": 4,
     "selected": false
   }
 ]);
@@ -125,6 +125,8 @@ async function getPartyConfigurations() {
     numberTeamsSelect.forEach((option) => {
       if (option.value === partyConfigurations.teams.length) {
         option.selected = true;
+      } else {
+        option.selected = false;
       }
     });
     teams.value = partyConfigurations.teams;
@@ -207,6 +209,26 @@ function removePlayerFromTeam(oldTeam, player) {
   });
 }
 
+async function randomTeams() {
+  const response = await fetch(`${env.VITE_URL}/api/teams/random-teams`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Language": userStore.language,
+    },
+    body: JSON.stringify({
+      party_id: partyId,
+      socket_id: socket.id,
+      user_id: user.id,
+    }),
+  });
+
+  if (response.ok) {
+    const json = await response.json();
+    teams.value = json.teams;
+  }
+}
+
 onMounted(() => {
   getPartyConfigurations();
 
@@ -245,6 +267,12 @@ onMounted(() => {
       }
     });
   });
+
+  socket.on("random-teams", (newTeams) => {
+    if(hostId !== user.id) {
+      teams.value = newTeams;
+    }
+  });
 })
 </script>
 
@@ -255,6 +283,7 @@ onMounted(() => {
       <Configurations
         :numberTeamsSelect="numberTeamsSelect"
         :configurations="configurations"
+        @randomTeams="randomTeams"
       />
       <Settings />
       <div class="teams-panel">
