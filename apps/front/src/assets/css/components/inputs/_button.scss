@@ -2,6 +2,8 @@
 
 .button {
   &__container {
+    display: flex;
+    width: fit-content;
     position: relative;
 
     &:after {
@@ -47,6 +49,14 @@
     .button {
       &__input {
         @include mixins.resetButton(var(--input-black-border), var(--blue));
+      }
+    }
+  }
+
+  &--danger {
+    .button {
+      &__input {
+        @include mixins.resetButton(var(--input-black-border), var(--red));
       }
     }
   }

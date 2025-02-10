@@ -17,7 +17,7 @@ defineProps({
   <div class="players">
     <h2 class="players__title">
       {{ t("players") }}
-      <span class="players__number">{{ players.length }}</span>/12
+      <span class="players__number">{{ players.length }}</span>/16
     </h2>
     <ul class="players__list">
       <li
@@ -28,7 +28,7 @@ defineProps({
         <Player :player="player"/>
       </li>
       <li
-        v-for="index in 12 - players.length"
+        v-for="index in 16 - players.length"
         :key="index"
         class="players__player"
       >

@@ -9,8 +9,9 @@ import CopyLink from "../components/utils/CopyLink.vue";
 import Settings from "../components/inputs/Settings.vue";
 import Icon from "../components/utils/Icon.vue";
 import Button from "../components/inputs/Button.vue";
-import {reactive} from "vue";
+import {reactive, ref} from "vue";
 import Configurations from "../components/creating_teams/Configurations.vue";
+import Teams from "../components/creating_teams/Teams.vue";
 
 const env = import.meta.env;
 const { t } = useI18n();
@@ -100,6 +101,10 @@ const configurations = reactive([
     ]
   }
 ]);
+const teams = ref([]);
+const maxPlayersInTeam = ref(4);
+
+provide("maxPlayers", maxPlayersInTeam);
 
 async function getPartyConfigurations() {
   const response = await fetch(`${env.VITE_URL}/api/parties/party-configurations`, {
@@ -122,12 +127,27 @@ async function getPartyConfigurations() {
         option.selected = true;
       }
     });
+    teams.value = partyConfigurations.teams;
+
+    if(partyConfigurations.teams.length === 2) {
+      maxPlayersInTeam.value = 8;
+    } else if(partyConfigurations.teams.length === 3) {
+      maxPlayersInTeam.value = 6;
+    }
   } else {
     await router.push({ path: '/' });
   }
 }
 
 getPartyConfigurations();
+
+async function playerJoinTeam(userId, teamId) {
+
+}
+
+async function playerLeaveTeam(userId, teamId) {
+
+}
 </script>
 
 <template>
@@ -140,6 +160,11 @@ getPartyConfigurations();
       />
       <Settings />
       <div class="teams-panel">
+        <Teams
+          :teams="teams"
+          @joinTeam="playerJoinTeam"
+          @leaveTeam="playerLeaveTeam"
+        />
         <div class="teams-panel__actions">
           <CopyLink />
           <Button
