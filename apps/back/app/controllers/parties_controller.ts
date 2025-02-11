@@ -75,7 +75,10 @@ export default class PartiesController {
 
     const socket = Ws.sockets.get(socketId)
     if (socket) {
-      const party = await Party.query().where('id', partyId).select('id', 'step').firstOrFail()
+      const party = await Party.query()
+        .where('id', partyId)
+        .select('id', 'step', 'in_progress')
+        .firstOrFail()
       if (!Ws.io?.sockets.adapter.rooms.has(party.id)) {
         return response.status(404).json({ message: i18n.t('messages.party_not_found') })
       }
@@ -95,8 +98,19 @@ export default class PartiesController {
           userExist.socket_id = socket.id
           userExist.pseudo = pseudo
           userExist.image = image
-          userExist.party_id = party.id
-          userExist.role = 'player'
+
+          if (party.in_progress) {
+            const playerExistInParty = await User.query().where('party_id', party.id).first()
+
+            if (!playerExistInParty) {
+              response.status(403).json({ message: i18n.t('messages.forbidden') })
+            }
+          } else {
+            userExist.party_id = party.id
+            userExist.role = 'player'
+            userExist.objective_id = null
+          }
+
           await userExist.save()
 
           Ws?.io?.to(partyId).emit('join', userExist)
