@@ -268,6 +268,8 @@ async function updateNumberTeams(quantity) {
       maxPlayersInTeam.value = 8;
     } else if(json.teams.length === 3) {
       maxPlayersInTeam.value = 6;
+    } else if(json.teams.length === 4) {
+      maxPlayersInTeam.value = 4;
     }
   }
 }

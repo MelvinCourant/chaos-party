@@ -1,6 +1,10 @@
 .teams {
   display: flex;
   flex-wrap: wrap;
-  gap: 40px;
+  gap: 30px;
   width: 100%;
+
+  @media screen and (max-width: 991px) {
+    justify-content: center;
+  }
 }

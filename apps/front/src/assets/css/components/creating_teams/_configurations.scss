@@ -1,7 +1,10 @@
 .configurations {
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
+  row-gap: 10px;
+  column-gap: 20px;
   width: 100%;
+  padding-right: 60px;
 
   #configuration {
     width: 700px;
