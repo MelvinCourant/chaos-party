@@ -8,6 +8,7 @@
     "title": "Defilement",
     "description": "Chaining drawings and votes automatically or manually"
   },
+  "drawing": "Drawing",
   "drawing_time": {
     "title": "Drawing time",
     "description": "The duration to complete the drawing assigned to each team"

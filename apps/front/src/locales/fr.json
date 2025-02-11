@@ -8,6 +8,7 @@
     "title": "Défilement",
     "description": "Enchaîner les dessins et votes en automatique ou en manuel"
   },
+  "drawing": "Dessin",
   "drawing_time": {
     "title": "Temps de dessin",
     "description": "La durée pour réaliser le dessin attribué à chaque équipe"
