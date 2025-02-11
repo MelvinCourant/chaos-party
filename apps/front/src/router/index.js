@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Home from "../views/Home.vue";
 import Lobby from "../views/Lobby.vue";
 import CreatingTeams from "../views/CreatingTeams.vue";
+import Drawing from "../views/Drawing.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -21,6 +22,10 @@ const router = createRouter({
     {
       path: "/creating-teams",
       component: CreatingTeams,
+    },
+    {
+      path: "/drawing",
+      component: Drawing,
     }
   ],
 });

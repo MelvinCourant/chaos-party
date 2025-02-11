@@ -80,5 +80,7 @@
     "whole_thing_tilts_dangerously": "Faites en sorte que l’ensemble penche dangereusement"
   },
   "party_not_found": "Partie introuvable",
+  "party_started": "Partie commencée",
+  "players_without_team": "Des joueurs n'ont pas d'équipe",
   "teams_created": "{quantity} équipes créées"
 }

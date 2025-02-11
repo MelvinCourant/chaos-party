@@ -3,7 +3,7 @@ import Ws from '#services/Ws'
 import {
   createPartyValidator,
   joinPartyValidator,
-  showConfigurationsValidator,
+  defaultValidator,
   showPartyValidator,
   updateConfigurationValidator,
   updateModeValidator,
@@ -12,6 +12,9 @@ import User from '#models/user'
 import Party from '#models/party'
 import Mode from '#models/mode'
 import Team from '#models/team'
+import Mission from '#models/mission'
+import Category from '#models/category'
+import Objective from '#models/objective'
 
 export default class PartiesController {
   public async create({ request, response }: HttpContext) {
@@ -200,7 +203,7 @@ export default class PartiesController {
   }
 
   public async showConfigurations({ i18n, request, response }: HttpContext) {
-    const payload = await request.validateUsing(showConfigurationsValidator)
+    const payload = await request.validateUsing(defaultValidator)
     const partyId = payload.party_id
     const socketId = payload.socket_id
     const userId = payload.user_id
@@ -287,5 +290,91 @@ export default class PartiesController {
     Ws?.io?.to(partyId).emit('update-configuration', newConfiguration)
 
     return response.json({ configuration: newConfiguration })
+  }
+
+  public async start({ i18n, request, response }: HttpContext) {
+    const payload = await request.validateUsing(defaultValidator)
+    const partyId = payload.party_id
+    const socketId = payload.socket_id
+    const userId = payload.user_id
+
+    if (!Ws.io?.sockets.adapter.rooms.has(partyId)) {
+      return response.status(404).json({ message: i18n.t('messages.party_not_found') })
+    } else {
+      // @ts-ignore
+      if (!Ws.io?.sockets.adapter.rooms.get(partyId).has(socketId)) {
+        return response.status(403).json({ message: i18n.t('messages.forbidden') })
+      }
+    }
+
+    const user = await User.query().where('id', userId).select('role', 'party_id').firstOrFail()
+    const party = await Party.findOrFail(partyId)
+
+    if (user.role !== 'host' || user.party_id !== party.id) {
+      return response.status(403).json({ message: i18n.t('messages.forbidden') })
+    }
+
+    const players = await User.query()
+      .where('party_id', party.id)
+      .select('id', 'team_id', 'socket_id')
+    const playersWithoutTeam = players.filter((player) => !player.team_id)
+
+    if (playersWithoutTeam.length > 0) {
+      return response.status(400).json({ message: i18n.t('messages.players_without_team') })
+    }
+
+    party.step = 'drawing'
+    party.in_progress = true
+    await party.save()
+
+    const teams = await Team.query().where('party_id', party.id).select('id', 'mission_id')
+    let missions: string | any[] = []
+
+    if (party.mode_id === 1) {
+      missions = await Mission.query()
+        .where('mode_id', party.mode_id)
+        .orWhereNull('mode_id')
+        .select('id', 'category_id')
+
+      for (const team of teams) {
+        const missionSelected = missions[Math.floor(Math.random() * missions.length)]
+        team.mission_id = missionSelected.id
+        await team.save()
+
+        const category = await Category.query()
+          .where('id', missionSelected.category_id)
+          .select('id')
+          .firstOrFail()
+        const playersInTeam = players.filter((player) => player.team_id === team.id)
+
+        if (playersInTeam.length > 0) {
+          const saboteurIndex = Math.floor(Math.random() * playersInTeam.length)
+          playersInTeam[saboteurIndex].role = 'saboteur'
+          await playersInTeam[saboteurIndex].save()
+
+          const objectives = await Objective.query().where('category_id', category.id).select('id')
+
+          for (const [i, player] of playersInTeam.entries()) {
+            if (i !== saboteurIndex) {
+              const randomObjective = objectives[Math.floor(Math.random() * objectives.length)]
+
+              player.objective_id = randomObjective.id
+              await player.save()
+            }
+          }
+        }
+
+        for (const player of playersInTeam) {
+          const playerSocket = Ws.sockets.get(player.socket_id)
+          if (playerSocket) {
+            playerSocket.join(team.id)
+          }
+        }
+      }
+    }
+
+    Ws?.io?.to(partyId).emit('new-step', party.step)
+
+    return response.json({ message: i18n.t('messages.party_started') })
   }
 }

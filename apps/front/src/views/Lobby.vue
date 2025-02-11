@@ -137,9 +137,7 @@ onMounted(() => {
   });
 
   socket.on("new-step", async (step) => {
-    if(user.id !== hostId.value) {
-      await router.push({ path: `/${step}` });
-    }
+    await router.push({ path: `/${step}` });
   });
 });
 </script>

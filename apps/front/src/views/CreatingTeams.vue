@@ -318,6 +318,28 @@ async function updateConfiguration(configurationId, value) {
   }
 }
 
+async function startParty() {
+  const response = await fetch(`${env.VITE_URL}/api/parties/start-party`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Language": userStore.language,
+    },
+    body: JSON.stringify({
+      party_id: partyId,
+      socket_id: socket.id,
+      user_id: user.id,
+    }),
+  });
+
+  if (response.ok) {
+    await router.push({ path: '/drawing' });
+  } else {
+    const json = await response.json();
+    console.error(json.error);
+  }
+}
+
 onMounted(() => {
   getPartyConfigurations();
 
@@ -406,6 +428,10 @@ onMounted(() => {
       }
     }
   });
+
+  socket.on("new-step", async (step) => {
+    await router.push({ path: `/${step}` });
+  });
 })
 </script>
 
@@ -431,6 +457,7 @@ onMounted(() => {
           <CopyLink />
           <Button
             type="primary"
+            @click="startParty"
             v-if="hostId === user.id"
           >
             <Icon icon="play" type="button" />

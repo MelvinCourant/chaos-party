@@ -39,6 +39,10 @@ router
     router.patch('/update-configuration', async (data) => {
       return partiesController.updateConfiguration(data)
     })
+
+    router.post('/start-party', async (data) => {
+      return partiesController.start(data)
+    })
   })
   .prefix('api/parties')
 

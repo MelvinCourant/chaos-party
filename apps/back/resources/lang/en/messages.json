@@ -80,5 +80,7 @@
     "whole_thing_tilts_dangerously": "Make the whole thing tilt dangerously"
   },
   "party_not_found": "Party not found",
+  "party_started": "Party started",
+  "players_without_team": "Some players have no team",
   "teams_created": "{quantity} teams created"
 }
