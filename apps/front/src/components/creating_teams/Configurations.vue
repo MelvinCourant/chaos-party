@@ -80,7 +80,7 @@ const hostId = inject("hostId");
             :options="configuration.options"
             color="black"
             :attributes="configuration.attributes"
-            @change="(value) => $emit('change', configuration.attributes.id, value)"
+            @change="(value) => $emit('updateConfiguration', configuration.attributes.id, value)"
           >
             <svg
               v-if="configuration.icon === 'time'"
