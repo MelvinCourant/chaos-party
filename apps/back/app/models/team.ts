@@ -3,6 +3,7 @@ import { BaseModel, beforeCreate, column, belongsTo } from '@adonisjs/lucid/orm'
 import { v4 as uuidv4 } from 'uuid'
 import Party from '#models/party'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import Mission from '#models/mission'
 
 export default class Team extends BaseModel {
   @column({ isPrimary: true })
@@ -18,6 +19,12 @@ export default class Team extends BaseModel {
 
   @belongsTo(() => Party)
   declare party: BelongsTo<typeof Party>
+
+  @column()
+  declare mission_id: number | null
+
+  @belongsTo(() => Mission)
+  declare mission: BelongsTo<typeof Mission>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

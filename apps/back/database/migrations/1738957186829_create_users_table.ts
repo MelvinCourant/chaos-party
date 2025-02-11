@@ -11,7 +11,8 @@ export default class extends BaseSchema {
       table.string('image').nullable()
       table.uuid('party_id').nullable()
       table.uuid('team_id').nullable()
-      table.enum('role', ['host', 'player']).notNullable().defaultTo('player')
+      table.enum('role', ['host', 'player', 'saboteur']).notNullable().defaultTo('player')
+      table.integer('objective_id').nullable()
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

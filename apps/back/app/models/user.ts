@@ -1,6 +1,8 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, column } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, belongsTo, column } from '@adonisjs/lucid/orm'
 import { v4 as uuidv4 } from 'uuid'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import Objective from '#models/objective'
 
 export default class User extends BaseModel {
   @column({ isPrimary: true })
@@ -27,7 +29,13 @@ export default class User extends BaseModel {
   declare team_id: string | null
 
   @column()
-  declare role: 'host' | 'player'
+  declare role: 'host' | 'player' | 'saboteur'
+
+  @column()
+  declare objective_id: string | null
+
+  @belongsTo(() => Objective)
+  declare objective: BelongsTo<typeof Objective>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
