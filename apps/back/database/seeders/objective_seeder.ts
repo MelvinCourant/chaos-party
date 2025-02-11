@@ -13,11 +13,11 @@ export default class extends BaseSeeder {
         category_id: 1,
       },
       {
-        description: 'objectives.strange_statue',
+        description: 'objectives.ridiculously_small_huge_door',
         category_id: 1,
       },
       {
-        description: 'objectives.ridiculously_small_huge_door',
+        description: 'objectives.strange_statue',
         category_id: 1,
       },
       {
@@ -25,19 +25,7 @@ export default class extends BaseSeeder {
         category_id: 1,
       },
       {
-        description: 'objectives.overly_large_moustache',
-        category_id: 2,
-      },
-      {
         description: 'objectives.character_ridiculous_accessory',
-        category_id: 2,
-      },
-      {
-        description: 'objectives.tatoo_secret_symbol_body',
-        category_id: 2,
-      },
-      {
-        description: 'objectives.look_sad',
         category_id: 2,
       },
       {
@@ -45,11 +33,23 @@ export default class extends BaseSeeder {
         category_id: 2,
       },
       {
-        description: 'objectives.creature_sunglasses',
+        description: 'objectives.look_sad',
+        category_id: 2,
+      },
+      {
+        description: 'objectives.overly_large_moustache',
+        category_id: 2,
+      },
+      {
+        description: 'objectives.tatoo_secret_symbol_body',
+        category_id: 2,
+      },
+      {
+        description: 'objectives.creature_look_famous_people',
         category_id: 3,
       },
       {
-        description: 'objectives.excessively_long_tail',
+        description: 'objectives.creature_sunglasses',
         category_id: 3,
       },
       {
@@ -57,7 +57,7 @@ export default class extends BaseSeeder {
         category_id: 3,
       },
       {
-        description: 'objectives.creature_look_famous_people',
+        description: 'objectives.excessively_long_tail',
         category_id: 3,
       },
       {
@@ -65,15 +65,7 @@ export default class extends BaseSeeder {
         category_id: 3,
       },
       {
-        description: 'objectives.many_wheels',
-        category_id: 4,
-      },
-      {
         description: 'objectives.machine_expressive_face',
-        category_id: 4,
-      },
-      {
-        description: 'objectives.unnecessary_element',
         category_id: 4,
       },
       {
@@ -81,15 +73,19 @@ export default class extends BaseSeeder {
         category_id: 4,
       },
       {
+        description: 'objectives.many_wheels',
+        category_id: 4,
+      },
+      {
         description: 'objectives.red_button',
         category_id: 4,
       },
       {
-        description: 'objectives.tiny_creature_background',
-        category_id: 5,
+        description: 'objectives.unnecessary_element',
+        category_id: 4,
       },
       {
-        description: 'objectives.something_look_sad_scared',
+        description: 'objectives.detail_human_face',
         category_id: 5,
       },
       {
@@ -101,7 +97,11 @@ export default class extends BaseSeeder {
         category_id: 5,
       },
       {
-        description: 'objectives.detail_human_face',
+        description: 'objectives.something_look_sad_scared',
+        category_id: 5,
+      },
+      {
+        description: 'objectives.tiny_creature_background',
         category_id: 5,
       },
     ])

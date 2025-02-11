@@ -65,26 +65,6 @@ export default class extends BaseSeeder {
         category_id: 3,
       },
       {
-        description: 'missions.desert_island_paradise',
-        category_id: 5,
-      },
-      {
-        description: 'missions.distant_unknown_planet',
-        category_id: 5,
-      },
-      {
-        description: 'missions.enchanted_forest',
-        category_id: 5,
-      },
-      {
-        description: 'missions.giant_mushroom_civilisation',
-        category_id: 5,
-      },
-      {
-        description: 'missions.volcano_full_eruption',
-        category_id: 5,
-      },
-      {
         description: 'missions.everyday_robot_assistant',
         category_id: 4,
       },
@@ -103,6 +83,26 @@ export default class extends BaseSeeder {
       {
         description: 'missions.vehicle_future',
         category_id: 4,
+      },
+      {
+        description: 'missions.desert_island_paradise',
+        category_id: 5,
+      },
+      {
+        description: 'missions.distant_unknown_planet',
+        category_id: 5,
+      },
+      {
+        description: 'missions.enchanted_forest',
+        category_id: 5,
+      },
+      {
+        description: 'missions.giant_mushroom_civilisation',
+        category_id: 5,
+      },
+      {
+        description: 'missions.volcano_full_eruption',
+        category_id: 5,
       },
     ])
   }
