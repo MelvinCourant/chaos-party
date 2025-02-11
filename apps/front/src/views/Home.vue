@@ -20,6 +20,8 @@ const partyStore = usePartyStore();
 const { socket } = useSocketStore();
 const formValues = ref({});
 
+partyStore.updateHostId("");
+
 if(!id) {
   partyStore.updatePartyId("");
 }
