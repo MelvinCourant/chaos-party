@@ -55,5 +55,13 @@ app.ready(() => {
 
       Ws.sockets.delete(socket.id)
     })
+
+    socket.on('mouse-move', (data) => {
+      io?.to(data.team_id).emit('player-move', {
+        x: data.x,
+        y: data.y,
+        socket_id: data.socket_id,
+      })
+    })
   })
 })

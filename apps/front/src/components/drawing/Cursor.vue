@@ -12,7 +12,7 @@ defineProps({
 <template>
   <div
     class="cursor"
-    :style="`top: ${player.y}px; left: ${player.x}px`"
+    :style="`top: ${player.y}%; left: ${player.x}%`"
     v-if="player.x && player.y"
   >
     <svg

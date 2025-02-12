@@ -261,12 +261,13 @@ export default class TeamsController {
     const othersPlayersInTeam = await User.query()
       .where('team_id', team.id)
       .andWhere('id', '!=', user.id)
-      .select('id', 'pseudo', 'color')
+      .select('pseudo', 'socket_id', 'color')
 
     Ws.io?.to(team.id).emit('get-state')
 
     if (user.role === 'saboteur') {
       return response.json({
+        team_id: team.id,
         mission: i18n.t(`messages.${mission.description}`),
         sabotage: i18n.t('messages.sabotage'),
         players: othersPlayersInTeam,
@@ -279,6 +280,7 @@ export default class TeamsController {
       .firstOrFail()
 
     return response.json({
+      team_id: team.id,
       mission: i18n.t(`messages.${mission.description}`),
       objective: i18n.t(`messages.${objective.description}`),
       players: othersPlayersInTeam,

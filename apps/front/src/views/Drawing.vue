@@ -12,6 +12,7 @@ const { t } = useI18n();
 const { socket } = useSocketStore();
 const userStore = useUserStore();
 const user = userStore.user;
+const teamId = ref("")
 const mission = ref("");
 const objective = ref("");
 const isSaboteur = ref(false);
@@ -33,6 +34,7 @@ async function getDrawingDatas() {
   if (response.ok) {
     const json = await response.json();
 
+    teamId.value = json.team_id;
     mission.value = json.mission;
     players.value = json.players;
 
@@ -47,19 +49,40 @@ async function getDrawingDatas() {
   }
 }
 
+function mouseMove(event) {
+  socket.emit("mouse-move", {
+    x: (event.clientX / window.innerWidth) * 100,
+    y: (event.clientY / window.innerHeight) * 100,
+    team_id: teamId.value,
+    socket_id: socket.id,
+  });
+}
+
 onMounted(() => {
   getDrawingDatas();
+
+  socket.on("player-move", (data) => {
+    const player = players.value.find((player) => player.socketId === data.socket_id);
+
+    if (player) {
+      player.x = data.x;
+      player.y = data.y;
+    }
+  });
 });
 </script>
 
 <template>
-  <main class="drawing">
+  <main
+    class="drawing"
+    @mousemove="mouseMove"
+  >
     <h1 class="hidden-title">{{ t("drawing") }}</h1>
 
-    <canvas></canvas>
+    <canvas/>
     <Cursor
       v-for="player in players"
-      :key="player.id"
+      :key="player.socketId"
       :player="player"
     />
   </main>
