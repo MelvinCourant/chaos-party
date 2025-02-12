@@ -21,6 +21,7 @@ export const joinPartyValidator = vine.compile(
 export const showPartyValidator = vine.compile(
   vine.object({
     socket_id: vine.string().trim(),
+    user_id: vine.string().trim().uuid(),
     party_id: vine.string().trim().uuid(),
   })
 )

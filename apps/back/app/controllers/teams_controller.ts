@@ -4,12 +4,15 @@ import {
   joinTeamValidator,
   leaveTeamValidator,
   randomTeamsValidator,
+  showDrawingValidator,
   updateNumberTeamsValidator,
 } from '#validators/team'
 import Ws from '#services/Ws'
 import Party from '#models/party'
 import Team from '#models/team'
 import User from '#models/user'
+import Mission from '#models/mission'
+import Objective from '#models/objective'
 
 export default class TeamsController {
   public async create({ i18n, request, response }: HttpContext) {
@@ -225,6 +228,60 @@ export default class TeamsController {
 
     return response.json({
       teams: teamsWithPlayers,
+    })
+  }
+
+  public async showDrawing({ i18n, request, response }: HttpContext) {
+    const payload = await request.validateUsing(showDrawingValidator)
+    const userId = payload.user_id
+
+    const user = await User.query()
+      .where('id', userId)
+      .select('id', 'pseudo', 'party_id', 'team_id', 'role', 'objective_id')
+      .firstOrFail()
+    const team = await Team.query()
+      .where('id', user.team_id)
+      .select('id', 'party_id', 'mission_id')
+      .firstOrFail()
+
+    if (!Ws.io?.sockets.adapter.rooms.has(team.id)) {
+      return response.status(404).json({ message: i18n.t('messages.party_not_found') })
+    }
+
+    await Party.query().where('id', team.party_id).select('id').firstOrFail()
+
+    if (user.party_id !== team.party_id) {
+      return response.status(403).json({ message: i18n.t('messages.forbidden') })
+    }
+
+    const mission = await Mission.query()
+      .where('id', team.mission_id)
+      .select('description')
+      .firstOrFail()
+    const othersPlayersInTeam = await User.query()
+      .where('team_id', team.id)
+      .andWhere('id', '!=', user.id)
+      .select('pseudo', 'color')
+
+    Ws.io?.to(team.id).emit('get-state')
+
+    if (user.role === 'saboteur') {
+      return response.json({
+        mission: i18n.t(`messages.${mission.description}`),
+        sabotage: i18n.t('messages.sabotage'),
+        players: othersPlayersInTeam,
+      })
+    }
+
+    const objective = await Objective.query()
+      .where('id', user.objective_id)
+      .select('description')
+      .firstOrFail()
+
+    return response.json({
+      mission: i18n.t(`messages.${mission.description}`),
+      objective: i18n.t(`messages.${objective.description}`),
+      players: othersPlayersInTeam,
     })
   }
 }

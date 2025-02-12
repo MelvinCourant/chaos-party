@@ -82,5 +82,6 @@
   "party_not_found": "Party not found",
   "party_started": "Party started",
   "players_without_team": "Some players have no team",
+  "sabotage": "Sabotage: ruin the drawing discreetly",
   "teams_created": "{quantity} teams created"
 }

@@ -38,6 +38,7 @@ async function getParty() {
     },
     body: JSON.stringify({
       party_id: partyId,
+      user_id: user.id,
       socket_id: socket.id,
     }),
   });

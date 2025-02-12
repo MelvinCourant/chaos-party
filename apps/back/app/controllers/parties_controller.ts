@@ -147,6 +147,7 @@ export default class PartiesController {
   public async show({ i18n, request, response }: HttpContext) {
     const payload = await request.validateUsing(showPartyValidator)
     const partyId = payload.party_id
+    const userId = payload.user_id
     const socketId = payload.socket_id
 
     if (!Ws.io?.sockets.adapter.rooms.has(partyId)) {
@@ -158,7 +159,12 @@ export default class PartiesController {
       }
     }
 
-    const party = await Party.findOrFail(partyId)
+    const user = await User.query().where('id', userId).select('party_id').firstOrFail()
+    const party = await Party.query().where('id', partyId).select('id', 'mode_id').firstOrFail()
+
+    if (user.party_id !== party.id) {
+      return response.status(403).json({ message: i18n.t('messages.forbidden') })
+    }
 
     const players = await User.query().where('party_id', partyId).orderBy('updated_at', 'asc')
 
@@ -364,10 +370,14 @@ export default class PartiesController {
           }
         }
 
+        let colors = ['blue', 'red', 'dark-green', 'orange', 'pink', 'purple']
+
         for (const player of playersInTeam) {
           const playerSocket = Ws.sockets.get(player.socket_id)
           if (playerSocket) {
             playerSocket.join(team.id)
+            player.color = colors.shift()
+            await player.save()
           }
         }
       }

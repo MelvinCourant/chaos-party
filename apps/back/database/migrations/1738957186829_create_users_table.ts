@@ -13,6 +13,10 @@ export default class extends BaseSchema {
       table.uuid('team_id').nullable()
       table.enum('role', ['host', 'player', 'saboteur']).notNullable().defaultTo('player')
       table.integer('objective_id').nullable()
+      table
+        .enum('color', ['blue', 'red', 'dark-green', 'orange', 'pink', 'purple'])
+        .nullable()
+        .defaultTo(null)
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

@@ -79,5 +79,9 @@ router
     router.put('/update-number-teams', async (data) => {
       return teamsController.updateNumberTeams(data)
     })
+
+    router.post('/show-drawing', async (data) => {
+      return teamsController.showDrawing(data)
+    })
   })
   .prefix('api/teams')

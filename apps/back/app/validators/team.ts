@@ -43,3 +43,10 @@ export const updateNumberTeamsValidator = vine.compile(
     quantity: vine.number().min(1).max(4),
   })
 )
+
+export const showDrawingValidator = vine.compile(
+  vine.object({
+    socket_id: vine.string().trim(),
+    user_id: vine.string().trim().uuid(),
+  })
+)

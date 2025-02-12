@@ -37,6 +37,9 @@ export default class User extends BaseModel {
   @belongsTo(() => Objective)
   declare objective: BelongsTo<typeof Objective>
 
+  @column()
+  declare color: 'blue' | 'red' | 'dark-green' | 'orange' | 'pink' | 'purple' | null
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
