@@ -5,6 +5,7 @@ import {useSocketStore} from "../stores/socket.js";
 import {useUserStore} from "../stores/user.js";
 import {onMounted, ref} from "vue";
 import router from "../router/index.js";
+import Cursor from "../components/drawing/Cursor.vue";
 
 const env = import.meta.env;
 const { t } = useI18n();
@@ -56,5 +57,10 @@ onMounted(() => {
     <h1 class="hidden-title">{{ t("drawing") }}</h1>
 
     <canvas></canvas>
+    <Cursor
+      v-for="player in players"
+      :key="player.id"
+      :player="player"
+    />
   </main>
 </template>

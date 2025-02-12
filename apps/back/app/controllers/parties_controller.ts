@@ -370,7 +370,7 @@ export default class PartiesController {
           }
         }
 
-        let colors = ['blue', 'red', 'dark-green', 'orange', 'pink', 'purple']
+        let colors = ['dark-blue', 'red', 'dark-green', 'orange', 'pink', 'purple']
 
         for (const player of playersInTeam) {
           const playerSocket = Ws.sockets.get(player.socket_id)

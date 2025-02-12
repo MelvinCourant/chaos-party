@@ -14,7 +14,7 @@ export default class extends BaseSchema {
       table.enum('role', ['host', 'player', 'saboteur']).notNullable().defaultTo('player')
       table.integer('objective_id').nullable()
       table
-        .enum('color', ['blue', 'red', 'dark-green', 'orange', 'pink', 'purple'])
+        .enum('color', ['dark-blue', 'red', 'dark-green', 'orange', 'pink', 'purple'])
         .nullable()
         .defaultTo(null)
 

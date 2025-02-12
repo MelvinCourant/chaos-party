@@ -261,7 +261,7 @@ export default class TeamsController {
     const othersPlayersInTeam = await User.query()
       .where('team_id', team.id)
       .andWhere('id', '!=', user.id)
-      .select('pseudo', 'color')
+      .select('id', 'pseudo', 'color')
 
     Ws.io?.to(team.id).emit('get-state')
 

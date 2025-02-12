@@ -1,0 +1,23 @@
+@use "../../partials/mixins";
+
+.cursor {
+  display: flex;
+  align-items: flex-start;
+  position: fixed;
+  pointer-events: none;
+  opacity: 0.8;
+
+  &__pseudo {
+    position: absolute;
+    top: 5.69px;
+    left: 5.1px;
+    display: inline-flex;
+    height: 30px;
+    padding: 6px 30px 6px 15px;
+    align-items: center;
+    border-radius: 40px;
+    @include mixins.font("pseudo");
+    color: var(--text);
+    text-wrap: nowrap;
+  }
+}
