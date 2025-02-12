@@ -1,11 +1,16 @@
 @use "../../partials/mixins";
 
 .cursor {
-  display: flex;
-  align-items: flex-start;
-  position: fixed;
+  position: absolute;
+  z-index: 2;
   pointer-events: none;
   opacity: 0.8;
+
+  &__container {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+  }
 
   &__pseudo {
     position: absolute;

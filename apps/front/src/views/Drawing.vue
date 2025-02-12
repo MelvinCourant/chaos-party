@@ -3,7 +3,7 @@ import '../assets/css/views/_drawing.scss';
 import {useI18n} from "vue-i18n";
 import {useSocketStore} from "../stores/socket.js";
 import {useUserStore} from "../stores/user.js";
-import {onMounted, ref} from "vue";
+import {onMounted, ref, useTemplateRef} from "vue";
 import router from "../router/index.js";
 import Cursor from "../components/drawing/Cursor.vue";
 
@@ -17,6 +17,7 @@ const mission = ref("");
 const objective = ref("");
 const isSaboteur = ref(false);
 const players = ref([]);
+const canvas = useTemplateRef("canvas");
 
 async function getDrawingDatas() {
   const response = await fetch(`${env.VITE_URL}/api/teams/show-drawing`, {
@@ -50,9 +51,13 @@ async function getDrawingDatas() {
 }
 
 function mouseMove(event) {
+  const rect = canvas.value.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
   socket.emit("mouse-move", {
-    x: (event.clientX / window.innerWidth) * 100,
-    y: (event.clientY / window.innerHeight) * 100,
+    x: x,
+    y: y,
     team_id: teamId.value,
     socket_id: socket.id,
   });
@@ -79,11 +84,13 @@ onMounted(() => {
   >
     <h1 class="hidden-title">{{ t("drawing") }}</h1>
 
-    <canvas/>
-    <Cursor
-      v-for="player in players"
-      :key="player.socketId"
-      :player="player"
-    />
+    <div class="board">
+      <canvas ref="canvas"/>
+      <Cursor
+          v-for="player in players"
+          :key="player.socketId"
+          :player="player"
+      />
+    </div>
   </main>
 </template>

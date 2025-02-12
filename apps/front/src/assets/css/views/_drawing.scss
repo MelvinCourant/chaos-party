@@ -5,6 +5,7 @@
   align-items: center;
   background: var(--blue-gradient);
   padding: 40px 120px 40px 120px;
+  overflow: hidden;
 
   @media screen and (max-width: 1499px) {
     padding: 40px 120px 40px 40px;
@@ -36,9 +37,14 @@
     z-index: 1;
   }
 
-  canvas {
-    width: 770px;
-    height: 560px;
-    background: var(--text);
+  .board {
+    display: inline-flex;
+    position: relative;
+
+    canvas {
+      width: 770px;
+      height: 560px;
+      background: var(--text);
+    }
   }
 }
