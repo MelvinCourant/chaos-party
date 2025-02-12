@@ -63,5 +63,29 @@ app.ready(() => {
         socket_id: data.socket_id,
       })
     })
+
+    socket.on('start-drawing', (data) => {
+      io?.to(data.team_id).emit('start-drawing', {
+        x: data.x,
+        y: data.y,
+        socket_id: data.socket_id,
+      })
+    })
+
+    socket.on('draw', (data) => {
+      io?.to(data.team_id).emit('draw', {
+        x: data.x,
+        y: data.y,
+        socket_id: data.socket_id,
+      })
+    })
+
+    socket.on('stop-drawing', (data) => {
+      io?.to(data.team_id).emit('stop-drawing', {
+        x: data.x,
+        y: data.y,
+        socket_id: data.socket_id,
+      })
+    })
   })
 })
