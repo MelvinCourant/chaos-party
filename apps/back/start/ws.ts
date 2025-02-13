@@ -68,6 +68,13 @@ app.ready(() => {
       })
     })
 
+    socket.on('canvas-state', (data) => {
+      io?.to(data.team_id).emit('canvas-state', {
+        socket_id: data.socket_id,
+        canvas: data.canvas,
+      })
+    })
+
     socket.on('player-move', (data) => {
       io?.to(data.team_id).emit('player-move', {
         x: data.x,

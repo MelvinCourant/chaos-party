@@ -17,6 +17,7 @@ const mission = ref("");
 const objective = ref("");
 const isSaboteur = ref(false);
 const players = ref([]);
+const playerJustJoined = ref(false);
 const canvas = useTemplateRef("canvas");
 const rect = ref(null);
 const position = ref({ x: 0, y: 0 });
@@ -51,10 +52,11 @@ async function getDrawingDatas() {
       objective.value = json.objective;
     }
 
+    playerJustJoined.value = true;
+
     socket.emit("get-state", {
       team_id: teamId.value,
     });
-
   } else {
     await router.push({ path: '/' });
   }
@@ -99,6 +101,10 @@ function draw(event) {
   ctx.value.lineTo(position.value.x, position.value.y);
   ctx.value.stroke();
 
+  if(playerJustJoined.value) {
+    playerJustJoined.value = false;
+  }
+
   socket.emit("draw", {
     x: position.value.x,
     y: position.value.y,
@@ -141,11 +147,19 @@ onMounted(() => {
   });
 
   socket.on("get-state", () => {
+    if(playerJustJoined.value || !canvas.value) return;
+
     socket.emit("player-state", {
       x: position.value.x,
       y: position.value.y,
       team_id: teamId.value,
       socket_id: socket.id,
+    });
+
+    socket.emit("canvas-state", {
+      team_id: teamId.value,
+      socket_id: socket.id,
+      canvas: canvas.value.toDataURL(),
     });
   });
 
@@ -157,6 +171,16 @@ onMounted(() => {
       player.x = data.x;
       player.y = data.y;
     }
+  });
+
+  socket.on("canvas-state", (data) => {
+    if (!canvas.value || socket.id === data.socket_id || !playerJustJoined.value) return;
+
+    const img = new Image();
+    img.onload = () => {
+      ctx.value.drawImage(img, 0, 0);
+    };
+    img.src = data.canvas;
   });
 
   socket.on("player-move", (data) => {
@@ -178,6 +202,10 @@ onMounted(() => {
 
     ctx.value.beginPath();
     ctx.value.moveTo(data.x, data.y);
+
+    if(playerJustJoined.value) {
+      playerJustJoined.value = false;
+    }
   });
 
   socket.on("draw", (data) => {
