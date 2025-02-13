@@ -12,6 +12,11 @@
     align-items: flex-start;
   }
 
+  &__arrow {
+    min-width: 15px;
+    min-height: 15px;
+  }
+
   &__pseudo {
     position: absolute;
     top: 5.69px;
