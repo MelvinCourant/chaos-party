@@ -105,7 +105,9 @@ watch(() => props.mouseMoving, (newValue) => {
 })
 
 onMounted(() => {
-  rect.value = canvas.value.getBoundingClientRect();
+  setTimeout(() => {
+    rect.value = canvas.value.getBoundingClientRect();
+  }, 50);
 
   window.addEventListener("resize", () => {
     rect.value = canvas.value.getBoundingClientRect();
