@@ -18,6 +18,8 @@ const objective = ref("");
 const isSaboteur = ref(false);
 const players = ref([]);
 const canvas = useTemplateRef("canvas");
+const rect = ref(null);
+const position = ref({ x: 0, y: 0 });
 const ctx = ref(null);
 const isDrawing = ref(false);
 const isDrawingMap = ref({})
@@ -48,19 +50,23 @@ async function getDrawingDatas() {
     } else {
       objective.value = json.objective;
     }
+
+    socket.emit("get-state", {
+      team_id: teamId.value,
+    });
+
   } else {
     await router.push({ path: '/' });
   }
 }
 
 function mouseMove(event) {
-  const rect = canvas.value.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+  position.value.x = event.clientX - rect.value.left;
+  position.value.y = event.clientY - rect.value.top;
 
   socket.emit("player-move", {
-    x: x,
-    y: y,
+    x: position.value.x,
+    y: position.value.y,
     team_id: teamId.value,
     socket_id: socket.id,
   });
@@ -69,17 +75,16 @@ function mouseMove(event) {
 function startDrawing(event) {
   if (!canvas.value) return;
 
-  const rect = canvas.value.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+  position.value.x = event.clientX - rect.value.left;
+  position.value.y = event.clientY - rect.value.top;
 
   isDrawing.value = true;
   ctx.value.beginPath();
-  ctx.value.moveTo(x, y);
+  ctx.value.moveTo(position.value.x, position.value.y);
 
   socket.emit("start-drawing", {
-    x: x,
-    y: y,
+    x: position.value.x,
+    y: position.value.y,
     team_id: teamId.value,
     socket_id: socket.id,
   });
@@ -88,16 +93,15 @@ function startDrawing(event) {
 function draw(event) {
   if (!isDrawing.value || !canvas.value) return;
 
-  const rect = canvas.value.getBoundingClientRect();
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+  position.value.x = event.clientX - rect.value.left;
+  position.value.y = event.clientY - rect.value.top;
 
-  ctx.value.lineTo(x, y);
+  ctx.value.lineTo(position.value.x, position.value.y);
   ctx.value.stroke();
 
   socket.emit("draw", {
-    x: x,
-    y: y,
+    x: position.value.x,
+    y: position.value.y,
     team_id: teamId.value,
     socket_id: socket.id,
   });
@@ -117,6 +121,8 @@ function stopDrawing() {
 onMounted(() => {
   getDrawingDatas();
 
+  rect.value = canvas.value.getBoundingClientRect();
+
   if (canvas.value) {
     canvas.value.width = canvas.value.offsetWidth;
     canvas.value.height = canvas.value.offsetHeight;
@@ -126,7 +132,36 @@ onMounted(() => {
     ctx.value.lineCap = "round";
   }
 
+  socket.on("join", (player) => {
+    players.value.push(player);
+  });
+
+  socket.on("leave-party", (data) => {
+    players.value.splice(players.value.findIndex((player) => player.socketId === data.socket_id), 1);
+  });
+
+  socket.on("get-state", () => {
+    socket.emit("player-state", {
+      x: position.value.x,
+      y: position.value.y,
+      team_id: teamId.value,
+      socket_id: socket.id,
+    });
+  });
+
+  socket.on("player-state", (data) => {
+    if(socket.id === data.socket_id) return;
+
+    const player = players.value.find((player) => player.socketId === data.socket_id);
+    if (player) {
+      player.x = data.x;
+      player.y = data.y;
+    }
+  });
+
   socket.on("player-move", (data) => {
+    if(socket.id === data.socket_id) return;
+
     const player = players.value.find((player) => player.socketId === data.socket_id);
     if (player) {
       player.x = data.x;

@@ -108,10 +108,20 @@ export default class PartiesController {
             if (!playerExistInParty) {
               response.status(403).json({ message: i18n.t('messages.forbidden') })
             }
+
+            const team = await Team.query()
+              .where('id', userExist.team_id)
+              .select('id', 'party_id')
+              .first()
+
+            if (team && userExist.party_id === team.party_id) {
+              socket.join(team.id)
+            }
           } else {
             userExist.party_id = party.id
             userExist.role = 'player'
             userExist.objective_id = null
+            userExist.team_id = null
           }
 
           await userExist.save()

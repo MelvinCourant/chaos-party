@@ -263,8 +263,6 @@ export default class TeamsController {
       .andWhere('id', '!=', user.id)
       .select('pseudo', 'socket_id', 'color')
 
-    Ws.io?.to(team.id).emit('get-state')
-
     if (user.role === 'saboteur') {
       return response.json({
         team_id: team.id,

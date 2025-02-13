@@ -56,6 +56,18 @@ app.ready(() => {
       Ws.sockets.delete(socket.id)
     })
 
+    socket.on('get-state', (data) => {
+      io?.to(data.team_id).emit('get-state')
+    })
+
+    socket.on('player-state', (data) => {
+      io?.to(data.team_id).emit('player-state', {
+        x: data.x,
+        y: data.y,
+        socket_id: data.socket_id,
+      })
+    })
+
     socket.on('player-move', (data) => {
       io?.to(data.team_id).emit('player-move', {
         x: data.x,
