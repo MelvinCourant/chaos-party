@@ -1,0 +1,10 @@
+.board {
+  display: inline-flex;
+  position: relative;
+
+  &__canvas {
+    width: 770px;
+    height: 560px;
+    background: var(--text);
+  }
+}

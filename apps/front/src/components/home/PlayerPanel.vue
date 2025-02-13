@@ -14,6 +14,7 @@ import Icon from "../utils/Icon.vue";
 defineEmits(["submitPlayer"]);
 
 const userStore = useUserStore();
+const user = userStore.user;
 const route = useRoute();
 const params = route.params;
 const id = params.id;
@@ -34,14 +35,15 @@ const pseudoInputAttributes = {
   "id": "pseudo",
   "type": "text",
   "placeholder": "Pseudo",
-  "value": userStore.pseudo
+  "value": user.pseudo || "",
+  "maxLength": 15
 };
 const partyButton = reactive({
   "icon": "play",
   "text": t('create_party')
 });
 const formValues = reactive({
-  "pseudo": userStore.pseudo || "",
+  "pseudo": user.pseudo || "",
   "image": ""
 });
 
