@@ -3,8 +3,21 @@ import '../../assets/css/components/drawing/_board.scss';
 import Cursor from "./Cursor.vue";
 import {onMounted, ref, useTemplateRef, watch} from "vue";
 import {useSocketStore} from "../../stores/socket.js";
+import {useI18n} from "vue-i18n";
 
 const props = defineProps({
+  mission: {
+    type: String,
+    required: true,
+  },
+  objective: {
+    type: String,
+    required: true,
+  },
+  isSaboteur: {
+    type: Boolean,
+    required: true,
+  },
   players: {
     type: Array,
     required: true,
@@ -20,6 +33,7 @@ const props = defineProps({
 })
 
 const { socket } = useSocketStore();
+const { t } = useI18n();
 const canvas = useTemplateRef("canvas");
 const rect = ref(null);
 const position = ref({ x: 0, y: 0 });
@@ -93,6 +107,10 @@ watch(() => props.mouseMoving, (newValue) => {
 onMounted(() => {
   rect.value = canvas.value.getBoundingClientRect();
 
+  window.addEventListener("resize", () => {
+    rect.value = canvas.value.getBoundingClientRect();
+  });
+
   if (canvas.value) {
     canvas.value.width = canvas.value.offsetWidth;
     canvas.value.height = canvas.value.offsetHeight;
@@ -164,18 +182,31 @@ onMounted(() => {
 
 <template>
   <div class="board">
-    <canvas
-      ref="canvas"
-      class="board__canvas"
-      @mousedown="startDrawing"
-      @mousemove="draw"
-      @mouseup="stopDrawing"
-      @mouseleave="stopDrawing"
-    />
-    <Cursor
-      v-for="player in players"
-      :key="player.socketId"
-      :player="player"
-    />
+    <h2 class="board__mission">
+      {{ t('draw_dots') }} {{ mission }}{{ t('exclamation_mark')}}
+    </h2>
+    <p
+      :class="[
+        'board__objective',
+        { 'board__objective--sabotage': isSaboteur }
+      ]"
+    >
+      {{ objective }}
+    </p>
+    <div class="board__container">
+      <canvas
+        ref="canvas"
+        class="board__canvas"
+        @mousedown="startDrawing"
+        @mousemove="draw"
+        @mouseup="stopDrawing"
+        @mouseleave="stopDrawing"
+      />
+      <Cursor
+        v-for="player in players"
+        :key="player.socketId"
+        :player="player"
+      />
+    </div>
   </div>
 </template>

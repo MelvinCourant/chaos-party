@@ -8,12 +8,14 @@
     "title": "Défilement",
     "description": "Enchaîner les dessins et votes en automatique ou en manuel"
   },
+  "draw_dots": "Dessine ...",
   "drawing": "Dessin",
   "drawing_time": {
     "title": "Temps de dessin",
     "description": "La durée pour réaliser le dessin attribué à chaque équipe"
   },
   "empty": "Vide",
+  "exclamation_mark": " !",
   "game_configuration": "Configuration de la partie",
   "game_modes": "Modes de jeu",
   "how_to_play": "Comment on joue",

@@ -6,6 +6,7 @@ import { useUserStore } from "../stores/user.js";
 import { onMounted, ref } from "vue";
 import router from "../router/index.js";
 import Board from "../components/drawing/Board.vue";
+import Settings from "../components/inputs/Settings.vue";
 
 const env = import.meta.env;
 const { t } = useI18n();
@@ -93,9 +94,12 @@ onMounted(() => {
     @mousemove="mouseMoving = $event"
   >
     <h1 class="hidden-title">{{ t("drawing") }}</h1>
+    <Settings/>
     <Board
+      :mission="mission"
+      :objective="objective"
+      :isSaboteur="isSaboteur"
       :players="players"
-      :playerJustJoined="playerJustJoined"
       :teamId="teamId"
       :mouseMoving="mouseMoving"
     />

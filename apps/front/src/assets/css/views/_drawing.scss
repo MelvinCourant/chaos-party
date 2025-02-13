@@ -2,7 +2,6 @@
   position: relative;
   display: flex;
   justify-content: center;
-  align-items: center;
   background: var(--blue-gradient);
   padding: 40px 120px 40px 120px;
   overflow: hidden;
@@ -35,5 +34,20 @@
   > * {
     position: relative;
     z-index: 1;
+  }
+
+  .settings {
+    position: absolute;
+    top: 40px;
+    right: 3.76%;
+
+    @media screen and (max-width: 1099px) {
+      right: 40px;
+    }
+
+    @media screen and (max-width: 767px) {
+      top: 20px;
+      right: 20px;
+    }
   }
 }
