@@ -20,6 +20,7 @@ export default class PartiesController {
   public async create({ request, response }: HttpContext) {
     const payload = await request.validateUsing(createPartyValidator)
     const userId = payload.user_id
+    const socketId = payload.socket_id
     const pseudo = payload.pseudo
     const image = payload.image
 
@@ -31,7 +32,7 @@ export default class PartiesController {
       defilement: 'auto',
     })
 
-    const socket = Ws.sockets.values().next().value
+    const socket = Ws.sockets.get(socketId)
     if (socket) {
       socket.join(party.id)
 

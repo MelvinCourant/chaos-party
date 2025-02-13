@@ -5,6 +5,7 @@ export const createPartyValidator = vine.compile(
     user_id: vine.string().trim().uuid().nullable(),
     pseudo: vine.string().trim().minLength(3).maxLength(15),
     image: vine.string().trim().nullable(),
+    socket_id: vine.string().trim(),
   })
 )
 

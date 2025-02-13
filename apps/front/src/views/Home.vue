@@ -29,10 +29,10 @@ if(!id) {
 function saveValues(values) {
   formValues.value = values;
   formValues.value.user_id = user.id;
+  formValues.value.socket_id = socket.id;
 
   if(id) {
     formValues.value.party_id = id;
-    formValues.value.socket_id = socket.id;
     joinParty(formValues.value);
   } else {
     createParty(formValues.value);
