@@ -3,7 +3,7 @@ import '../assets/css/views/_drawing.scss';
 import { useI18n } from "vue-i18n";
 import { useSocketStore } from "../stores/socket.js";
 import { useUserStore } from "../stores/user.js";
-import { onMounted, ref, provide } from "vue";
+import {onMounted, ref, provide} from "vue";
 import router from "../router/index.js";
 import Settings from "../components/inputs/Settings.vue";
 import Draw from "../components/drawing/Draw.vue";
@@ -26,7 +26,6 @@ provide("objective", objective);
 provide("isSaboteur", isSaboteur);
 provide("players", players);
 provide("teamId", teamId);
-provide("mouseMoving", mouseMoving);
 provide("duration", drawingDuration);
 
 async function getDrawingDatas() {
@@ -104,6 +103,8 @@ onMounted(() => {
   >
     <h1 class="hidden-title">{{ t("drawing") }}</h1>
     <Settings/>
-    <Draw/>
+    <Draw
+      :mouseMoving="mouseMoving"
+    />
   </main>
 </template>

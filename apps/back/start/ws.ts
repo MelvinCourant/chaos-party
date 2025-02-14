@@ -87,6 +87,7 @@ app.ready(() => {
       io?.to(data.team_id).emit('start-drawing', {
         x: data.x,
         y: data.y,
+        stroke_style: data.stroke_style,
         socket_id: data.socket_id,
       })
     })

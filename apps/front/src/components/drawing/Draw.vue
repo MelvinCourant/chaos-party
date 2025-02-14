@@ -6,6 +6,13 @@ import Tools from "./Tools.vue";
 import {reactive, ref} from "vue";
 import Palette from "./Palette.vue";
 
+defineProps({
+  mouseMoving: {
+    type: Object,
+    default: null,
+  }
+})
+
 const tools = reactive([
   {
     name: "pen",
@@ -171,6 +178,7 @@ function updateTool(tool) {
     />
     <Board
       :strokeStyle="strokeStyle"
+      :mouseMoving="mouseMoving"
     />
     <Tools
       :tools="tools"

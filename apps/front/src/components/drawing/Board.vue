@@ -6,6 +6,10 @@ import {useSocketStore} from "../../stores/socket.js";
 import {useI18n} from "vue-i18n";
 
 const props = defineProps({
+  mouseMoving: {
+    type: Object,
+    default: null,
+  },
   strokeStyle: {
     type: String,
     default: "#1A120F",
@@ -25,19 +29,6 @@ const objective = inject("objective");
 const isSaboteur = inject("isSaboteur");
 const players = inject("players");
 const teamId = inject("teamId");
-const mouseMoving = inject("mouseMoving");
-
-function mouseMove(event) {
-  position.value.x = event.clientX - rect.value.left;
-  position.value.y = event.clientY - rect.value.top;
-
-  socket.emit("player-move", {
-    x: position.value.x,
-    y: position.value.y,
-    team_id: teamId,
-    socket_id: socket.id,
-  });
-}
 
 function startDrawing(event) {
   if (!canvas.value) return;
@@ -54,7 +45,8 @@ function startDrawing(event) {
   socket.emit("start-drawing", {
     x: position.value.x,
     y: position.value.y,
-    team_id: teamId,
+    stroke_style: props.strokeStyle,
+    team_id: teamId.value,
     socket_id: socket.id,
   });
 }
@@ -71,7 +63,7 @@ function draw(event) {
   socket.emit("draw", {
     x: position.value.x,
     y: position.value.y,
-    team_id: teamId,
+    team_id: teamId.value,
     socket_id: socket.id,
   });
 }
@@ -82,15 +74,10 @@ function stopDrawing() {
   ctx.value.closePath();
 
   socket.emit("stop-drawing", {
-    team_id: teamId,
+    team_id: teamId.value,
     socket_id: socket.id,
   });
 }
-
-watch(() => mouseMoving, (newValue) => {
-  if (!newValue) return;
-  mouseMove(newValue);
-})
 
 onMounted(() => {
   setTimeout(() => {
@@ -109,18 +96,35 @@ onMounted(() => {
     ctx.value.lineJoin = "round";
   }
 
+  function mouseMove(event) {
+    position.value.x = event.clientX - rect.value.left;
+    position.value.y = event.clientY - rect.value.top;
+
+    socket.emit("player-move", {
+      x: position.value.x,
+      y: position.value.y,
+      team_id: teamId.value,
+      socket_id: socket.id,
+    });
+  }
+
+  watch(() => props.mouseMoving, (newValue) => {
+    if (!newValue) return;
+    mouseMove(newValue);
+  })
+
   socket.on("get-state", () => {
     if(!canvas.value) return;
 
     socket.emit("player-state", {
       x: position.value.x,
       y: position.value.y,
-      team_id: teamId,
+      team_id: teamId.value,
       socket_id: socket.id,
     });
 
     socket.emit("canvas-state", {
-      team_id: teamId,
+      team_id: teamId.value,
       socket_id: socket.id,
       canvas: canvas.value.toDataURL(),
     });
@@ -143,6 +147,8 @@ onMounted(() => {
 
     if (!canvas.value) return;
 
+    ctx.value.strokeStyle = data.stroke_style;
+    ctx.value.lineWidth = 4;
     ctx.value.beginPath();
     ctx.value.moveTo(data.x, data.y);
   });
