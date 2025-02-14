@@ -26,10 +26,6 @@ export default class PartiesController {
 
     const party = await Party.create({
       step: 'lobby',
-      mode_id: 1,
-      drawing_time: 3,
-      voting_time: 1,
-      defilement: 'auto',
     })
 
     const socket = Ws.sockets.get(socketId)
@@ -257,7 +253,11 @@ export default class PartiesController {
     })
 
     return response.json({
-      configurations: configurations,
+      configurations: {
+        drawing_time: configurations.drawing_time,
+        voting_time: configurations.voting_time,
+        defilement: configurations.defilement,
+      },
       teams: teamsWithPlayers,
     })
   }

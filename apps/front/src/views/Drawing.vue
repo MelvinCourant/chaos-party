@@ -3,10 +3,10 @@ import '../assets/css/views/_drawing.scss';
 import { useI18n } from "vue-i18n";
 import { useSocketStore } from "../stores/socket.js";
 import { useUserStore } from "../stores/user.js";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, provide } from "vue";
 import router from "../router/index.js";
-import Board from "../components/drawing/Board.vue";
 import Settings from "../components/inputs/Settings.vue";
+import Draw from "../components/drawing/Draw.vue";
 
 const env = import.meta.env;
 const { t } = useI18n();
@@ -19,6 +19,15 @@ const objective = ref("");
 const isSaboteur = ref(false);
 const players = ref([]);
 const mouseMoving = ref(null);
+const drawingDuration = ref(3); // TODO to replace with real duration
+
+provide("mission", mission);
+provide("objective", objective);
+provide("isSaboteur", isSaboteur);
+provide("players", players);
+provide("teamId", teamId);
+provide("mouseMoving", mouseMoving);
+provide("duration", drawingDuration);
 
 async function getDrawingDatas() {
   const response = await fetch(`${env.VITE_URL}/api/teams/show-drawing`, {
@@ -95,13 +104,6 @@ onMounted(() => {
   >
     <h1 class="hidden-title">{{ t("drawing") }}</h1>
     <Settings/>
-    <Board
-      :mission="mission"
-      :objective="objective"
-      :isSaboteur="isSaboteur"
-      :players="players"
-      :teamId="teamId"
-      :mouseMoving="mouseMoving"
-    />
+    <Draw/>
   </main>
 </template>

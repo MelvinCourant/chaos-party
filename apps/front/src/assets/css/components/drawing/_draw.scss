@@ -1,0 +1,11 @@
+.draw {
+  position: relative;
+  display: flex;
+  gap: 25px;
+
+  .timer {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+}

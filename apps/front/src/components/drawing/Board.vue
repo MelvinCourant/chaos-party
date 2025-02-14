@@ -1,36 +1,9 @@
 <script setup>
 import '../../assets/css/components/drawing/_board.scss';
 import Cursor from "./Cursor.vue";
-import {onMounted, ref, useTemplateRef, watch} from "vue";
+import {inject, onMounted, ref, useTemplateRef, watch} from "vue";
 import {useSocketStore} from "../../stores/socket.js";
 import {useI18n} from "vue-i18n";
-
-const props = defineProps({
-  mission: {
-    type: String,
-    required: true,
-  },
-  objective: {
-    type: String,
-    required: true,
-  },
-  isSaboteur: {
-    type: Boolean,
-    required: true,
-  },
-  players: {
-    type: Array,
-    required: true,
-  },
-  teamId: {
-    type: String,
-    required: true,
-  },
-  mouseMoving: {
-    type: Event,
-    required: false,
-  },
-})
 
 const { socket } = useSocketStore();
 const { t } = useI18n();
@@ -40,6 +13,12 @@ const position = ref({ x: 0, y: 0 });
 const ctx = ref(null);
 const isDrawing = ref(false);
 const isDrawingMap = ref({})
+const mission = inject("mission");
+const objective = inject("objective");
+const isSaboteur = inject("isSaboteur");
+const players = inject("players");
+const teamId = inject("teamId");
+const mouseMoving = inject("mouseMoving");
 
 function mouseMove(event) {
   position.value.x = event.clientX - rect.value.left;
@@ -48,7 +27,7 @@ function mouseMove(event) {
   socket.emit("player-move", {
     x: position.value.x,
     y: position.value.y,
-    team_id: props.teamId,
+    team_id: teamId,
     socket_id: socket.id,
   });
 }
@@ -66,7 +45,7 @@ function startDrawing(event) {
   socket.emit("start-drawing", {
     x: position.value.x,
     y: position.value.y,
-    team_id: props.teamId,
+    team_id: teamId,
     socket_id: socket.id,
   });
 }
@@ -83,7 +62,7 @@ function draw(event) {
   socket.emit("draw", {
     x: position.value.x,
     y: position.value.y,
-    team_id: props.teamId,
+    team_id: teamId,
     socket_id: socket.id,
   });
 }
@@ -94,12 +73,12 @@ function stopDrawing() {
   ctx.value.closePath();
 
   socket.emit("stop-drawing", {
-    team_id: props.teamId,
+    team_id: teamId,
     socket_id: socket.id,
   });
 }
 
-watch(() => props.mouseMoving, (newValue) => {
+watch(() => mouseMoving, (newValue) => {
   if (!newValue) return;
   mouseMove(newValue);
 })
@@ -128,12 +107,12 @@ onMounted(() => {
     socket.emit("player-state", {
       x: position.value.x,
       y: position.value.y,
-      team_id: props.teamId,
+      team_id: teamId,
       socket_id: socket.id,
     });
 
     socket.emit("canvas-state", {
-      team_id: props.teamId,
+      team_id: teamId,
       socket_id: socket.id,
       canvas: canvas.value.toDataURL(),
     });
