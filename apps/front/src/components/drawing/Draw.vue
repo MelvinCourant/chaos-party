@@ -3,11 +3,12 @@ import '../../assets/css/components/drawing/_draw.scss';
 import Board from "./Board.vue";
 import Timer from "./Timer.vue";
 import Tools from "./Tools.vue";
-import {ref} from "vue";
+import {reactive, ref} from "vue";
+import Palette from "./Palette.vue";
 
 defineEmits(['selectTool']);
 
-const tools = ref([
+const tools = reactive([
   {
     name: "pen",
     icon: "pen",
@@ -49,9 +50,96 @@ const tools = ref([
     selected: false,
   },
 ]);
+const colors = reactive([
+  {
+    name: 'gray',
+    selected: false,
+  },
+  {
+    name: 'black',
+    selected: true,
+  },
+  {
+    name: 'beige',
+    selected: false,
+  },
+  {
+    name: 'text',
+    selected: false,
+  },
+  {
+    name: 'dark-blue',
+    selected: false,
+  },
+  {
+    name: 'blue',
+    selected: false,
+  },
+  {
+    name: 'dark-red-2',
+    selected: false,
+  },
+  {
+    name: 'red',
+    selected: false,
+  },
+  {
+    name: 'dark-yellow',
+    selected: false,
+  },
+  {
+    name: 'yellow',
+    selected: false,
+  },
+  {
+    name: 'dark-orange',
+    selected: false,
+  },
+  {
+    name: 'orange',
+    selected: false,
+  },
+  {
+    name: 'dark-green',
+    selected: false,
+  },
+  {
+    name: 'green',
+    selected: false,
+  },
+  {
+    name: 'purple',
+    selected: false,
+  },
+  {
+    name: 'pink',
+    selected: false,
+  }
+]);
+const customColor = reactive({
+  name: 'custom',
+  value: '#000000',
+  selected: false,
+});
+
+function updateColor(color) {
+  if(color.name === 'custom') {
+    color.value = color.value || '#000000';
+    customColor.selected = true;
+
+    colors.forEach((c) => {
+      c.selected = false;
+    });
+  } else {
+    colors.forEach((c) => {
+      c.selected = c.name === color.name;
+    });
+    customColor.selected = false;
+  }
+}
 
 function updateTool(tool) {
-  tools.value.forEach((t) => {
+  tools.forEach((t) => {
     t.selected = t.name === tool;
   });
 }
@@ -59,6 +147,11 @@ function updateTool(tool) {
 
 <template>
   <div class="draw">
+    <Palette
+      :colors="colors"
+      :customColor="customColor"
+      @selectColor="updateColor"
+    />
     <Board />
     <Tools
       :tools="tools"
