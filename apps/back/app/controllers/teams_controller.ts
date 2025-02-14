@@ -248,7 +248,10 @@ export default class TeamsController {
       return response.status(404).json({ message: i18n.t('messages.party_not_found') })
     }
 
-    await Party.query().where('id', team.party_id).select('id').firstOrFail()
+    const party = await Party.query()
+      .where('id', team.party_id)
+      .select('id', 'drawing_time')
+      .firstOrFail()
 
     if (user.party_id !== team.party_id) {
       return response.status(403).json({ message: i18n.t('messages.forbidden') })

@@ -8,12 +8,14 @@
     "title": "Defilement",
     "description": "Chaining drawings and votes automatically or manually"
   },
+  "draw_dots": "Draw ...",
   "drawing": "Drawing",
   "drawing_time": {
     "title": "Drawing time",
     "description": "The duration to complete the drawing assigned to each team"
   },
   "empty": "Empty",
+  "exclamation_mark": "!",
   "game_configuration": "game configuration",
   "game_modes": "Game modes",
   "how_to_play": "How to play",

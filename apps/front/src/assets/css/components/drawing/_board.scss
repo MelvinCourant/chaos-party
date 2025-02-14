@@ -1,0 +1,74 @@
+@use "../../partials/mixins";
+
+.board {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 814px;
+  height: fit-content;
+  padding: 15px;
+  gap: 15px;
+  position: relative;
+  border-radius: 13px;
+  border: 5px solid var(--dark-orange);
+  background: var(--orange);
+  box-shadow: var(--shadow);
+
+  &__container {
+    display: flex;
+    height: fit-content;
+    position: relative;
+    border: 2px solid var(--dark-orange);
+
+    &:before,
+    &:after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    &:before {
+      background-blend-mode: darken;
+      background: transparent url("../../../../assets/imgs/paper-texture.jpg") no-repeat;
+      opacity: 0.3;
+    }
+
+    &:after {
+      box-shadow: 6px 6px 4px 0px rgba(26, 18, 15, 0.25) inset, -6px -6px 4px 0px rgba(26, 18, 15, 0.25) inset;
+    }
+  }
+
+  &__mission {
+    @include mixins.font('xl title');
+    color: var(--text);
+    text-align: center;
+    max-width: 620px;
+  }
+
+  &__objective {
+    @include mixins.font('small title');
+    border-radius: var(--card-radius);
+    padding: 10px;
+
+    &:not(&--sabotage) {
+      color: var(--black);
+      background-color: var(--yellow);
+    }
+
+    &--sabotage {
+      color: var(--text);
+      background-color: var(--red);
+    }
+  }
+
+  &__canvas {
+    width: 770px;
+    height: 560px;
+    background: var(--text);
+  }
+}

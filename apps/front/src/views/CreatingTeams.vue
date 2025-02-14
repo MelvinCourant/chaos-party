@@ -149,6 +149,25 @@ async function getPartyConfigurations() {
     } else if(partyConfigurations.teams.length === 3) {
       maxPlayersInTeam.value = 6;
     }
+
+    const actualConfiguration = partyConfigurations.configurations;
+    if(actualConfiguration.drawing_time) {
+      configurations[0].options.forEach((option) => {
+        option.selected = option.value === parseInt(actualConfiguration.drawing_time);
+      });
+    }
+
+    if(actualConfiguration.voting_time) {
+      configurations[1].options.forEach((option) => {
+        option.selected = option.value === parseFloat(actualConfiguration.voting_time);
+      });
+    }
+
+    if(actualConfiguration.defilement) {
+      configurations[2].options.forEach((option) => {
+        option.selected = option.value === actualConfiguration.defilement;
+      });
+    }
   } else {
     await router.push({ path: '/' });
   }
@@ -391,9 +410,15 @@ onMounted(() => {
     hostId.value = host.id;
     partyStore.updateHostId(host.id);
 
-    configurations.forEach((configuration) => {
-      configuration.attributes.disabled = host.id !== user.id;
-    });
+    if(host.id === user.id) {
+      configurations.forEach((configuration) => {
+        configuration.attributes.disabled = false;
+      });
+    } else {
+      configurations.forEach((configuration) => {
+        configuration.attributes.disabled = true;
+      });
+    }
   });
 
   socket.on("random-teams", (newTeams) => {

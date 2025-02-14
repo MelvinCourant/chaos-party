@@ -2,7 +2,6 @@
   position: relative;
   display: flex;
   justify-content: center;
-  align-items: center;
   background: var(--blue-gradient);
   padding: 40px 120px 40px 120px;
   overflow: hidden;
@@ -37,14 +36,18 @@
     z-index: 1;
   }
 
-  .board {
-    display: inline-flex;
-    position: relative;
+  .settings {
+    position: absolute;
+    top: 40px;
+    right: 3.76%;
 
-    canvas {
-      width: 770px;
-      height: 560px;
-      background: var(--text);
+    @media screen and (max-width: 1099px) {
+      right: 40px;
+    }
+
+    @media screen and (max-width: 767px) {
+      top: 20px;
+      right: 20px;
     }
   }
 }
