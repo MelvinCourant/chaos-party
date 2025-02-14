@@ -5,6 +5,13 @@ import {inject, onMounted, ref, useTemplateRef, watch} from "vue";
 import {useSocketStore} from "../../stores/socket.js";
 import {useI18n} from "vue-i18n";
 
+const props = defineProps({
+  strokeStyle: {
+    type: String,
+    default: "#1A120F",
+  }
+});
+
 const { socket } = useSocketStore();
 const { t } = useI18n();
 const canvas = useTemplateRef("canvas");
@@ -39,6 +46,8 @@ function startDrawing(event) {
   position.value.y = event.clientY - rect.value.top;
 
   isDrawing.value = true;
+  ctx.value.strokeStyle = props.strokeStyle;
+  ctx.value.lineWidth = 4;
   ctx.value.beginPath();
   ctx.value.moveTo(position.value.x, position.value.y);
 
@@ -96,9 +105,8 @@ onMounted(() => {
     canvas.value.width = canvas.value.offsetWidth;
     canvas.value.height = canvas.value.offsetHeight;
     ctx.value = canvas.value.getContext("2d");
-    ctx.value.strokeStyle = "black";
-    ctx.value.lineWidth = 2;
     ctx.value.lineCap = "round";
+    ctx.value.lineJoin = "round";
   }
 
   socket.on("get-state", () => {

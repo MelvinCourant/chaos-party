@@ -6,8 +6,6 @@ import Tools from "./Tools.vue";
 import {reactive, ref} from "vue";
 import Palette from "./Palette.vue";
 
-defineEmits(['selectTool']);
-
 const tools = reactive([
   {
     name: "pen",
@@ -53,66 +51,82 @@ const tools = reactive([
 const colors = reactive([
   {
     name: 'gray',
+    value: '#807978',
     selected: false,
   },
   {
     name: 'black',
+    value: '#1A120F',
     selected: true,
   },
   {
     name: 'beige',
+    value: '#FF9066',
     selected: false,
   },
   {
     name: 'text',
+    value: '#FDF1ED',
     selected: false,
   },
   {
     name: 'dark-blue',
+    value: '#2852EB',
     selected: false,
   },
   {
     name: 'blue',
+    value: '#28B4EB',
     selected: false,
   },
   {
     name: 'dark-red-2',
+    value: '#B20000',
     selected: false,
   },
   {
     name: 'red',
+    value: '#E22929',
     selected: false,
   },
   {
     name: 'dark-yellow',
+    value: '#B2931E',
     selected: false,
   },
   {
     name: 'yellow',
+    value: '#EBC128',
     selected: false,
   },
   {
     name: 'dark-orange',
+    value: '#A73509',
     selected: false,
   },
   {
     name: 'orange',
+    value: '#EB5E28',
     selected: false,
   },
   {
     name: 'dark-green',
+    value: '#0F590F',
     selected: false,
   },
   {
     name: 'green',
+    value: '#21BF21',
     selected: false,
   },
   {
     name: 'purple',
+    value: '#792BFF',
     selected: false,
   },
   {
     name: 'pink',
+    value: '#EB2870',
     selected: false,
   }
 ]);
@@ -121,10 +135,11 @@ const customColor = reactive({
   value: '#000000',
   selected: false,
 });
+const strokeStyle = ref("#1A120F")
 
 function updateColor(color) {
   if(color.name === 'custom') {
-    color.value = color.value || '#000000';
+    customColor.value = color.value || '#000000';
     customColor.selected = true;
 
     colors.forEach((c) => {
@@ -136,6 +151,8 @@ function updateColor(color) {
     });
     customColor.selected = false;
   }
+
+  strokeStyle.value = color.value;
 }
 
 function updateTool(tool) {
@@ -152,7 +169,9 @@ function updateTool(tool) {
       :customColor="customColor"
       @selectColor="updateColor"
     />
-    <Board />
+    <Board
+      :strokeStyle="strokeStyle"
+    />
     <Tools
       :tools="tools"
       @selectTool="updateTool"

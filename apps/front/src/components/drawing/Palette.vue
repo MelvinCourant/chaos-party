@@ -44,7 +44,7 @@ defineEmits(['selectColor']);
       <input
         type="color"
         v-model="customColor.value"
-        @click="$emit('selectColor', customColor)"
+        @input="$emit('selectColor', customColor)"
       />
     </label>
   </div>
