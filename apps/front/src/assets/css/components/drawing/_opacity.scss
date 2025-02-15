@@ -1,0 +1,36 @@
+.opacity {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  width: fit-content;
+  height: fit-content;
+  padding: 12px;
+  border-radius: 13px;
+  border: 5px solid var(--dark-orange);
+  background: var(--orange);
+  box-shadow: var(--shadow);
+
+  &__min,
+  &__max {
+    width: 31px;
+    height: 31px;
+    border-radius: 50%;
+  }
+
+  &__min {
+    border: var(--input-white-border);
+    background: var(--white-transparent-20);
+  }
+
+  .range {
+    width: 200px;
+
+    &::-webkit-slider-thumb {
+      background: var(--yellow);
+    }
+  }
+
+  &__max {
+    background: var(--text);
+  }
+}

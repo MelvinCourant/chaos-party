@@ -1,6 +1,6 @@
 <script setup>
-import '../../assets/css/components/inputs/_range.scss';
-import {ref, watch} from "vue";
+import "../../assets/css/components/inputs/_range.scss";
+import { ref, watch } from "vue";
 
 const props = defineProps({
   attributes: {
@@ -10,17 +10,22 @@ const props = defineProps({
       max: 100,
       step: 1,
       value: 50,
-    }
-  }
-})
-
-const linearGradient = ref(`linear-gradient(to right, var(--blue) ${props.attributes.value}%, var(--blue-transparent-30) ${props.attributes.value}%)`);
-
-watch(() => props.attributes.value, (value) => {
-  linearGradient.value = `linear-gradient(to right, var(--blue) ${value}%, var(--blue-transparent-30) ${value}%)`;
+    },
+  },
 });
 
-defineEmits(['input']);
+const linearGradient = ref(
+  `linear-gradient(to right, var(--blue) ${props.attributes.value - props.attributes.min}%, var(--blue-transparent-30) ${props.attributes.value}%)`,
+);
+
+watch(
+  () => props.attributes.value,
+  (value) => {
+    linearGradient.value = `linear-gradient(to right, var(--blue) ${value - props.attributes.min}%, var(--blue-transparent-30) ${value}%)`;
+  },
+);
+
+defineEmits(["input"]);
 </script>
 
 <template>

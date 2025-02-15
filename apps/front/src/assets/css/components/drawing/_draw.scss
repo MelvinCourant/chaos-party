@@ -9,6 +9,11 @@
     gap: 25px;
   }
 
+  &__footer {
+    display: flex;
+    justify-content: space-between;
+  }
+
   .timer {
     position: absolute;
     top: 0;

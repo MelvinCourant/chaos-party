@@ -6,6 +6,7 @@ import Tools from "./Tools.vue";
 import { reactive, ref } from "vue";
 import Palette from "./Palette.vue";
 import Thicknesses from "./Thicknesses.vue";
+import Opacity from "./Opacity.vue";
 
 defineProps({
   mouseMoving: {
@@ -143,7 +144,6 @@ const customColor = reactive({
   value: "#000000",
   selected: false,
 });
-const strokeStyle = ref("#1A120F");
 const thicknesses = reactive([
   {
     value: 4,
@@ -166,7 +166,15 @@ const thicknesses = reactive([
     selected: false,
   },
 ]);
+const opacityAttributes = reactive({
+  min: 20,
+  max: 100,
+  step: 1,
+  value: 100,
+});
+const strokeStyle = ref("#1A120F");
 const lineWidth = ref(8);
+const opacity = ref(100);
 
 function updateColor(color) {
   if (color.name === "custom") {
@@ -198,6 +206,11 @@ function updateThickness(thickness) {
   });
   lineWidth.value = thickness;
 }
+
+function updateOpacity(value) {
+  opacityAttributes.value = value;
+  opacity.value = value;
+}
 </script>
 
 <template>
@@ -218,6 +231,10 @@ function updateThickness(thickness) {
         <Thicknesses
           :thicknesses="thicknesses"
           @selectThickness="updateThickness"
+        />
+        <Opacity
+          :attributes="opacityAttributes"
+          @selectOpacity="updateOpacity"
         />
       </div>
     </div>
