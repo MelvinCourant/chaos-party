@@ -225,6 +225,7 @@ function updateOpacity(value) {
         :mouseMoving="mouseMoving"
         :strokeStyle="strokeStyle"
         :lineWidth="lineWidth"
+        :opacity="opacity"
       />
 
       <div class="draw__footer">
