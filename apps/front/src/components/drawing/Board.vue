@@ -202,6 +202,7 @@ onMounted(() => {
         @mouseup="stopDrawing"
         @mouseleave="stopDrawing"
       />
+      <div class="board__background"></div>
       <Cursor
         v-for="player in players"
         :key="player.socketId"

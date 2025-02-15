@@ -3,19 +3,19 @@
   display: flex;
   justify-content: center;
   background: var(--blue-gradient);
-  padding: 40px 120px 0q 120px;
+  padding: 40px 120px 0 120px;
   overflow: hidden;
 
   @media screen and (max-width: 1499px) {
-    padding: 40px 120px 40px 40px;
+    padding: 40px 120px 0 40px;
   }
 
   @media screen and (max-width: 1099px) {
-    padding: 40px;
+    padding: 40px 40px 0 40px;
   }
 
   @media screen and (max-width: 767px) {
-    padding: 20px;
+    padding: 20px 20px 0 20px;
   }
 
   &::before {
