@@ -88,6 +88,7 @@ app.ready(() => {
         x: data.x,
         y: data.y,
         stroke_style: data.stroke_style,
+        line_width: data.line_width,
         socket_id: data.socket_id,
       })
     })

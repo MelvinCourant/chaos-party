@@ -13,7 +13,11 @@ const props = defineProps({
   strokeStyle: {
     type: String,
     default: "#1A120F",
-  }
+  },
+  lineWidth: {
+    type: Number,
+    default: 8,
+  },
 });
 
 const { socket } = useSocketStore();
@@ -38,7 +42,7 @@ function startDrawing(event) {
 
   isDrawing.value = true;
   ctx.value.strokeStyle = props.strokeStyle;
-  ctx.value.lineWidth = 4;
+  ctx.value.lineWidth = props.lineWidth;
   ctx.value.beginPath();
   ctx.value.moveTo(position.value.x, position.value.y);
 
@@ -46,6 +50,7 @@ function startDrawing(event) {
     x: position.value.x,
     y: position.value.y,
     stroke_style: props.strokeStyle,
+    line_width: props.lineWidth,
     team_id: teamId.value,
     socket_id: socket.id,
   });
@@ -148,7 +153,7 @@ onMounted(() => {
     if (!canvas.value) return;
 
     ctx.value.strokeStyle = data.stroke_style;
-    ctx.value.lineWidth = 4;
+    ctx.value.lineWidth = data.line_width;
     ctx.value.beginPath();
     ctx.value.moveTo(data.x, data.y);
   });

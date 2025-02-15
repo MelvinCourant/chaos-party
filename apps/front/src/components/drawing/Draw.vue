@@ -5,6 +5,7 @@ import Timer from "./Timer.vue";
 import Tools from "./Tools.vue";
 import {reactive, ref} from "vue";
 import Palette from "./Palette.vue";
+import Thicknesses from "./Thicknesses.vue";
 
 defineProps({
   mouseMoving: {
@@ -143,6 +144,29 @@ const customColor = reactive({
   selected: false,
 });
 const strokeStyle = ref("#1A120F")
+const thicknesses = reactive([
+  {
+    value: 4,
+    selected: false,
+  },
+  {
+    value: 8,
+    selected: true,
+  },
+  {
+    value: 12,
+    selected: false,
+  },
+  {
+    value: 16,
+    selected: false,
+  },
+  {
+    value: 24,
+    selected: false,
+  }
+]);
+const lineWidth = ref(8)
 
 function updateColor(color) {
   if(color.name === 'custom') {
@@ -167,6 +191,13 @@ function updateTool(tool) {
     t.selected = t.name === tool;
   });
 }
+
+function updateThickness(thickness) {
+  thicknesses.forEach((t) => {
+    t.selected = t.value === thickness;
+  });
+  lineWidth.value = thickness;
+}
 </script>
 
 <template>
@@ -176,10 +207,17 @@ function updateTool(tool) {
       :customColor="customColor"
       @selectColor="updateColor"
     />
-    <Board
-      :strokeStyle="strokeStyle"
-      :mouseMoving="mouseMoving"
-    />
+    <div class="draw__middle">
+      <Board
+        :mouseMoving="mouseMoving"
+        :strokeStyle="strokeStyle"
+        :lineWidth="lineWidth"
+      />
+      <Thicknesses
+        :thicknesses="thicknesses"
+        @selectThickness="updateThickness"
+      />
+    </div>
     <Tools
       :tools="tools"
       @selectTool="updateTool"
