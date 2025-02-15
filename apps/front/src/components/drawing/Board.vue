@@ -40,8 +40,10 @@ function startDrawing(event) {
   position.value.y = event.clientY - rect.value.top;
   isDrawing.value = true;
 
+  const color = hexToRgba(props.strokeStyle, props.opacity / 100);
+
   ctx.value.globalAlpha = props.opacity / 100;
-  ctx.value.strokeStyle = hexToRgba(props.strokeStyle, props.opacity / 100);
+  ctx.value.strokeStyle = color;
   ctx.value.lineWidth = props.lineWidth;
   ctx.value.lineCap = "round";
   ctx.value.lineJoin = "round";
@@ -52,7 +54,8 @@ function startDrawing(event) {
   socket.emit("start-drawing", {
     x: position.value.x,
     y: position.value.y,
-    stroke_style: props.strokeStyle,
+    global_alpha: props.opacity / 100,
+    stroke_style: color,
     line_width: props.lineWidth,
     team_id: teamId.value,
     socket_id: socket.id,
@@ -91,6 +94,7 @@ onMounted(() => {
   const observer = new MutationObserver(() => {
     rect.value = canvas.value.getBoundingClientRect();
   });
+
   observer.observe(document.body, {
     attributes: true,
     childList: true,
@@ -112,6 +116,90 @@ onMounted(() => {
     ctx.value.lineCap = "round";
     ctx.value.lineJoin = "round";
   }
+
+  function mouseMove(event) {
+    position.value.x = event.clientX - rect.value.left;
+    position.value.y = event.clientY - rect.value.top;
+
+    socket.emit("player-move", {
+      x: position.value.x,
+      y: position.value.y,
+      team_id: teamId.value,
+      socket_id: socket.id,
+    });
+  }
+
+  watch(
+    () => props.mouseMoving,
+    (newValue) => {
+      if (!newValue) return;
+      mouseMove(newValue);
+    },
+  );
+
+  socket.on("get-state", () => {
+    if (!canvas.value) return;
+
+    socket.emit("player-state", {
+      x: position.value.x,
+      y: position.value.y,
+      team_id: teamId.value,
+      socket_id: socket.id,
+    });
+
+    socket.emit("canvas-state", {
+      team_id: teamId.value,
+      socket_id: socket.id,
+      canvas: canvas.value.toDataURL(),
+    });
+  });
+
+  socket.on("canvas-state", (data) => {
+    if (!canvas.value || socket.id === data.socket_id) return;
+
+    const img = new Image();
+
+    img.onload = () => {
+      ctx.value.drawImage(img, 0, 0);
+    };
+    img.src = data.canvas;
+  });
+
+  socket.on("start-drawing", (data) => {
+    if (socket.id === data.socket_id) return;
+
+    isDrawingMap.value[data.socket_id] = true;
+
+    if (!canvas.value) return;
+
+    ctx.value.globalAlpha = data.global_alpha;
+    ctx.value.strokeStyle = data.stroke_style;
+    ctx.value.lineWidth = data.line_width;
+    ctx.value.beginPath();
+    ctx.value.moveTo(data.x, data.y);
+  });
+
+  socket.on("draw", (data) => {
+    if (
+      !canvas.value ||
+      !isDrawingMap.value[data.socket_id] ||
+      socket.id === data.socket_id
+    )
+      return;
+
+    ctx.value.lineTo(data.x, data.y);
+    ctx.value.stroke();
+  });
+
+  socket.on("stop-drawing", (data) => {
+    if (socket.id === data.socket_id) return;
+
+    isDrawingMap.value[data.socket_id] = false;
+
+    if (!canvas.value) return;
+
+    ctx.value.closePath();
+  });
 });
 </script>
 
