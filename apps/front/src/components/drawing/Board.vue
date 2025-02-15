@@ -85,9 +85,10 @@ function stopDrawing() {
 }
 
 onMounted(() => {
-  setTimeout(() => {
+  const observer = new MutationObserver(() => {
     rect.value = canvas.value.getBoundingClientRect();
-  }, 50);
+  });
+  observer.observe(document.body, { attributes: true, childList: true, subtree: true });
 
   window.addEventListener("resize", () => {
     rect.value = canvas.value.getBoundingClientRect();
