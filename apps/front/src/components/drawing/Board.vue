@@ -7,6 +7,7 @@ import { useI18n } from "vue-i18n";
 
 const props = defineProps({
   mouseMoving: { type: Object, default: null },
+  mouseUp: { type: Boolean, default: false },
   strokeStyle: { type: String, default: "#1A120F" },
   lineWidth: { type: Number, default: 8 },
   opacity: { type: Number, default: 100 },
@@ -206,6 +207,14 @@ onMounted(() => {
     (newValue) => {
       if (!newValue) return;
       mouseMove(newValue);
+    },
+  );
+
+  watch(
+    () => props.mouseUp,
+    (newValue) => {
+      if (!newValue) return;
+      stopDrawing();
     },
   );
 

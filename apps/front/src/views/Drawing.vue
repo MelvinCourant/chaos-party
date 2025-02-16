@@ -1,9 +1,9 @@
 <script setup>
-import '../assets/css/views/_drawing.scss';
+import "../assets/css/views/_drawing.scss";
 import { useI18n } from "vue-i18n";
 import { useSocketStore } from "../stores/socket.js";
 import { useUserStore } from "../stores/user.js";
-import {onMounted, ref, provide} from "vue";
+import { onMounted, ref, provide } from "vue";
 import router from "../router/index.js";
 import Settings from "../components/inputs/Settings.vue";
 import Draw from "../components/drawing/Draw.vue";
@@ -19,6 +19,7 @@ const objective = ref("");
 const isSaboteur = ref(false);
 const players = ref([]);
 const mouseMoving = ref(null);
+const mouseUp = ref(false);
 const drawingDuration = ref(3); // TODO to replace with real duration
 
 provide("mission", mission);
@@ -59,7 +60,7 @@ async function getDrawingDatas() {
       team_id: teamId.value,
     });
   } else {
-    await router.push({ path: '/' });
+    await router.push({ path: "/" });
   }
 }
 
@@ -71,13 +72,18 @@ onMounted(() => {
   });
 
   socket.on("leave-party", (data) => {
-    players.value.splice(players.value.findIndex((player) => player.socketId === data.socket_id), 1);
+    players.value.splice(
+      players.value.findIndex((player) => player.socketId === data.socket_id),
+      1,
+    );
   });
 
   socket.on("player-move", (data) => {
-    if(socket.id === data.socket_id) return;
+    if (socket.id === data.socket_id) return;
 
-    const player = players.value.find((player) => player.socketId === data.socket_id);
+    const player = players.value.find(
+      (player) => player.socketId === data.socket_id,
+    );
     if (player) {
       player.x = data.x;
       player.y = data.y;
@@ -85,9 +91,11 @@ onMounted(() => {
   });
 
   socket.on("player-state", (data) => {
-    if(socket.id === data.socket_id) return;
+    if (socket.id === data.socket_id) return;
 
-    const player = players.value.find((player) => player.socketId === data.socket_id);
+    const player = players.value.find(
+      (player) => player.socketId === data.socket_id,
+    );
     if (player) {
       player.x = data.x;
       player.y = data.y;
@@ -100,11 +108,11 @@ onMounted(() => {
   <main
     class="drawing"
     @mousemove="mouseMoving = $event"
+    @mouseup="mouseUp = true"
+    @mousedown="mouseUp = false"
   >
     <h1 class="hidden-title">{{ t("drawing") }}</h1>
-    <Settings/>
-    <Draw
-      :mouseMoving="mouseMoving"
-    />
+    <Settings />
+    <Draw :mouseMoving="mouseMoving" :mouseUp="mouseUp" />
   </main>
 </template>

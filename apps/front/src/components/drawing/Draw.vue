@@ -13,6 +13,10 @@ defineProps({
     type: Object,
     default: null,
   },
+  mouseUp: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const tools = reactive([
@@ -223,6 +227,7 @@ function updateOpacity(value) {
     <div class="draw__middle">
       <Board
         :mouseMoving="mouseMoving"
+        :mouseUp="mouseUp"
         :strokeStyle="strokeStyle"
         :lineWidth="lineWidth"
         :opacity="opacity"
