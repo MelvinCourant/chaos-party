@@ -209,7 +209,7 @@ function updateThickness(thickness) {
 
 function updateOpacity(value) {
   opacityAttributes.value = value;
-  opacity.value = value;
+  opacity.value = parseInt(value);
 }
 </script>
 

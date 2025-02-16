@@ -44,9 +44,32 @@ function startDrawing(event) {
 
   ctx.value.globalAlpha = props.opacity / 100;
   ctx.value.strokeStyle = color;
+  ctx.value.fillStyle = color;
   ctx.value.lineWidth = props.lineWidth;
   ctx.value.lineCap = "round";
   ctx.value.lineJoin = "round";
+
+  // Draw a point on click
+  ctx.value.beginPath();
+  ctx.value.arc(
+    position.value.x,
+    position.value.y,
+    props.lineWidth / 2,
+    0,
+    2 * Math.PI,
+  );
+  ctx.value.fill();
+  ctx.value.closePath();
+
+  socket.emit("draw-point", {
+    x: position.value.x,
+    y: position.value.y,
+    global_alpha: props.opacity / 100,
+    stroke_style: color,
+    line_width: props.lineWidth,
+    team_id: teamId.value,
+    socket_id: socket.id,
+  });
 
   ctx.value.beginPath();
   ctx.value.moveTo(position.value.x, position.value.y);
@@ -81,6 +104,7 @@ function draw(event) {
 
 function stopDrawing() {
   if (!canvas.value) return;
+
   isDrawing.value = false;
   ctx.value.closePath();
 
@@ -174,9 +198,25 @@ onMounted(() => {
 
     ctx.value.globalAlpha = data.global_alpha;
     ctx.value.strokeStyle = data.stroke_style;
+    ctx.value.fillStyle = data.stroke_style;
     ctx.value.lineWidth = data.line_width;
     ctx.value.beginPath();
     ctx.value.moveTo(data.x, data.y);
+  });
+
+  socket.on("draw-point", (data) => {
+    if (socket.id === data.socket_id) return;
+
+    if (!canvas.value) return;
+
+    ctx.value.globalAlpha = data.global_alpha;
+    ctx.value.strokeStyle = data.stroke_style;
+    ctx.value.fillStyle = data.stroke_style;
+
+    ctx.value.beginPath();
+    ctx.value.arc(data.x, data.y, data.line_width / 2, 0, 2 * Math.PI);
+    ctx.value.fill();
+    ctx.value.closePath();
   });
 
   socket.on("draw", (data) => {
