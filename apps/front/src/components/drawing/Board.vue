@@ -10,6 +10,7 @@ const props = defineProps({
   strokeStyle: { type: String, default: "#1A120F" },
   lineWidth: { type: Number, default: 8 },
   opacity: { type: Number, default: 100 },
+  tool: { type: String, default: "pen" },
 });
 
 const { socket } = useSocketStore();
@@ -25,6 +26,69 @@ const objective = inject("objective");
 const isSaboteur = inject("isSaboteur");
 const players = inject("players");
 const teamId = inject("teamId");
+const mouseDown = ref(false);
+const history = ref([]);
+const historyIndex = ref(-1);
+
+function saveState() {
+  if (!canvas.value) return;
+
+  if (historyIndex.value < history.value.length - 1) {
+    history.value.splice(historyIndex.value + 1);
+  }
+
+  history.value.push(canvas.value.toDataURL());
+  historyIndex.value++;
+}
+
+function undo() {
+  if (historyIndex.value <= 0) return;
+
+  historyIndex.value--;
+  restoreState(history.value[historyIndex.value]);
+
+  socket.emit("undo", {
+    team_id: teamId.value,
+    socket_id: socket.id,
+    history_index: historyIndex.value,
+  });
+}
+
+function redo() {
+  if (historyIndex.value >= history.value.length - 1) return;
+
+  historyIndex.value++;
+  restoreState(history.value[historyIndex.value]);
+
+  socket.emit("redo", {
+    team_id: teamId.value,
+    socket_id: socket.id,
+    history_index: historyIndex.value,
+  });
+}
+
+function restoreState(imageData) {
+  if (!canvas.value || !ctx.value) return;
+
+  const img = new Image();
+  img.src = imageData;
+  img.onload = () => {
+    ctx.value.clearRect(0, 0, canvas.value.width, canvas.value.height);
+    ctx.value.drawImage(img, 0, 0);
+  };
+}
+
+window.addEventListener("keydown", (event) => {
+  if (!canvas.value || !mouseDown) return;
+
+  if ((event.ctrlKey || event.metaKey) && event.key === "z") {
+    event.preventDefault();
+    undo();
+  } else if ((event.ctrlKey || event.metaKey) && event.key === "y") {
+    event.preventDefault();
+    redo();
+  }
+});
 
 function hexToRgba(hex, alpha) {
   let r = parseInt(hex.substring(1, 3), 16);
@@ -36,6 +100,7 @@ function hexToRgba(hex, alpha) {
 function startDrawing(event) {
   if (!canvas.value) return;
 
+  mouseDown.value = true;
   position.value.x = event.clientX - rect.value.left;
   position.value.y = event.clientY - rect.value.top;
   isDrawing.value = true;
@@ -44,35 +109,14 @@ function startDrawing(event) {
 
   ctx.value.globalAlpha = props.opacity / 100;
   ctx.value.strokeStyle = color;
-  ctx.value.fillStyle = color;
   ctx.value.lineWidth = props.lineWidth;
   ctx.value.lineCap = "round";
   ctx.value.lineJoin = "round";
 
-  // Draw a point on click
-  ctx.value.beginPath();
-  ctx.value.arc(
-    position.value.x,
-    position.value.y,
-    props.lineWidth / 2,
-    0,
-    2 * Math.PI,
-  );
-  ctx.value.fill();
-  ctx.value.closePath();
-
-  socket.emit("draw-point", {
-    x: position.value.x,
-    y: position.value.y,
-    global_alpha: props.opacity / 100,
-    stroke_style: color,
-    line_width: props.lineWidth,
-    team_id: teamId.value,
-    socket_id: socket.id,
-  });
-
   ctx.value.beginPath();
   ctx.value.moveTo(position.value.x, position.value.y);
+  ctx.value.lineTo(position.value.x, position.value.y);
+  ctx.value.stroke();
 
   socket.emit("start-drawing", {
     x: position.value.x,
@@ -105,6 +149,7 @@ function draw(event) {
 function stopDrawing() {
   if (!canvas.value) return;
 
+  mouseDown.value = false;
   isDrawing.value = false;
   ctx.value.closePath();
 
@@ -112,6 +157,8 @@ function stopDrawing() {
     team_id: teamId.value,
     socket_id: socket.id,
   });
+
+  saveState();
 }
 
 onMounted(() => {
@@ -127,7 +174,7 @@ onMounted(() => {
 
   setTimeout(() => {
     observer.disconnect();
-  }, 1000);
+  }, 500);
 
   window.addEventListener("resize", () => {
     rect.value = canvas.value.getBoundingClientRect();
@@ -139,6 +186,7 @@ onMounted(() => {
     ctx.value = canvas.value.getContext("2d");
     ctx.value.lineCap = "round";
     ctx.value.lineJoin = "round";
+    saveState();
   }
 
   function mouseMove(event) {
@@ -198,25 +246,11 @@ onMounted(() => {
 
     ctx.value.globalAlpha = data.global_alpha;
     ctx.value.strokeStyle = data.stroke_style;
-    ctx.value.fillStyle = data.stroke_style;
     ctx.value.lineWidth = data.line_width;
     ctx.value.beginPath();
+    ctx.value.lineTo(data.x, data.y);
+    ctx.value.stroke();
     ctx.value.moveTo(data.x, data.y);
-  });
-
-  socket.on("draw-point", (data) => {
-    if (socket.id === data.socket_id) return;
-
-    if (!canvas.value) return;
-
-    ctx.value.globalAlpha = data.global_alpha;
-    ctx.value.strokeStyle = data.stroke_style;
-    ctx.value.fillStyle = data.stroke_style;
-
-    ctx.value.beginPath();
-    ctx.value.arc(data.x, data.y, data.line_width / 2, 0, 2 * Math.PI);
-    ctx.value.fill();
-    ctx.value.closePath();
   });
 
   socket.on("draw", (data) => {
@@ -239,6 +273,21 @@ onMounted(() => {
     if (!canvas.value) return;
 
     ctx.value.closePath();
+    saveState();
+  });
+
+  socket.on("undo", (data) => {
+    if (socket.id === data.socket_id) return;
+
+    historyIndex.value = data.history_index;
+    restoreState(history.value[historyIndex.value]);
+  });
+
+  socket.on("redo", (data) => {
+    if (socket.id === data.socket_id) return;
+
+    historyIndex.value = data.history_index;
+    restoreState(history.value[historyIndex.value]);
   });
 });
 </script>
