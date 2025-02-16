@@ -94,6 +94,17 @@ app.ready(() => {
       })
     })
 
+    socket.on('draw-point', (data) => {
+      io?.to(data.team_id).emit('draw-point', {
+        x: data.x,
+        y: data.y,
+        global_alpha: data.global_alpha,
+        stroke_style: data.stroke_style,
+        line_width: data.line_width,
+        socket_id: data.socket_id,
+      })
+    })
+
     socket.on('draw', (data) => {
       io?.to(data.team_id).emit('draw', {
         x: data.x,
