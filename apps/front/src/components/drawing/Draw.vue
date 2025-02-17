@@ -179,6 +179,7 @@ const opacityAttributes = reactive({
 const strokeStyle = ref("#1A120F");
 const lineWidth = ref(8);
 const opacity = ref(100);
+const tool = ref("pen");
 
 function updateColor(color) {
   if (color.name === "custom") {
@@ -198,10 +199,16 @@ function updateColor(color) {
   strokeStyle.value = color.value;
 }
 
-function updateTool(tool) {
+function updateTool(selectedTool) {
   tools.forEach((t) => {
-    t.selected = t.name === tool;
+    if (t.name === selectedTool) {
+      t.selected = true;
+    } else {
+      t.selected = false;
+    }
   });
+
+  tool.value = selectedTool;
 }
 
 function updateThickness(thickness) {
@@ -231,6 +238,7 @@ function updateOpacity(value) {
         :strokeStyle="strokeStyle"
         :lineWidth="lineWidth"
         :opacity="opacity"
+        :tool="tool"
       />
 
       <div class="draw__footer">

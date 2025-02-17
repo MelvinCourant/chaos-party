@@ -87,6 +87,7 @@ app.ready(() => {
       io?.to(data.team_id).emit('start-drawing', {
         x: data.x,
         y: data.y,
+        global_composite_operation: data.global_composite_operation,
         global_alpha: data.global_alpha,
         stroke_style: data.stroke_style,
         line_width: data.line_width,

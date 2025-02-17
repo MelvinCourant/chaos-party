@@ -27,7 +27,6 @@ const objective = inject("objective");
 const isSaboteur = inject("isSaboteur");
 const players = inject("players");
 const teamId = inject("teamId");
-const mouseDown = ref(false);
 const history = ref([]);
 const historyIndex = ref(-1);
 
@@ -80,13 +79,13 @@ function restoreState(imageData) {
 }
 
 window.addEventListener("keydown", (event) => {
-  if (!canvas.value || !mouseDown) return;
+  event.preventDefault();
+
+  if (!canvas.value || !props.mouseUp) return;
 
   if ((event.ctrlKey || event.metaKey) && event.key === "z") {
-    event.preventDefault();
     undo();
   } else if ((event.ctrlKey || event.metaKey) && event.key === "y") {
-    event.preventDefault();
     redo();
   }
 });
@@ -101,7 +100,6 @@ function hexToRgba(hex, alpha) {
 function startDrawing(event) {
   if (!canvas.value) return;
 
-  mouseDown.value = true;
   position.value.x = event.clientX - rect.value.left;
   position.value.y = event.clientY - rect.value.top;
   isDrawing.value = true;
@@ -116,12 +114,21 @@ function startDrawing(event) {
 
   ctx.value.beginPath();
   ctx.value.moveTo(position.value.x, position.value.y);
+
+  if (props.tool === "pen") {
+    ctx.value.globalCompositeOperation = "source-over";
+  } else if (props.tool === "rubber") {
+    ctx.value.globalCompositeOperation = "destination-out";
+  }
+
   ctx.value.lineTo(position.value.x, position.value.y);
   ctx.value.stroke();
 
   socket.emit("start-drawing", {
     x: position.value.x,
     y: position.value.y,
+    global_composite_operation:
+      props.tool !== "rubber" ? "source-over" : "destination-out",
     global_alpha: props.opacity / 100,
     stroke_style: color,
     line_width: props.lineWidth,
@@ -135,6 +142,12 @@ function draw(event) {
 
   position.value.x = event.clientX - rect.value.left;
   position.value.y = event.clientY - rect.value.top;
+
+  if (props.tool === "pen") {
+    ctx.value.globalCompositeOperation = "source-over";
+  } else if (props.tool === "rubber") {
+    ctx.value.globalCompositeOperation = "destination-out";
+  }
 
   ctx.value.lineTo(position.value.x, position.value.y);
   ctx.value.stroke();
@@ -150,7 +163,6 @@ function draw(event) {
 function stopDrawing() {
   if (!canvas.value) return;
 
-  mouseDown.value = false;
   isDrawing.value = false;
   ctx.value.closePath();
 
@@ -256,6 +268,7 @@ onMounted(() => {
     ctx.value.globalAlpha = data.global_alpha;
     ctx.value.strokeStyle = data.stroke_style;
     ctx.value.lineWidth = data.line_width;
+    ctx.value.globalCompositeOperation = data.global_composite_operation;
     ctx.value.beginPath();
     ctx.value.lineTo(data.x, data.y);
     ctx.value.stroke();
