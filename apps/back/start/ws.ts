@@ -95,11 +95,24 @@ app.ready(() => {
       })
     })
 
+    socket.on('start-drawing-shape', (data) => {
+      io?.to(data.team_id).emit('start-drawing-shape', {
+        first_point_x: data.first_point_x,
+        first_point_y: data.first_point_y,
+        global_alpha: data.global_alpha,
+        stroke_style: data.stroke_style,
+        line_width: data.line_width,
+        socket_id: data.socket_id,
+        tool: data.tool,
+      })
+    })
+
     socket.on('draw', (data) => {
       io?.to(data.team_id).emit('draw', {
         x: data.x,
         y: data.y,
         socket_id: data.socket_id,
+        tool: data.tool,
       })
     })
 
@@ -108,6 +121,7 @@ app.ready(() => {
         x: data.x,
         y: data.y,
         socket_id: data.socket_id,
+        tool: data.tool,
       })
     })
 

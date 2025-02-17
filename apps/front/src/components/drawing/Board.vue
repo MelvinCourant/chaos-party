@@ -22,7 +22,7 @@ const rect = ref(null);
 const position = ref({ x: 0, y: 0 });
 const ctx = ref(null);
 const tempCtx = ref(null);
-const tempFirstPoint = ref({ x: 0, y: 0 });
+const tempFirstPoints = ref([]);
 const isDrawing = ref(false);
 const isDrawingMap = ref({});
 const mission = inject("mission");
@@ -126,17 +126,20 @@ function startDrawing(event) {
     tempCtx.value.lineWidth = props.lineWidth;
     tempCtx.value.lineCap = "round";
     tempCtx.value.lineJoin = "round";
-    tempFirstPoint.value.x = position.value.x;
-    tempFirstPoint.value.y = position.value.y;
+    tempFirstPoints.value.push({
+      socket_id: socket.id,
+      x: position.value.x,
+      y: position.value.y,
+    });
   }
 
   ctx.value.beginPath();
   ctx.value.moveTo(position.value.x, position.value.y);
 
-  if (props.tool === "pen") {
+  if (props.tool !== "rubber") {
     globalCompositeOperation.value = "source-over";
     ctx.value.globalCompositeOperation = globalCompositeOperation.value;
-  } else if (props.tool === "rubber") {
+  } else {
     globalCompositeOperation.value = "destination-out";
     ctx.value.globalCompositeOperation = globalCompositeOperation.value;
   }
@@ -144,16 +147,32 @@ function startDrawing(event) {
   ctx.value.lineTo(position.value.x, position.value.y);
   ctx.value.stroke();
 
-  socket.emit("start-drawing", {
-    x: position.value.x,
-    y: position.value.y,
-    global_composite_operation: globalCompositeOperation.value,
-    global_alpha: props.opacity / 100,
-    stroke_style: color,
-    line_width: props.lineWidth,
-    team_id: teamId.value,
-    socket_id: socket.id,
-  });
+  if (props.tool === "pen" || props.tool === "rubber") {
+    socket.emit("start-drawing", {
+      x: position.value.x,
+      y: position.value.y,
+      global_composite_operation: globalCompositeOperation.value,
+      global_alpha: props.opacity / 100,
+      stroke_style: color,
+      line_width: props.lineWidth,
+      team_id: teamId.value,
+      socket_id: socket.id,
+    });
+  } else {
+    const firstPoint = tempFirstPoints.value.find(
+      (point) => point.socket_id === socket.id,
+    );
+
+    socket.emit("start-drawing-shape", {
+      first_point_x: firstPoint.x,
+      first_point_y: firstPoint.y,
+      global_alpha: props.opacity / 100,
+      stroke_style: color,
+      line_width: props.lineWidth,
+      team_id: teamId.value,
+      socket_id: socket.id,
+    });
+  }
 }
 
 function draw(event) {
@@ -163,6 +182,10 @@ function draw(event) {
   position.value.y = event.clientY - rect.value.top;
 
   if (props.tool === "line") {
+    const firstPoint = tempFirstPoints.value.find(
+      (point) => point.socket_id === socket.id,
+    );
+
     tempCtx.value.clearRect(
       0,
       0,
@@ -170,7 +193,7 @@ function draw(event) {
       tempCanvas.value.height,
     );
     tempCtx.value.beginPath();
-    tempCtx.value.moveTo(tempFirstPoint.value.x, tempFirstPoint.value.y);
+    tempCtx.value.moveTo(firstPoint.x, firstPoint.y);
     tempCtx.value.lineTo(position.value.x, position.value.y);
     tempCtx.value.stroke();
   } else {
@@ -183,11 +206,12 @@ function draw(event) {
     y: position.value.y,
     team_id: teamId.value,
     socket_id: socket.id,
+    tool: props.tool,
   });
 }
 
 function stopDrawing(element) {
-  if (!canvas.value) return;
+  if (!isDrawing.value || !canvas.value) return;
 
   if (props.tool === "line") {
     tempCtx.value.clearRect(
@@ -199,14 +223,20 @@ function stopDrawing(element) {
     tempCtx.value.closePath();
     ctx.value.lineTo(position.value.x, position.value.y);
     ctx.value.stroke();
+    tempFirstPoints.value = tempFirstPoints.value.filter(
+      (point) => point.socket_id !== socket.id,
+    );
   }
 
   isDrawing.value = false;
   ctx.value.closePath();
 
   socket.emit("stop-drawing", {
+    x: position.value.x,
+    y: position.value.y,
     team_id: teamId.value,
     socket_id: socket.id,
+    tool: props.tool,
   });
 
   if (element === "board") {
@@ -317,10 +347,37 @@ onMounted(() => {
     ctx.value.strokeStyle = data.stroke_style;
     ctx.value.lineWidth = data.line_width;
     ctx.value.globalCompositeOperation = data.global_composite_operation;
+
     ctx.value.beginPath();
     ctx.value.lineTo(data.x, data.y);
     ctx.value.stroke();
     ctx.value.moveTo(data.x, data.y);
+  });
+
+  socket.on("start-drawing-shape", (data) => {
+    if (socket.id === data.socket_id) return;
+
+    isDrawingMap.value[data.socket_id] = true;
+
+    if (!canvas.value) return;
+
+    ctx.value.globalAlpha = data.global_alpha;
+    ctx.value.strokeStyle = data.stroke_style;
+    ctx.value.lineWidth = data.line_width;
+
+    tempCtx.value.globalAlpha = data.global_alpha;
+    tempCtx.value.strokeStyle = data.stroke_style;
+    tempCtx.value.lineWidth = data.line_width;
+    tempFirstPoints.value.push({
+      socket_id: data.socket_id,
+      x: data.first_point_x,
+      y: data.first_point_y,
+    });
+
+    ctx.value.beginPath();
+    ctx.value.moveTo(data.first_point_x, data.first_point_y);
+    ctx.value.lineTo(data.first_point_x, data.first_point_y);
+    ctx.value.stroke();
   });
 
   socket.on("draw", (data) => {
@@ -331,8 +388,25 @@ onMounted(() => {
     )
       return;
 
-    ctx.value.lineTo(data.x, data.y);
-    ctx.value.stroke();
+    if (data.tool === "line") {
+      const firstPoint = tempFirstPoints.value.find(
+        (point) => point.socket_id === data.socket_id,
+      );
+
+      tempCtx.value.clearRect(
+        0,
+        0,
+        tempCanvas.value.width,
+        tempCanvas.value.height,
+      );
+      tempCtx.value.beginPath();
+      tempCtx.value.moveTo(firstPoint.x, firstPoint.y);
+      tempCtx.value.lineTo(data.x, data.y);
+      tempCtx.value.stroke();
+    } else {
+      ctx.value.lineTo(data.x, data.y);
+      ctx.value.stroke();
+    }
   });
 
   socket.on("stop-drawing", (data) => {
@@ -341,6 +415,23 @@ onMounted(() => {
     isDrawingMap.value[data.socket_id] = false;
 
     if (!canvas.value) return;
+
+    if (data.tool === "line") {
+      tempCtx.value.clearRect(
+        0,
+        0,
+        tempCanvas.value.width,
+        tempCanvas.value.height,
+      );
+      tempCtx.value.closePath();
+
+      ctx.value.lineTo(data.x, data.y);
+      ctx.value.stroke();
+
+      tempFirstPoints.value = tempFirstPoints.value.filter(
+        (point) => point.socket_id !== data.socket_id,
+      );
+    }
 
     ctx.value.closePath();
 
