@@ -120,7 +120,7 @@ function startDrawing(event) {
   ctx.value.lineCap = "round";
   ctx.value.lineJoin = "round";
 
-  if (props.tool === "line") {
+  if (props.tool === "line" || props.tool === "empty-rectangle") {
     tempCtx.value.globalAlpha = props.opacity / 100;
     tempCtx.value.strokeStyle = color;
     tempCtx.value.lineWidth = props.lineWidth;
@@ -181,7 +181,7 @@ function draw(event) {
   position.value.x = event.clientX - rect.value.left;
   position.value.y = event.clientY - rect.value.top;
 
-  if (props.tool === "line") {
+  if (props.tool === "line" || props.tool === "empty-rectangle") {
     const firstPoint = tempFirstPoints.value.find(
       (point) => point.socket_id === socket.id,
     );
@@ -194,7 +194,18 @@ function draw(event) {
     );
     tempCtx.value.beginPath();
     tempCtx.value.moveTo(firstPoint.x, firstPoint.y);
-    tempCtx.value.lineTo(position.value.x, position.value.y);
+
+    if (props.tool === "empty-rectangle") {
+      tempCtx.value.rect(
+        firstPoint.x,
+        firstPoint.y,
+        position.value.x - firstPoint.x,
+        position.value.y - firstPoint.y,
+      );
+    } else {
+      tempCtx.value.lineTo(position.value.x, position.value.y);
+    }
+
     tempCtx.value.stroke();
   } else {
     ctx.value.lineTo(position.value.x, position.value.y);
@@ -213,7 +224,7 @@ function draw(event) {
 function stopDrawing(element) {
   if (!isDrawing.value || !canvas.value) return;
 
-  if (props.tool === "line") {
+  if (props.tool === "line" || props.tool === "empty-rectangle") {
     tempCtx.value.clearRect(
       0,
       0,
@@ -221,7 +232,22 @@ function stopDrawing(element) {
       tempCanvas.value.height,
     );
     tempCtx.value.closePath();
-    ctx.value.lineTo(position.value.x, position.value.y);
+
+    if (props.tool === "empty-rectangle") {
+      const firstPoint = tempFirstPoints.value.find(
+        (point) => point.socket_id === socket.id,
+      );
+
+      ctx.value.rect(
+        firstPoint.x,
+        firstPoint.y,
+        position.value.x - firstPoint.x,
+        position.value.y - firstPoint.y,
+      );
+    } else {
+      ctx.value.lineTo(position.value.x, position.value.y);
+    }
+
     ctx.value.stroke();
     tempFirstPoints.value = tempFirstPoints.value.filter(
       (point) => point.socket_id !== socket.id,
@@ -388,7 +414,7 @@ onMounted(() => {
     )
       return;
 
-    if (data.tool === "line") {
+    if (data.tool === "line" || data.tool === "empty-rectangle") {
       const firstPoint = tempFirstPoints.value.find(
         (point) => point.socket_id === data.socket_id,
       );
@@ -401,7 +427,18 @@ onMounted(() => {
       );
       tempCtx.value.beginPath();
       tempCtx.value.moveTo(firstPoint.x, firstPoint.y);
-      tempCtx.value.lineTo(data.x, data.y);
+
+      if (data.tool === "empty-rectangle") {
+        tempCtx.value.rect(
+          firstPoint.x,
+          firstPoint.y,
+          data.x - firstPoint.x,
+          data.y - firstPoint.y,
+        );
+      } else {
+        tempCtx.value.lineTo(data.x, data.y);
+      }
+
       tempCtx.value.stroke();
     } else {
       ctx.value.lineTo(data.x, data.y);
@@ -416,7 +453,11 @@ onMounted(() => {
 
     if (!canvas.value) return;
 
-    if (data.tool === "line") {
+    if (data.tool === "line" || data.tool === "empty-rectangle") {
+      const firstPoint = tempFirstPoints.value.find(
+        (point) => point.socket_id === data.socket_id,
+      );
+
       tempCtx.value.clearRect(
         0,
         0,
@@ -425,7 +466,17 @@ onMounted(() => {
       );
       tempCtx.value.closePath();
 
-      ctx.value.lineTo(data.x, data.y);
+      if (data.tool === "empty-rectangle") {
+        ctx.value.rect(
+          firstPoint.x,
+          firstPoint.y,
+          data.x - firstPoint.x,
+          data.y - firstPoint.y,
+        );
+      } else {
+        ctx.value.lineTo(data.x, data.y);
+      }
+
       ctx.value.stroke();
 
       tempFirstPoints.value = tempFirstPoints.value.filter(
