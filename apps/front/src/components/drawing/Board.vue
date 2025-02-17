@@ -29,6 +29,7 @@ const players = inject("players");
 const teamId = inject("teamId");
 const history = ref([]);
 const historyIndex = ref(-1);
+const globalCompositeOperation = ref("source-over");
 
 function saveState() {
   if (!canvas.value) return;
@@ -69,6 +70,10 @@ function redo() {
 
 function restoreState(imageData) {
   if (!canvas.value || !ctx.value) return;
+
+  if (globalCompositeOperation.value === "destination-out") {
+    ctx.value.globalCompositeOperation = "source-over";
+  }
 
   const img = new Image();
   img.src = imageData;
@@ -116,9 +121,11 @@ function startDrawing(event) {
   ctx.value.moveTo(position.value.x, position.value.y);
 
   if (props.tool === "pen") {
-    ctx.value.globalCompositeOperation = "source-over";
+    globalCompositeOperation.value = "source-over";
+    ctx.value.globalCompositeOperation = globalCompositeOperation.value;
   } else if (props.tool === "rubber") {
-    ctx.value.globalCompositeOperation = "destination-out";
+    globalCompositeOperation.value = "destination-out";
+    ctx.value.globalCompositeOperation = globalCompositeOperation.value;
   }
 
   ctx.value.lineTo(position.value.x, position.value.y);
@@ -127,8 +134,7 @@ function startDrawing(event) {
   socket.emit("start-drawing", {
     x: position.value.x,
     y: position.value.y,
-    global_composite_operation:
-      props.tool !== "rubber" ? "source-over" : "destination-out",
+    global_composite_operation: globalCompositeOperation.value,
     global_alpha: props.opacity / 100,
     stroke_style: color,
     line_width: props.lineWidth,
@@ -143,12 +149,6 @@ function draw(event) {
   position.value.x = event.clientX - rect.value.left;
   position.value.y = event.clientY - rect.value.top;
 
-  if (props.tool === "pen") {
-    ctx.value.globalCompositeOperation = "source-over";
-  } else if (props.tool === "rubber") {
-    ctx.value.globalCompositeOperation = "destination-out";
-  }
-
   ctx.value.lineTo(position.value.x, position.value.y);
   ctx.value.stroke();
 
@@ -160,7 +160,7 @@ function draw(event) {
   });
 }
 
-function stopDrawing() {
+function stopDrawing(element) {
   if (!canvas.value) return;
 
   isDrawing.value = false;
@@ -171,7 +171,9 @@ function stopDrawing() {
     socket_id: socket.id,
   });
 
-  saveState();
+  if (element === "board") {
+    saveState();
+  }
 }
 
 onMounted(() => {
@@ -295,6 +297,7 @@ onMounted(() => {
     if (!canvas.value) return;
 
     ctx.value.closePath();
+
     saveState();
   });
 
@@ -333,7 +336,7 @@ onMounted(() => {
         class="board__canvas"
         @mousedown="startDrawing"
         @mousemove="draw"
-        @mouseup="stopDrawing"
+        @mouseup="stopDrawing('board')"
       />
       <div class="board__background"></div>
       <Cursor
