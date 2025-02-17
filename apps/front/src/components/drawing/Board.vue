@@ -81,12 +81,13 @@ function restoreState(imageData) {
     ctx.value.clearRect(0, 0, canvas.value.width, canvas.value.height);
     ctx.value.drawImage(img, 0, 0);
   };
+  console.log("restoreState", imageData);
 }
 
 window.addEventListener("keydown", (event) => {
   event.preventDefault();
 
-  if (!canvas.value || !props.mouseUp) return;
+  if (!canvas.value) return;
 
   if ((event.ctrlKey || event.metaKey) && event.key === "z") {
     undo();
@@ -336,7 +337,7 @@ onMounted(() => {
         class="board__canvas"
         @mousedown="startDrawing"
         @mousemove="draw"
-        @mouseup="stopDrawing('board')"
+        @mouseup.stop="stopDrawing('board')"
       />
       <div class="board__background"></div>
       <Cursor
