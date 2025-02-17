@@ -17,9 +17,12 @@ const props = defineProps({
 const { socket } = useSocketStore();
 const { t } = useI18n();
 const canvas = useTemplateRef("canvas");
+const tempCanvas = useTemplateRef("tempCanvas");
 const rect = ref(null);
 const position = ref({ x: 0, y: 0 });
 const ctx = ref(null);
+const tempCtx = ref(null);
+const tempFirstPoint = ref({ x: 0, y: 0 });
 const isDrawing = ref(false);
 const isDrawingMap = ref({});
 const mission = inject("mission");
@@ -81,7 +84,6 @@ function restoreState(imageData) {
     ctx.value.clearRect(0, 0, canvas.value.width, canvas.value.height);
     ctx.value.drawImage(img, 0, 0);
   };
-  console.log("restoreState", imageData);
 }
 
 window.addEventListener("keydown", (event) => {
@@ -118,6 +120,16 @@ function startDrawing(event) {
   ctx.value.lineCap = "round";
   ctx.value.lineJoin = "round";
 
+  if (props.tool === "line") {
+    tempCtx.value.globalAlpha = props.opacity / 100;
+    tempCtx.value.strokeStyle = color;
+    tempCtx.value.lineWidth = props.lineWidth;
+    tempCtx.value.lineCap = "round";
+    tempCtx.value.lineJoin = "round";
+    tempFirstPoint.value.x = position.value.x;
+    tempFirstPoint.value.y = position.value.y;
+  }
+
   ctx.value.beginPath();
   ctx.value.moveTo(position.value.x, position.value.y);
 
@@ -150,8 +162,21 @@ function draw(event) {
   position.value.x = event.clientX - rect.value.left;
   position.value.y = event.clientY - rect.value.top;
 
-  ctx.value.lineTo(position.value.x, position.value.y);
-  ctx.value.stroke();
+  if (props.tool === "line") {
+    tempCtx.value.clearRect(
+      0,
+      0,
+      tempCanvas.value.width,
+      tempCanvas.value.height,
+    );
+    tempCtx.value.beginPath();
+    tempCtx.value.moveTo(tempFirstPoint.value.x, tempFirstPoint.value.y);
+    tempCtx.value.lineTo(position.value.x, position.value.y);
+    tempCtx.value.stroke();
+  } else {
+    ctx.value.lineTo(position.value.x, position.value.y);
+    ctx.value.stroke();
+  }
 
   socket.emit("draw", {
     x: position.value.x,
@@ -163,6 +188,18 @@ function draw(event) {
 
 function stopDrawing(element) {
   if (!canvas.value) return;
+
+  if (props.tool === "line") {
+    tempCtx.value.clearRect(
+      0,
+      0,
+      tempCanvas.value.width,
+      tempCanvas.value.height,
+    );
+    tempCtx.value.closePath();
+    ctx.value.lineTo(position.value.x, position.value.y);
+    ctx.value.stroke();
+  }
 
   isDrawing.value = false;
   ctx.value.closePath();
@@ -202,6 +239,14 @@ onMounted(() => {
     ctx.value = canvas.value.getContext("2d");
     ctx.value.lineCap = "round";
     ctx.value.lineJoin = "round";
+
+    // Temp canvas for preview
+    tempCanvas.value.width = tempCanvas.value.offsetWidth;
+    tempCanvas.value.height = tempCanvas.value.offsetHeight;
+    tempCtx.value = tempCanvas.value.getContext("2d");
+    tempCtx.value.lineCap = "round";
+    tempCtx.value.lineJoin = "round";
+
     saveState();
   }
 
@@ -332,6 +377,7 @@ onMounted(() => {
       {{ objective }}
     </p>
     <div class="board__container">
+      <canvas ref="tempCanvas" class="board__canvas-temp" />
       <canvas
         ref="canvas"
         class="board__canvas"
