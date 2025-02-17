@@ -72,6 +72,8 @@ app.ready(() => {
       io?.to(data.team_id).emit('canvas-state', {
         socket_id: data.socket_id,
         canvas: data.canvas,
+        history: data.history,
+        history_index: data.history_index,
       })
     })
 

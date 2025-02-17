@@ -55,6 +55,7 @@ function undo() {
   socket.emit("undo", {
     team_id: teamId.value,
     socket_id: socket.id,
+    history: history.value,
     history_index: historyIndex.value,
   });
 }
@@ -392,8 +393,9 @@ onMounted(() => {
 
     socket.emit("canvas-state", {
       team_id: teamId.value,
-      socket_id: socket.id,
       canvas: canvas.value.toDataURL(),
+      history: history.value,
+      history_index: historyIndex.value,
     });
   });
 
@@ -406,6 +408,9 @@ onMounted(() => {
       ctx.value.drawImage(img, 0, 0);
     };
     img.src = data.canvas;
+
+    history.value = data.history;
+    historyIndex.value = data.history_index;
   });
 
   socket.on("start-drawing", (data) => {
