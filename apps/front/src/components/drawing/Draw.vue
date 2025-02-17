@@ -176,14 +176,14 @@ const opacityAttributes = reactive({
   step: 1,
   value: 100,
 });
-const strokeStyle = ref("#1A120F");
+const color = ref("#1A120F");
 const lineWidth = ref(8);
 const opacity = ref(100);
 const tool = ref("pen");
 
-function updateColor(color) {
-  if (color.name === "custom") {
-    customColor.value = color.value || "#000000";
+function updateColor(selectedColor) {
+  if (selectedColor.name === "custom") {
+    customColor.value = selectedColor.value || "#000000";
     customColor.selected = true;
 
     colors.forEach((c) => {
@@ -191,12 +191,12 @@ function updateColor(color) {
     });
   } else {
     colors.forEach((c) => {
-      c.selected = c.name === color.name;
+      c.selected = c.name === selectedColor.name;
     });
     customColor.selected = false;
   }
 
-  strokeStyle.value = color.value;
+  color.value = selectedColor.value;
 }
 
 function updateTool(selectedTool) {
@@ -235,7 +235,7 @@ function updateOpacity(value) {
       <Board
         :mouseMoving="mouseMoving"
         :mouseUp="mouseUp"
-        :strokeStyle="strokeStyle"
+        :color="color"
         :lineWidth="lineWidth"
         :opacity="opacity"
         :tool="tool"

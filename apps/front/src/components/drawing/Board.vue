@@ -8,7 +8,7 @@ import { useI18n } from "vue-i18n";
 const props = defineProps({
   mouseMoving: { type: Object, default: null },
   mouseUp: { type: Boolean, default: false },
-  strokeStyle: { type: String, default: "#1A120F" },
+  color: { type: String, default: "#1A120F" },
   lineWidth: { type: Number, default: 8 },
   opacity: { type: Number, default: 100 },
   tool: { type: String, default: "pen" },
@@ -23,6 +23,7 @@ const position = ref({ x: 0, y: 0 });
 const ctx = ref(null);
 const tempCtx = ref(null);
 const tempFirstPoints = ref([]);
+const colorRgba = ref(hexToRgba(props.color, props.opacity / 100));
 const isDrawing = ref(false);
 const isDrawingMap = ref({});
 const mission = inject("mission");
@@ -112,17 +113,20 @@ function startDrawing(event) {
   position.value.y = event.clientY - rect.value.top;
   isDrawing.value = true;
 
-  const color = hexToRgba(props.strokeStyle, props.opacity / 100);
+  colorRgba.value = hexToRgba(props.color, props.opacity / 100);
 
   ctx.value.globalAlpha = props.opacity / 100;
-  ctx.value.strokeStyle = color;
+  ctx.value.strokeStyle = colorRgba.value;
   ctx.value.lineWidth = props.lineWidth;
   ctx.value.lineCap = "round";
   ctx.value.lineJoin = "round";
 
-  if (props.tool === "line" || props.tool === "empty-rectangle") {
+  if (
+    props.tool === "line" ||
+    props.tool === "empty-rectangle" ||
+    props.tool === "rectangle"
+  ) {
     tempCtx.value.globalAlpha = props.opacity / 100;
-    tempCtx.value.strokeStyle = color;
     tempCtx.value.lineWidth = props.lineWidth;
     tempCtx.value.lineCap = "round";
     tempCtx.value.lineJoin = "round";
@@ -144,8 +148,16 @@ function startDrawing(event) {
     ctx.value.globalCompositeOperation = globalCompositeOperation.value;
   }
 
-  ctx.value.lineTo(position.value.x, position.value.y);
-  ctx.value.stroke();
+  if (props.tool === "rectangle") {
+    ctx.value.fillStyle = colorRgba.value;
+    ctx.value.fillRect(position.value.x, position.value.y, 1, 1);
+  } else if (props.tool === "empty-rectangle") {
+    tempCtx.value.strokeStyle = colorRgba.value;
+    ctx.value.rect(position.value.x, position.value.y, 1, 1);
+  } else {
+    ctx.value.lineTo(position.value.x, position.value.y);
+    ctx.value.stroke();
+  }
 
   if (props.tool === "pen" || props.tool === "rubber") {
     socket.emit("start-drawing", {
@@ -153,7 +165,7 @@ function startDrawing(event) {
       y: position.value.y,
       global_composite_operation: globalCompositeOperation.value,
       global_alpha: props.opacity / 100,
-      stroke_style: color,
+      color: colorRgba.value,
       line_width: props.lineWidth,
       team_id: teamId.value,
       socket_id: socket.id,
@@ -167,7 +179,7 @@ function startDrawing(event) {
       first_point_x: firstPoint.x,
       first_point_y: firstPoint.y,
       global_alpha: props.opacity / 100,
-      stroke_style: color,
+      color: colorRgba.value,
       line_width: props.lineWidth,
       team_id: teamId.value,
       socket_id: socket.id,
@@ -181,10 +193,20 @@ function draw(event) {
   position.value.x = event.clientX - rect.value.left;
   position.value.y = event.clientY - rect.value.top;
 
-  if (props.tool === "line" || props.tool === "empty-rectangle") {
+  if (
+    props.tool === "line" ||
+    props.tool === "empty-rectangle" ||
+    props.tool === "rectangle"
+  ) {
     const firstPoint = tempFirstPoints.value.find(
       (point) => point.socket_id === socket.id,
     );
+
+    if (props.tool === "line" || props.tool === "empty-rectangle") {
+      tempCtx.value.strokeStyle = colorRgba.value;
+    } else if (props.tool === "rectangle") {
+      tempCtx.value.fillStyle = colorRgba.value;
+    }
 
     tempCtx.value.clearRect(
       0,
@@ -197,6 +219,13 @@ function draw(event) {
 
     if (props.tool === "empty-rectangle") {
       tempCtx.value.rect(
+        firstPoint.x,
+        firstPoint.y,
+        position.value.x - firstPoint.x,
+        position.value.y - firstPoint.y,
+      );
+    } else if (props.tool === "rectangle") {
+      tempCtx.value.fillRect(
         firstPoint.x,
         firstPoint.y,
         position.value.x - firstPoint.x,
@@ -215,6 +244,8 @@ function draw(event) {
   socket.emit("draw", {
     x: position.value.x,
     y: position.value.y,
+    global_alpha: props.opacity / 100,
+    color: colorRgba.value,
     team_id: teamId.value,
     socket_id: socket.id,
     tool: props.tool,
@@ -224,7 +255,11 @@ function draw(event) {
 function stopDrawing(element) {
   if (!isDrawing.value || !canvas.value) return;
 
-  if (props.tool === "line" || props.tool === "empty-rectangle") {
+  if (
+    props.tool === "line" ||
+    props.tool === "empty-rectangle" ||
+    props.tool === "rectangle"
+  ) {
     tempCtx.value.clearRect(
       0,
       0,
@@ -233,17 +268,26 @@ function stopDrawing(element) {
     );
     tempCtx.value.closePath();
 
-    if (props.tool === "empty-rectangle") {
+    if (props.tool === "empty-rectangle" || props.tool === "rectangle") {
       const firstPoint = tempFirstPoints.value.find(
         (point) => point.socket_id === socket.id,
       );
 
-      ctx.value.rect(
-        firstPoint.x,
-        firstPoint.y,
-        position.value.x - firstPoint.x,
-        position.value.y - firstPoint.y,
-      );
+      if (props.tool === "empty-rectangle") {
+        ctx.value.rect(
+          firstPoint.x,
+          firstPoint.y,
+          position.value.x - firstPoint.x,
+          position.value.y - firstPoint.y,
+        );
+      } else if (props.tool === "rectangle") {
+        ctx.value.fillRect(
+          firstPoint.x,
+          firstPoint.y,
+          position.value.x - firstPoint.x,
+          position.value.y - firstPoint.y,
+        );
+      }
     } else {
       ctx.value.lineTo(position.value.x, position.value.y);
     }
@@ -260,6 +304,8 @@ function stopDrawing(element) {
   socket.emit("stop-drawing", {
     x: position.value.x,
     y: position.value.y,
+    global_alpha: props.opacity / 100,
+    color: colorRgba.value,
     team_id: teamId.value,
     socket_id: socket.id,
     tool: props.tool,
@@ -370,7 +416,7 @@ onMounted(() => {
     if (!canvas.value) return;
 
     ctx.value.globalAlpha = data.global_alpha;
-    ctx.value.strokeStyle = data.stroke_style;
+    ctx.value.strokeStyle = data.color;
     ctx.value.lineWidth = data.line_width;
     ctx.value.globalCompositeOperation = data.global_composite_operation;
 
@@ -388,11 +434,10 @@ onMounted(() => {
     if (!canvas.value) return;
 
     ctx.value.globalAlpha = data.global_alpha;
-    ctx.value.strokeStyle = data.stroke_style;
+    ctx.value.strokeStyle = data.color;
     ctx.value.lineWidth = data.line_width;
 
     tempCtx.value.globalAlpha = data.global_alpha;
-    tempCtx.value.strokeStyle = data.stroke_style;
     tempCtx.value.lineWidth = data.line_width;
     tempFirstPoints.value.push({
       socket_id: data.socket_id,
@@ -400,9 +445,23 @@ onMounted(() => {
       y: data.first_point_y,
     });
 
+    if (props.tool === "rectangle") {
+      ctx.value.fillStyle = data.color;
+    } else {
+      tempCtx.value.strokeStyle = data.color;
+    }
+
     ctx.value.beginPath();
     ctx.value.moveTo(data.first_point_x, data.first_point_y);
-    ctx.value.lineTo(data.first_point_x, data.first_point_y);
+
+    if (props.tool === "rectangle") {
+      ctx.value.fillRect(data.first_point_x, data.first_point_y, 1, 1);
+    } else if (props.tool === "empty-rectangle") {
+      tempCtx.value.rect(data.first_point_x, data.first_point_y, 1, 1);
+    } else {
+      tempCtx.value.lineTo(data.first_point_x, data.first_point_x);
+    }
+
     ctx.value.stroke();
   });
 
@@ -414,10 +473,22 @@ onMounted(() => {
     )
       return;
 
-    if (data.tool === "line" || data.tool === "empty-rectangle") {
+    if (
+      data.tool === "line" ||
+      data.tool === "empty-rectangle" ||
+      data.tool === "rectangle"
+    ) {
       const firstPoint = tempFirstPoints.value.find(
         (point) => point.socket_id === data.socket_id,
       );
+
+      ctx.value.globalCompositeOperation = "source-over";
+
+      if (data.tool === "rectangle") {
+        tempCtx.value.fillStyle = data.color;
+      } else if (data.tool === "empty-rectangle") {
+        tempCtx.value.strokeStyle = data.color;
+      }
 
       tempCtx.value.clearRect(
         0,
@@ -430,6 +501,13 @@ onMounted(() => {
 
       if (data.tool === "empty-rectangle") {
         tempCtx.value.rect(
+          firstPoint.x,
+          firstPoint.y,
+          data.x - firstPoint.x,
+          data.y - firstPoint.y,
+        );
+      } else if (data.tool === "rectangle") {
+        tempCtx.value.fillRect(
           firstPoint.x,
           firstPoint.y,
           data.x - firstPoint.x,
@@ -453,7 +531,11 @@ onMounted(() => {
 
     if (!canvas.value) return;
 
-    if (data.tool === "line" || data.tool === "empty-rectangle") {
+    if (
+      data.tool === "line" ||
+      data.tool === "empty-rectangle" ||
+      data.tool === "rectangle"
+    ) {
       const firstPoint = tempFirstPoints.value.find(
         (point) => point.socket_id === data.socket_id,
       );
@@ -467,13 +549,23 @@ onMounted(() => {
       tempCtx.value.closePath();
 
       if (data.tool === "empty-rectangle") {
+        ctx.value.strokeStyle = data.color;
         ctx.value.rect(
           firstPoint.x,
           firstPoint.y,
           data.x - firstPoint.x,
           data.y - firstPoint.y,
         );
+      } else if (data.tool === "rectangle") {
+        ctx.value.fillStyle = data.color;
+        ctx.value.fillRect(
+          firstPoint.x,
+          firstPoint.y,
+          data.x - firstPoint.x,
+          data.y - firstPoint.y,
+        );
       } else {
+        ctx.value.strokeStyle = data.color;
         ctx.value.lineTo(data.x, data.y);
       }
 

@@ -89,7 +89,7 @@ app.ready(() => {
         y: data.y,
         global_composite_operation: data.global_composite_operation,
         global_alpha: data.global_alpha,
-        stroke_style: data.stroke_style,
+        color: data.color,
         line_width: data.line_width,
         socket_id: data.socket_id,
       })
@@ -100,7 +100,7 @@ app.ready(() => {
         first_point_x: data.first_point_x,
         first_point_y: data.first_point_y,
         global_alpha: data.global_alpha,
-        stroke_style: data.stroke_style,
+        color: data.color,
         line_width: data.line_width,
         socket_id: data.socket_id,
         tool: data.tool,
@@ -111,6 +111,8 @@ app.ready(() => {
       io?.to(data.team_id).emit('draw', {
         x: data.x,
         y: data.y,
+        global_alpha: data.global_alpha,
+        color: data.color,
         socket_id: data.socket_id,
         tool: data.tool,
       })
@@ -120,6 +122,8 @@ app.ready(() => {
       io?.to(data.team_id).emit('stop-drawing', {
         x: data.x,
         y: data.y,
+        global_alpha: data.global_alpha,
+        color: data.color,
         socket_id: data.socket_id,
         tool: data.tool,
       })
