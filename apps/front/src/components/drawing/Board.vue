@@ -119,9 +119,6 @@ function handDraw(step, player) {
   } = player;
 
   if (step === "start") {
-    ctx.value.lineCap = "round";
-    ctx.value.lineJoin = "round";
-    ctx.value.globalAlpha = opacity;
     ctx.value.strokeStyle = color;
     ctx.value.lineWidth = lineWidth;
     ctx.value.globalCompositeOperation = globalCompositeOperation;
@@ -176,6 +173,102 @@ function handDraw(step, player) {
   }
 }
 
+function lineDraw(step, player) {
+  const { x, y, opacity, color, lineWidth, tool, socketId } = player;
+
+  if (step === "start") {
+    ctx.value.globalAlpha = opacity;
+    ctx.value.strokeStyle = color;
+    ctx.value.lineWidth = lineWidth;
+    ctx.value.globalCompositeOperation = "source-over";
+
+    tempCtx.value.globalAlpha = opacity;
+    tempCtx.value.strokeStyle = color;
+    tempCtx.value.lineWidth = lineWidth;
+    tempFirstPoints.value.push({
+      socket_id: socketId,
+      x: x,
+      y: y,
+    });
+
+    tempCtx.value.beginPath();
+    tempCtx.value.moveTo(x, y);
+    tempCtx.value.lineTo(x, y);
+    tempCtx.value.stroke();
+
+    const firstPoint = tempFirstPoints.value.find(
+      (point) => point.socket_id === socketId,
+    );
+
+    if (socketId === socket.id) {
+      socket.emit("start-drawing-shape", {
+        first_point_x: firstPoint.x,
+        first_point_y: firstPoint.y,
+        global_alpha: opacity,
+        color: color,
+        line_width: lineWidth,
+        team_id: teamId.value,
+        socket_id: socketId,
+        tool: tool,
+      });
+    }
+  } else if (step === "draw" || step === "stop") {
+    const firstPoint = tempFirstPoints.value.find(
+      (point) => point.socket_id === socketId,
+    );
+
+    tempCtx.value.clearRect(
+      0,
+      0,
+      tempCanvas.value.width,
+      tempCanvas.value.height,
+    );
+    tempCtx.value.closePath();
+
+    if (step === "draw") {
+      tempCtx.value.beginPath();
+      tempCtx.value.moveTo(firstPoint.x, firstPoint.y);
+      tempCtx.value.lineTo(x, y);
+      tempCtx.value.stroke();
+
+      if (socketId === socket.id) {
+        socket.emit("draw", {
+          x: x,
+          y: y,
+          global_alpha: opacity,
+          color: color,
+          team_id: teamId.value,
+          socket_id: socketId,
+          tool: tool,
+        });
+      }
+    } else {
+      ctx.value.beginPath();
+      ctx.value.moveTo(firstPoint.x, firstPoint.y);
+      ctx.value.lineTo(x, y);
+      ctx.value.stroke();
+      ctx.value.closePath();
+
+      tempFirstPoints.value = tempFirstPoints.value.filter(
+        (point) => point.socket_id !== socketId,
+      );
+
+      if (socketId === socket.id) {
+        socket.emit("stop-drawing", {
+          x: x,
+          y: y,
+          global_alpha: opacity,
+          color: color,
+          line_width: lineWidth,
+          team_id: teamId.value,
+          socket_id: socketId,
+          tool: tool,
+        });
+      }
+    }
+  }
+}
+
 function startDrawing(event, player) {
   if (!canvas.value) return;
 
@@ -208,6 +301,8 @@ function startDrawing(event, player) {
 
   if (drawingPlayer.tool === "pen" || drawingPlayer.tool === "rubber") {
     handDraw("start", drawingPlayer);
+  } else if (drawingPlayer.tool === "line") {
+    lineDraw("start", drawingPlayer);
   }
 }
 
@@ -234,6 +329,8 @@ function draw(event, player) {
 
   if (drawingPlayer.tool === "pen" || drawingPlayer.tool === "rubber") {
     handDraw("draw", drawingPlayer);
+  } else if (drawingPlayer.tool === "line") {
+    lineDraw("draw", drawingPlayer);
   }
 }
 
@@ -253,10 +350,14 @@ function stopDrawing(player, element) {
     };
   }
 
+  if (!isDrawingMap.value[drawingPlayer.socketId]) return;
+
   isDrawingMap.value[drawingPlayer.socketId] = false;
 
   if (drawingPlayer.tool === "pen" || drawingPlayer.tool === "rubber") {
     handDraw("stop", drawingPlayer);
+  } else if (drawingPlayer.tool === "line") {
+    lineDraw("stop", drawingPlayer);
   }
 
   if (element === "board") {
@@ -370,6 +471,20 @@ onMounted(() => {
       color: data.color,
       lineWidth: data.line_width,
       globalCompositeOperation: data.global_composite_operation,
+      socketId: data.socket_id,
+      tool: data.tool,
+    });
+  });
+
+  socket.on("start-drawing-shape", (data) => {
+    if (socket.id === data.socket_id) return;
+
+    startDrawing(null, {
+      x: data.first_point_x,
+      y: data.first_point_y,
+      opacity: data.global_alpha,
+      color: data.color,
+      lineWidth: data.line_width,
       socketId: data.socket_id,
       tool: data.tool,
     });
