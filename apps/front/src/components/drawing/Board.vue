@@ -24,7 +24,6 @@ const ctx = ref(null);
 const tempCtx = ref(null);
 const tempFirstPoints = ref([]);
 const colorRgba = ref(hexToRgba(props.color, props.opacity / 100));
-const isDrawing = ref(false);
 const isDrawingMap = ref({});
 const mission = inject("mission");
 const objective = inject("objective");
@@ -107,281 +106,158 @@ function hexToRgba(hex, alpha) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-function startDrawing(event) {
+function handDraw(step, player) {
+  const {
+    x,
+    y,
+    opacity,
+    color,
+    lineWidth,
+    globalCompositeOperation,
+    tool,
+    socketId,
+  } = player;
+
+  if (step === "start") {
+    ctx.value.lineCap = "round";
+    ctx.value.lineJoin = "round";
+    ctx.value.globalAlpha = opacity;
+    ctx.value.strokeStyle = color;
+    ctx.value.lineWidth = lineWidth;
+    ctx.value.globalCompositeOperation = globalCompositeOperation;
+
+    ctx.value.beginPath();
+    ctx.value.moveTo(x, y);
+    ctx.value.lineTo(x, y);
+    ctx.value.stroke();
+
+    if (socketId === socket.id) {
+      socket.emit("start-drawing", {
+        x: x,
+        y: y,
+        global_composite_operation: globalCompositeOperation,
+        global_alpha: opacity,
+        color: color,
+        line_width: lineWidth,
+        team_id: teamId.value,
+        socket_id: socketId,
+        tool: tool,
+      });
+    }
+  } else if (step === "draw") {
+    ctx.value.lineTo(x, y);
+    ctx.value.stroke();
+
+    if (socketId === socket.id) {
+      socket.emit("draw", {
+        x: x,
+        y: y,
+        global_alpha: opacity,
+        color: color,
+        team_id: teamId.value,
+        socket_id: socketId,
+        tool: tool,
+      });
+    }
+  } else if (step === "stop") {
+    ctx.value.closePath();
+
+    if (socketId === socket.id) {
+      socket.emit("stop-drawing", {
+        x: x,
+        y: y,
+        global_alpha: opacity,
+        color: color,
+        team_id: teamId.value,
+        socket_id: socketId,
+        tool: tool,
+      });
+    }
+  }
+}
+
+function startDrawing(event, player) {
   if (!canvas.value) return;
 
-  position.value.x = event.clientX - rect.value.left;
-  position.value.y = event.clientY - rect.value.top;
-  isDrawing.value = true;
+  let drawingPlayer = player;
 
-  colorRgba.value = hexToRgba(props.color, props.opacity / 100);
+  if (!drawingPlayer) {
+    position.value.x = event.clientX - rect.value.left;
+    position.value.y = event.clientY - rect.value.top;
+    colorRgba.value = hexToRgba(props.color, props.opacity / 100);
 
-  ctx.value.globalAlpha = props.opacity / 100;
-  ctx.value.strokeStyle = colorRgba.value;
-  ctx.value.lineWidth = props.lineWidth;
-  ctx.value.lineCap = "round";
-  ctx.value.lineJoin = "round";
-
-  if (
-    props.tool === "line" ||
-    props.tool === "empty-rectangle" ||
-    props.tool === "rectangle" ||
-    props.tool === "empty-ellipse" ||
-    props.tool === "ellipse"
-  ) {
-    tempCtx.value.globalAlpha = props.opacity / 100;
-    tempCtx.value.lineWidth = props.lineWidth;
-    tempCtx.value.lineCap = "round";
-    tempCtx.value.lineJoin = "round";
-    tempFirstPoints.value.push({
-      socket_id: socket.id,
-      x: position.value.x,
-      y: position.value.y,
-    });
-  }
-
-  ctx.value.beginPath();
-  ctx.value.moveTo(position.value.x, position.value.y);
-
-  if (props.tool !== "rubber") {
-    globalCompositeOperation.value = "source-over";
-    ctx.value.globalCompositeOperation = globalCompositeOperation.value;
-  } else {
-    globalCompositeOperation.value = "destination-out";
-    ctx.value.globalCompositeOperation = globalCompositeOperation.value;
-  }
-
-  if (props.tool === "rectangle") {
-    tempCtx.value.strokeStyle = "transparent";
-    tempCtx.value.fillStyle = colorRgba.value;
-    ctx.value.fillStyle = colorRgba.value;
-    ctx.value.fillRect(position.value.x, position.value.y, 1, 1);
-  } else if (props.tool === "empty-rectangle") {
-    tempCtx.value.strokeStyle = colorRgba.value;
-    ctx.value.strokeStyle = colorRgba.value;
-    ctx.value.rect(position.value.x, position.value.y, 1, 1);
-  } else if (props.tool === "empty-ellipse" || props.tool === "ellipse") {
-    if (props.tool === "ellipse") {
-      tempCtx.value.strokeStyle = "transparent";
-      tempCtx.value.fillStyle = colorRgba.value;
-      ctx.value.fillStyle = colorRgba.value;
+    if (props.tool !== "rubber") {
+      globalCompositeOperation.value = "source-over";
     } else {
-      tempCtx.value.strokeStyle = colorRgba.value;
-      ctx.value.strokeStyle = colorRgba.value;
+      globalCompositeOperation.value = "destination-out";
     }
 
-    ctx.value.ellipse(
-      position.value.x,
-      position.value.y,
-      1,
-      1,
-      0,
-      0,
-      Math.PI * 2,
-    );
-
-    if (props.tool === "ellipse") {
-      ctx.value.fill();
-    }
-  } else {
-    ctx.value.lineTo(position.value.x, position.value.y);
-    ctx.value.stroke();
-  }
-
-  if (props.tool === "pen" || props.tool === "rubber") {
-    socket.emit("start-drawing", {
+    drawingPlayer = {
       x: position.value.x,
       y: position.value.y,
-      global_composite_operation: globalCompositeOperation.value,
-      global_alpha: props.opacity / 100,
+      opacity: props.opacity / 100,
       color: colorRgba.value,
-      line_width: props.lineWidth,
-      team_id: teamId.value,
-      socket_id: socket.id,
-    });
-  } else {
-    const firstPoint = tempFirstPoints.value.find(
-      (point) => point.socket_id === socket.id,
-    );
+      lineWidth: props.lineWidth,
+      globalCompositeOperation: globalCompositeOperation.value,
+      socketId: socket.id,
+      tool: props.tool,
+    };
+  }
 
-    socket.emit("start-drawing-shape", {
-      first_point_x: firstPoint.x,
-      first_point_y: firstPoint.y,
-      global_alpha: props.opacity / 100,
-      color: colorRgba.value,
-      line_width: props.lineWidth,
-      team_id: teamId.value,
-      socket_id: socket.id,
-    });
+  isDrawingMap.value[drawingPlayer.socketId] = true;
+
+  if (drawingPlayer.tool === "pen" || drawingPlayer.tool === "rubber") {
+    handDraw("start", drawingPlayer);
   }
 }
 
-function draw(event) {
-  if (!isDrawing.value || !canvas.value) return;
+function draw(event, player) {
+  if (!canvas.value) return;
 
-  position.value.x = event.clientX - rect.value.left;
-  position.value.y = event.clientY - rect.value.top;
+  let drawingPlayer = player;
 
-  if (
-    props.tool === "line" ||
-    props.tool === "empty-rectangle" ||
-    props.tool === "rectangle" ||
-    props.tool === "empty-ellipse" ||
-    props.tool === "ellipse"
-  ) {
-    const firstPoint = tempFirstPoints.value.find(
-      (point) => point.socket_id === socket.id,
-    );
+  if (!drawingPlayer) {
+    position.value.x = event.clientX - rect.value.left;
+    position.value.y = event.clientY - rect.value.top;
 
-    if (
-      props.tool === "line" ||
-      props.tool === "empty-rectangle" ||
-      props.tool === "empty-ellipse"
-    ) {
-      tempCtx.value.strokeStyle = colorRgba.value;
-    } else if (props.tool === "rectangle" || props.tool === "ellipse") {
-      tempCtx.value.strokeStyle = "transparent";
-      tempCtx.value.fillStyle = colorRgba.value;
-    }
-
-    tempCtx.value.clearRect(
-      0,
-      0,
-      tempCanvas.value.width,
-      tempCanvas.value.height,
-    );
-    tempCtx.value.beginPath();
-
-    if (props.tool === "empty-rectangle") {
-      tempCtx.value.rect(
-        firstPoint.x,
-        firstPoint.y,
-        position.value.x - firstPoint.x,
-        position.value.y - firstPoint.y,
-      );
-    } else if (props.tool === "rectangle") {
-      tempCtx.value.fillRect(
-        firstPoint.x,
-        firstPoint.y,
-        position.value.x - firstPoint.x,
-        position.value.y - firstPoint.y,
-      );
-    } else if (props.tool === "empty-ellipse" || props.tool === "ellipse") {
-      const centerX = (firstPoint.x + position.value.x) / 2;
-      const centerY = (firstPoint.y + position.value.y) / 2;
-      const radiusX = Math.abs(position.value.x - firstPoint.x) / 2;
-      const radiusY = Math.abs(position.value.y - firstPoint.y) / 2;
-
-      tempCtx.value.ellipse(
-        centerX,
-        centerY,
-        radiusX,
-        radiusY,
-        0,
-        0,
-        Math.PI * 2,
-      );
-
-      if (props.tool === "ellipse") {
-        tempCtx.value.fill();
-      }
-    } else {
-      tempCtx.value.moveTo(firstPoint.x, firstPoint.y);
-      tempCtx.value.lineTo(position.value.x, position.value.y);
-    }
-
-    tempCtx.value.stroke();
-  } else {
-    ctx.value.lineTo(position.value.x, position.value.y);
-    ctx.value.stroke();
+    drawingPlayer = {
+      x: position.value.x,
+      y: position.value.y,
+      opacity: props.opacity / 100,
+      color: colorRgba.value,
+      socketId: socket.id,
+      tool: props.tool,
+    };
   }
 
-  socket.emit("draw", {
-    x: position.value.x,
-    y: position.value.y,
-    global_alpha: props.opacity / 100,
-    color: colorRgba.value,
-    team_id: teamId.value,
-    socket_id: socket.id,
-    tool: props.tool,
-  });
+  if (!isDrawingMap.value[drawingPlayer.socketId]) return;
+
+  if (drawingPlayer.tool === "pen" || drawingPlayer.tool === "rubber") {
+    handDraw("draw", drawingPlayer);
+  }
 }
 
-function stopDrawing(element) {
-  if (!isDrawing.value || !canvas.value) return;
+function stopDrawing(player, element) {
+  if (!canvas.value) return;
 
-  if (
-    props.tool === "line" ||
-    props.tool === "empty-rectangle" ||
-    props.tool === "rectangle" ||
-    props.tool === "empty-ellipse" ||
-    props.tool === "ellipse"
-  ) {
-    tempCtx.value.clearRect(
-      0,
-      0,
-      tempCanvas.value.width,
-      tempCanvas.value.height,
-    );
-    tempCtx.value.closePath();
+  let drawingPlayer = player;
 
-    const firstPoint = tempFirstPoints.value.find(
-      (point) => point.socket_id === socket.id,
-    );
-
-    if (props.tool === "empty-rectangle") {
-      ctx.value.rect(
-        firstPoint.x,
-        firstPoint.y,
-        position.value.x - firstPoint.x,
-        position.value.y - firstPoint.y,
-      );
-    } else if (props.tool === "rectangle") {
-      ctx.value.strokeStyle = "transparent";
-      ctx.value.fillRect(
-        firstPoint.x,
-        firstPoint.y,
-        position.value.x - firstPoint.x,
-        position.value.y - firstPoint.y,
-      );
-    } else if (props.tool === "empty-ellipse" || props.tool === "ellipse") {
-      if (props.tool === "ellipse") {
-        ctx.value.strokeStyle = "transparent";
-      }
-
-      const centerX = (firstPoint.x + position.value.x) / 2;
-      const centerY = (firstPoint.y + position.value.y) / 2;
-      const radiusX = Math.abs(position.value.x - firstPoint.x) / 2;
-      const radiusY = Math.abs(position.value.y - firstPoint.y) / 2;
-
-      ctx.value.beginPath();
-      ctx.value.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
-
-      if (props.tool === "ellipse") {
-        ctx.value.fill();
-      }
-    } else {
-      ctx.value.lineTo(position.value.x, position.value.y);
-    }
-
-    ctx.value.stroke();
-    tempFirstPoints.value = tempFirstPoints.value.filter(
-      (point) => point.socket_id !== socket.id,
-    );
+  if (!drawingPlayer) {
+    drawingPlayer = {
+      x: position.value.x,
+      y: position.value.y,
+      opacity: props.opacity / 100,
+      color: colorRgba.value,
+      socketId: socket.id,
+      tool: props.tool,
+    };
   }
 
-  isDrawing.value = false;
-  ctx.value.closePath();
+  isDrawingMap.value[drawingPlayer.socketId] = false;
 
-  socket.emit("stop-drawing", {
-    x: position.value.x,
-    y: position.value.y,
-    global_alpha: props.opacity / 100,
-    color: colorRgba.value,
-    team_id: teamId.value,
-    socket_id: socket.id,
-    tool: props.tool,
-  });
+  if (drawingPlayer.tool === "pen" || drawingPlayer.tool === "rubber") {
+    handDraw("stop", drawingPlayer);
+  }
 
   if (element === "board") {
     saveState();
@@ -487,250 +363,45 @@ onMounted(() => {
   socket.on("start-drawing", (data) => {
     if (socket.id === data.socket_id) return;
 
-    isDrawingMap.value[data.socket_id] = true;
-
-    if (!canvas.value) return;
-
-    ctx.value.globalAlpha = data.global_alpha;
-    ctx.value.strokeStyle = data.color;
-    ctx.value.lineWidth = data.line_width;
-    ctx.value.globalCompositeOperation = data.global_composite_operation;
-
-    ctx.value.beginPath();
-    ctx.value.lineTo(data.x, data.y);
-    ctx.value.stroke();
-    ctx.value.moveTo(data.x, data.y);
-  });
-
-  socket.on("start-drawing-shape", (data) => {
-    if (socket.id === data.socket_id) return;
-
-    isDrawingMap.value[data.socket_id] = true;
-
-    if (!canvas.value) return;
-
-    ctx.value.globalAlpha = data.global_alpha;
-    ctx.value.strokeStyle = data.color;
-    ctx.value.lineWidth = data.line_width;
-
-    tempCtx.value.globalAlpha = data.global_alpha;
-    tempCtx.value.lineWidth = data.line_width;
-    tempFirstPoints.value.push({
-      socket_id: data.socket_id,
-      x: data.first_point_x,
-      y: data.first_point_y,
+    startDrawing(null, {
+      x: data.x,
+      y: data.y,
+      opacity: data.global_alpha,
+      color: data.color,
+      lineWidth: data.line_width,
+      globalCompositeOperation: data.global_composite_operation,
+      socketId: data.socket_id,
+      tool: data.tool,
     });
-
-    if (props.tool === "rectangle" || props.tool === "ellipse") {
-      tempCtx.value.fillStyle = data.color;
-      ctx.value.fillStyle = data.color;
-    } else {
-      tempCtx.value.strokeStyle = data.color;
-      ctx.value.strokeStyle = data.color;
-    }
-
-    ctx.value.beginPath();
-
-    if (data.tool === "rectangle") {
-      tempCtx.value.fillRect(data.first_point_x, data.first_point_y, 1, 1);
-    } else if (data.tool === "empty-rectangle") {
-      tempCtx.value.rect(data.first_point_x, data.first_point_y, 1, 1);
-    } else if (data.tool === "empty-ellipse" || data.tool === "ellipse") {
-      if (data.tool === "ellipse") {
-        tempCtx.value.strokeStyle = "transparent";
-      }
-
-      tempCtx.value.ellipse(
-        data.first_point_x,
-        data.first_point_y,
-        1,
-        1,
-        0,
-        0,
-        Math.PI * 2,
-      );
-
-      if (data.tool === "ellipse") {
-        tempCtx.value.fill();
-      }
-    } else {
-      ctx.value.moveTo(data.first_point_x, data.first_point_y);
-      tempCtx.value.lineTo(data.first_point_x, data.first_point_y);
-    }
-
-    ctx.value.stroke();
   });
 
   socket.on("draw", (data) => {
-    if (
-      !canvas.value ||
-      !isDrawingMap.value[data.socket_id] ||
-      socket.id === data.socket_id
-    )
-      return;
+    if (socket.id === data.socket_id) return;
 
-    if (
-      data.tool === "line" ||
-      data.tool === "empty-rectangle" ||
-      data.tool === "rectangle" ||
-      data.tool === "empty-ellipse" ||
-      data.tool === "ellipse"
-    ) {
-      const firstPoint = tempFirstPoints.value.find(
-        (point) => point.socket_id === data.socket_id,
-      );
-
-      ctx.value.globalCompositeOperation = "source-over";
-
-      if (data.tool === "rectangle" || data.tool === "ellipse") {
-        tempCtx.value.fillStyle = data.color;
-      } else if (
-        data.tool === "line" ||
-        data.tool === "empty-rectangle" ||
-        data.tool === "empty-ellipse"
-      ) {
-        tempCtx.value.strokeStyle = data.color;
-      }
-
-      tempCtx.value.clearRect(
-        0,
-        0,
-        tempCanvas.value.width,
-        tempCanvas.value.height,
-      );
-      tempCtx.value.beginPath();
-
-      if (data.tool === "empty-rectangle") {
-        tempCtx.value.rect(
-          firstPoint.x,
-          firstPoint.y,
-          data.x - firstPoint.x,
-          data.y - firstPoint.y,
-        );
-      } else if (data.tool === "rectangle") {
-        tempCtx.value.fillRect(
-          firstPoint.x,
-          firstPoint.y,
-          data.x - firstPoint.x,
-          data.y - firstPoint.y,
-        );
-      } else if (data.tool === "empty-ellipse" || data.tool === "ellipse") {
-        if (data.tool === "ellipse") {
-          tempCtx.value.strokeStyle = "transparent";
-        }
-
-        const centerX = (firstPoint.x + data.x) / 2;
-        const centerY = (firstPoint.y + data.y) / 2;
-        const radiusX = Math.abs(data.x - firstPoint.x) / 2;
-        const radiusY = Math.abs(data.y - firstPoint.y) / 2;
-
-        tempCtx.value.ellipse(
-          centerX,
-          centerY,
-          radiusX,
-          radiusY,
-          0,
-          0,
-          Math.PI * 2,
-        );
-
-        if (data.tool === "ellipse") {
-          tempCtx.value.fill();
-        }
-      } else {
-        tempCtx.value.moveTo(firstPoint.x, firstPoint.y);
-        tempCtx.value.lineTo(data.x, data.y);
-      }
-
-      tempCtx.value.stroke();
-    } else {
-      ctx.value.lineTo(data.x, data.y);
-      ctx.value.stroke();
-    }
+    draw(null, {
+      x: data.x,
+      y: data.y,
+      opacity: data.global_alpha,
+      color: data.color,
+      socketId: data.socket_id,
+      tool: data.tool,
+    });
   });
 
   socket.on("stop-drawing", (data) => {
     if (socket.id === data.socket_id) return;
 
-    isDrawingMap.value[data.socket_id] = false;
-
-    if (!canvas.value) return;
-
-    if (
-      data.tool === "line" ||
-      data.tool === "empty-rectangle" ||
-      data.tool === "rectangle" ||
-      data.tool === "empty-ellipse" ||
-      data.tool === "ellipse"
-    ) {
-      const firstPoint = tempFirstPoints.value.find(
-        (point) => point.socket_id === data.socket_id,
-      );
-
-      tempCtx.value.clearRect(
-        0,
-        0,
-        tempCanvas.value.width,
-        tempCanvas.value.height,
-      );
-      tempCtx.value.closePath();
-
-      if (data.tool === "empty-rectangle") {
-        ctx.value.strokeStyle = data.color;
-        ctx.value.rect(
-          firstPoint.x,
-          firstPoint.y,
-          data.x - firstPoint.x,
-          data.y - firstPoint.y,
-        );
-      } else if (data.tool === "rectangle") {
-        ctx.value.fillStyle = data.color;
-        ctx.value.fillRect(
-          firstPoint.x,
-          firstPoint.y,
-          data.x - firstPoint.x,
-          data.y - firstPoint.y,
-        );
-      } else if (data.tool === "empty-ellipse" || data.tool === "ellipse") {
-        if (data.tool === "ellipse") {
-          ctx.value.strokeStyle = "transparent";
-          ctx.value.fillStyle = data.color;
-        }
-
-        const centerX = (firstPoint.x + data.x) / 2;
-        const centerY = (firstPoint.y + data.y) / 2;
-        const radiusX = Math.abs(data.x - firstPoint.x) / 2;
-        const radiusY = Math.abs(data.y - firstPoint.y) / 2;
-
-        ctx.value.beginPath();
-        ctx.value.ellipse(
-          centerX,
-          centerY,
-          radiusX,
-          radiusY,
-          0,
-          0,
-          Math.PI * 2,
-        );
-
-        if (data.tool === "ellipse") {
-          ctx.value.fill();
-        }
-      } else {
-        ctx.value.strokeStyle = data.color;
-        ctx.value.lineTo(data.x, data.y);
-      }
-
-      ctx.value.stroke();
-
-      tempFirstPoints.value = tempFirstPoints.value.filter(
-        (point) => point.socket_id !== data.socket_id,
-      );
-    }
-
-    ctx.value.closePath();
-
-    saveState();
+    stopDrawing(
+      {
+        x: data.x,
+        y: data.y,
+        opacity: data.global_alpha,
+        color: data.color,
+        socketId: data.socket_id,
+        tool: data.tool,
+      },
+      "board",
+    );
   });
 
   socket.on("undo", (data) => {
@@ -769,7 +440,7 @@ onMounted(() => {
         class="board__canvas"
         @mousedown="startDrawing"
         @mousemove="draw"
-        @mouseup.stop="stopDrawing('board')"
+        @mouseup.stop="stopDrawing(null, 'board')"
       />
       <div class="board__background"></div>
       <Cursor

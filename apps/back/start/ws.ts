@@ -94,6 +94,7 @@ app.ready(() => {
         color: data.color,
         line_width: data.line_width,
         socket_id: data.socket_id,
+        tool: data.tool,
       })
     })
 
