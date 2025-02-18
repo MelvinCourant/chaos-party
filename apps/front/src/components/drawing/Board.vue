@@ -126,7 +126,8 @@ function startDrawing(event) {
     props.tool === "line" ||
     props.tool === "empty-rectangle" ||
     props.tool === "rectangle" ||
-    props.tool === "empty-ellipse"
+    props.tool === "empty-ellipse" ||
+    props.tool === "ellipse"
   ) {
     tempCtx.value.globalAlpha = props.opacity / 100;
     tempCtx.value.lineWidth = props.lineWidth;
@@ -151,13 +152,24 @@ function startDrawing(event) {
   }
 
   if (props.tool === "rectangle") {
+    tempCtx.value.strokeStyle = "transparent";
+    tempCtx.value.fillStyle = colorRgba.value;
     ctx.value.fillStyle = colorRgba.value;
     ctx.value.fillRect(position.value.x, position.value.y, 1, 1);
   } else if (props.tool === "empty-rectangle") {
     tempCtx.value.strokeStyle = colorRgba.value;
+    ctx.value.strokeStyle = colorRgba.value;
     ctx.value.rect(position.value.x, position.value.y, 1, 1);
-  } else if (props.tool === "empty-ellipse") {
-    tempCtx.value.strokeStyle = colorRgba.value;
+  } else if (props.tool === "empty-ellipse" || props.tool === "ellipse") {
+    if (props.tool === "ellipse") {
+      tempCtx.value.strokeStyle = "transparent";
+      tempCtx.value.fillStyle = colorRgba.value;
+      ctx.value.fillStyle = colorRgba.value;
+    } else {
+      tempCtx.value.strokeStyle = colorRgba.value;
+      ctx.value.strokeStyle = colorRgba.value;
+    }
+
     ctx.value.ellipse(
       position.value.x,
       position.value.y,
@@ -167,6 +179,10 @@ function startDrawing(event) {
       0,
       Math.PI * 2,
     );
+
+    if (props.tool === "ellipse") {
+      ctx.value.fill();
+    }
   } else {
     ctx.value.lineTo(position.value.x, position.value.y);
     ctx.value.stroke();
@@ -210,7 +226,8 @@ function draw(event) {
     props.tool === "line" ||
     props.tool === "empty-rectangle" ||
     props.tool === "rectangle" ||
-    props.tool === "empty-ellipse"
+    props.tool === "empty-ellipse" ||
+    props.tool === "ellipse"
   ) {
     const firstPoint = tempFirstPoints.value.find(
       (point) => point.socket_id === socket.id,
@@ -222,7 +239,8 @@ function draw(event) {
       props.tool === "empty-ellipse"
     ) {
       tempCtx.value.strokeStyle = colorRgba.value;
-    } else if (props.tool === "rectangle") {
+    } else if (props.tool === "rectangle" || props.tool === "ellipse") {
+      tempCtx.value.strokeStyle = "transparent";
       tempCtx.value.fillStyle = colorRgba.value;
     }
 
@@ -248,7 +266,7 @@ function draw(event) {
         position.value.x - firstPoint.x,
         position.value.y - firstPoint.y,
       );
-    } else if (props.tool === "empty-ellipse") {
+    } else if (props.tool === "empty-ellipse" || props.tool === "ellipse") {
       const centerX = (firstPoint.x + position.value.x) / 2;
       const centerY = (firstPoint.y + position.value.y) / 2;
       const radiusX = Math.abs(position.value.x - firstPoint.x) / 2;
@@ -263,6 +281,10 @@ function draw(event) {
         0,
         Math.PI * 2,
       );
+
+      if (props.tool === "ellipse") {
+        tempCtx.value.fill();
+      }
     } else {
       tempCtx.value.moveTo(firstPoint.x, firstPoint.y);
       tempCtx.value.lineTo(position.value.x, position.value.y);
@@ -292,7 +314,8 @@ function stopDrawing(element) {
     props.tool === "line" ||
     props.tool === "empty-rectangle" ||
     props.tool === "rectangle" ||
-    props.tool === "empty-ellipse"
+    props.tool === "empty-ellipse" ||
+    props.tool === "ellipse"
   ) {
     tempCtx.value.clearRect(
       0,
@@ -314,13 +337,18 @@ function stopDrawing(element) {
         position.value.y - firstPoint.y,
       );
     } else if (props.tool === "rectangle") {
+      ctx.value.strokeStyle = "transparent";
       ctx.value.fillRect(
         firstPoint.x,
         firstPoint.y,
         position.value.x - firstPoint.x,
         position.value.y - firstPoint.y,
       );
-    } else if (props.tool === "empty-ellipse") {
+    } else if (props.tool === "empty-ellipse" || props.tool === "ellipse") {
+      if (props.tool === "ellipse") {
+        ctx.value.strokeStyle = "transparent";
+      }
+
       const centerX = (firstPoint.x + position.value.x) / 2;
       const centerY = (firstPoint.y + position.value.y) / 2;
       const radiusX = Math.abs(position.value.x - firstPoint.x) / 2;
@@ -328,6 +356,10 @@ function stopDrawing(element) {
 
       ctx.value.beginPath();
       ctx.value.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
+
+      if (props.tool === "ellipse") {
+        ctx.value.fill();
+      }
     } else {
       ctx.value.lineTo(position.value.x, position.value.y);
     }
@@ -489,19 +521,25 @@ onMounted(() => {
       y: data.first_point_y,
     });
 
-    if (props.tool === "rectangle") {
+    if (props.tool === "rectangle" || props.tool === "ellipse") {
+      tempCtx.value.fillStyle = data.color;
       ctx.value.fillStyle = data.color;
     } else {
       tempCtx.value.strokeStyle = data.color;
+      ctx.value.strokeStyle = data.color;
     }
 
     ctx.value.beginPath();
 
-    if (props.tool === "rectangle") {
-      ctx.value.fillRect(data.first_point_x, data.first_point_y, 1, 1);
-    } else if (props.tool === "empty-rectangle") {
+    if (data.tool === "rectangle") {
+      tempCtx.value.fillRect(data.first_point_x, data.first_point_y, 1, 1);
+    } else if (data.tool === "empty-rectangle") {
       tempCtx.value.rect(data.first_point_x, data.first_point_y, 1, 1);
-    } else if (props.tool === "empty-ellipse") {
+    } else if (data.tool === "empty-ellipse" || data.tool === "ellipse") {
+      if (data.tool === "ellipse") {
+        tempCtx.value.strokeStyle = "transparent";
+      }
+
       tempCtx.value.ellipse(
         data.first_point_x,
         data.first_point_y,
@@ -511,6 +549,10 @@ onMounted(() => {
         0,
         Math.PI * 2,
       );
+
+      if (data.tool === "ellipse") {
+        tempCtx.value.fill();
+      }
     } else {
       ctx.value.moveTo(data.first_point_x, data.first_point_y);
       tempCtx.value.lineTo(data.first_point_x, data.first_point_y);
@@ -531,7 +573,8 @@ onMounted(() => {
       data.tool === "line" ||
       data.tool === "empty-rectangle" ||
       data.tool === "rectangle" ||
-      data.tool === "empty-ellipse"
+      data.tool === "empty-ellipse" ||
+      data.tool === "ellipse"
     ) {
       const firstPoint = tempFirstPoints.value.find(
         (point) => point.socket_id === data.socket_id,
@@ -539,7 +582,7 @@ onMounted(() => {
 
       ctx.value.globalCompositeOperation = "source-over";
 
-      if (data.tool === "rectangle") {
+      if (data.tool === "rectangle" || data.tool === "ellipse") {
         tempCtx.value.fillStyle = data.color;
       } else if (
         data.tool === "line" ||
@@ -571,7 +614,11 @@ onMounted(() => {
           data.x - firstPoint.x,
           data.y - firstPoint.y,
         );
-      } else if (data.tool === "empty-ellipse") {
+      } else if (data.tool === "empty-ellipse" || data.tool === "ellipse") {
+        if (data.tool === "ellipse") {
+          tempCtx.value.strokeStyle = "transparent";
+        }
+
         const centerX = (firstPoint.x + data.x) / 2;
         const centerY = (firstPoint.y + data.y) / 2;
         const radiusX = Math.abs(data.x - firstPoint.x) / 2;
@@ -586,6 +633,10 @@ onMounted(() => {
           0,
           Math.PI * 2,
         );
+
+        if (data.tool === "ellipse") {
+          tempCtx.value.fill();
+        }
       } else {
         tempCtx.value.moveTo(firstPoint.x, firstPoint.y);
         tempCtx.value.lineTo(data.x, data.y);
@@ -609,7 +660,8 @@ onMounted(() => {
       data.tool === "line" ||
       data.tool === "empty-rectangle" ||
       data.tool === "rectangle" ||
-      data.tool === "empty-ellipse"
+      data.tool === "empty-ellipse" ||
+      data.tool === "ellipse"
     ) {
       const firstPoint = tempFirstPoints.value.find(
         (point) => point.socket_id === data.socket_id,
@@ -639,7 +691,12 @@ onMounted(() => {
           data.x - firstPoint.x,
           data.y - firstPoint.y,
         );
-      } else if (data.tool === "empty-ellipse") {
+      } else if (data.tool === "empty-ellipse" || data.tool === "ellipse") {
+        if (data.tool === "ellipse") {
+          ctx.value.strokeStyle = "transparent";
+          ctx.value.fillStyle = data.color;
+        }
+
         const centerX = (firstPoint.x + data.x) / 2;
         const centerY = (firstPoint.y + data.y) / 2;
         const radiusX = Math.abs(data.x - firstPoint.x) / 2;
@@ -655,6 +712,10 @@ onMounted(() => {
           0,
           Math.PI * 2,
         );
+
+        if (data.tool === "ellipse") {
+          ctx.value.fill();
+        }
       } else {
         ctx.value.strokeStyle = data.color;
         ctx.value.lineTo(data.x, data.y);
