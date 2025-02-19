@@ -269,6 +269,148 @@ function lineDraw(step, player) {
   }
 }
 
+function rectangleDraw(step, player) {
+  const { x, y, opacity, color, lineWidth, tool, socketId } = player;
+
+  if (step === "start") {
+    ctx.value.globalAlpha = opacity;
+    ctx.value.lineWidth = lineWidth;
+    ctx.value.globalCompositeOperation = "source-over";
+
+    if (tool === "empty-rectangle") {
+      ctx.value.strokeStyle = color;
+    } else {
+      ctx.value.fillStyle = color;
+    }
+
+    tempCtx.value.globalAlpha = opacity;
+    tempCtx.value.lineWidth = lineWidth;
+    tempFirstPoints.value.push({
+      socket_id: socketId,
+      x: x,
+      y: y,
+    });
+
+    if (tool === "empty-rectangle") {
+      tempCtx.value.strokeStyle = color;
+    } else {
+      tempCtx.value.fillStyle = color;
+    }
+
+    tempCtx.value.beginPath();
+    tempCtx.value.moveTo(x, y);
+
+    if (tool === "empty-rectangle") {
+      tempCtx.value.rect(x, y, 1, 1);
+    } else {
+      tempCtx.value.fillRect(x, y, 1, 1);
+    }
+
+    const firstPoint = tempFirstPoints.value.find(
+      (point) => point.socket_id === socketId,
+    );
+
+    if (socketId === socket.id) {
+      socket.emit("start-drawing-shape", {
+        first_point_x: firstPoint.x,
+        first_point_y: firstPoint.y,
+        global_alpha: opacity,
+        color: color,
+        line_width: lineWidth,
+        team_id: teamId.value,
+        socket_id: socketId,
+        tool: tool,
+      });
+    }
+  } else if (step === "draw" || step === "stop") {
+    const firstPoint = tempFirstPoints.value.find(
+      (point) => point.socket_id === socketId,
+    );
+
+    tempCtx.value.clearRect(
+      0,
+      0,
+      tempCanvas.value.width,
+      tempCanvas.value.height,
+    );
+    tempCtx.value.closePath();
+
+    if (step === "draw") {
+      tempCtx.value.beginPath();
+      tempCtx.value.moveTo(firstPoint.x, firstPoint.y);
+
+      if (tool === "empty-rectangle") {
+        tempCtx.value.rect(
+          firstPoint.x,
+          firstPoint.y,
+          x - firstPoint.x,
+          y - firstPoint.y,
+        );
+      } else {
+        tempCtx.value.fillRect(
+          firstPoint.x,
+          firstPoint.y,
+          x - firstPoint.x,
+          y - firstPoint.y,
+        );
+      }
+
+      tempCtx.value.stroke();
+
+      if (socketId === socket.id) {
+        socket.emit("draw", {
+          x: x,
+          y: y,
+          global_alpha: opacity,
+          color: color,
+          team_id: teamId.value,
+          socket_id: socketId,
+          tool: tool,
+        });
+      }
+    } else {
+      ctx.value.beginPath();
+      ctx.value.moveTo(firstPoint.x, firstPoint.y);
+
+      if (tool === "empty-rectangle") {
+        ctx.value.rect(
+          firstPoint.x,
+          firstPoint.y,
+          x - firstPoint.x,
+          y - firstPoint.y,
+        );
+      } else {
+        ctx.value.fillRect(
+          firstPoint.x,
+          firstPoint.y,
+          x - firstPoint.x,
+          y - firstPoint.y,
+        );
+      }
+
+      ctx.value.stroke();
+      ctx.value.closePath();
+
+      tempFirstPoints.value = tempFirstPoints.value.filter(
+        (point) => point.socket_id !== socketId,
+      );
+
+      if (socketId === socket.id) {
+        socket.emit("stop-drawing", {
+          x: x,
+          y: y,
+          global_alpha: opacity,
+          color: color,
+          line_width: lineWidth,
+          team_id: teamId.value,
+          socket_id: socketId,
+          tool: tool,
+        });
+      }
+    }
+  }
+}
+
 function startDrawing(event, player) {
   if (!canvas.value) return;
 
@@ -303,6 +445,11 @@ function startDrawing(event, player) {
     handDraw("start", drawingPlayer);
   } else if (drawingPlayer.tool === "line") {
     lineDraw("start", drawingPlayer);
+  } else if (
+    drawingPlayer.tool === "empty-rectangle" ||
+    drawingPlayer.tool === "rectangle"
+  ) {
+    rectangleDraw("start", drawingPlayer);
   }
 }
 
@@ -331,6 +478,11 @@ function draw(event, player) {
     handDraw("draw", drawingPlayer);
   } else if (drawingPlayer.tool === "line") {
     lineDraw("draw", drawingPlayer);
+  } else if (
+    drawingPlayer.tool === "empty-rectangle" ||
+    drawingPlayer.tool === "rectangle"
+  ) {
+    rectangleDraw("draw", drawingPlayer);
   }
 }
 
@@ -358,6 +510,11 @@ function stopDrawing(player, element) {
     handDraw("stop", drawingPlayer);
   } else if (drawingPlayer.tool === "line") {
     lineDraw("stop", drawingPlayer);
+  } else if (
+    drawingPlayer.tool === "empty-rectangle" ||
+    drawingPlayer.tool === "rectangle"
+  ) {
+    rectangleDraw("stop", drawingPlayer);
   }
 
   if (element === "board") {
