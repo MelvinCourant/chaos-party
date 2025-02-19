@@ -280,6 +280,7 @@ function rectangleDraw(step, player) {
     if (tool === "empty-rectangle") {
       ctx.value.strokeStyle = color;
     } else {
+      ctx.value.strokeStyle = "transparent";
       ctx.value.fillStyle = color;
     }
 
@@ -294,6 +295,7 @@ function rectangleDraw(step, player) {
     if (tool === "empty-rectangle") {
       tempCtx.value.strokeStyle = color;
     } else {
+      ctx.value.strokeStyle = "transparent";
       tempCtx.value.fillStyle = color;
     }
 
@@ -305,6 +307,8 @@ function rectangleDraw(step, player) {
     } else {
       tempCtx.value.fillRect(x, y, 1, 1);
     }
+
+    tempCtx.value.stroke();
 
     const firstPoint = tempFirstPoints.value.find(
       (point) => point.socket_id === socketId,
@@ -411,6 +415,139 @@ function rectangleDraw(step, player) {
   }
 }
 
+function ellipseDraw(step, player) {
+  const { x, y, opacity, color, lineWidth, tool, socketId } = player;
+
+  if (step === "start") {
+    ctx.value.globalAlpha = opacity;
+    ctx.value.lineWidth = lineWidth;
+    ctx.value.globalCompositeOperation = "source-over";
+
+    if (tool === "empty-ellipse") {
+      ctx.value.strokeStyle = color;
+    } else {
+      ctx.value.strokeStyle = "transparent";
+      ctx.value.fillStyle = color;
+    }
+
+    tempCtx.value.globalAlpha = opacity;
+    tempCtx.value.lineWidth = lineWidth;
+    tempFirstPoints.value.push({
+      socket_id: socketId,
+      x: x,
+      y: y,
+    });
+
+    if (tool === "empty-ellipse") {
+      tempCtx.value.strokeStyle = color;
+    } else {
+      tempCtx.value.strokeStyle = "transparent";
+      tempCtx.value.fillStyle = color;
+    }
+
+    tempCtx.value.beginPath();
+    tempCtx.value.moveTo(x, y);
+    tempCtx.value.ellipse(x, y, 1, 1, 0, 0, Math.PI * 2);
+
+    if (tool === "ellipse") {
+      tempCtx.value.fill();
+    }
+
+    tempCtx.value.stroke();
+
+    const firstPoint = tempFirstPoints.value.find(
+      (point) => point.socket_id === socketId,
+    );
+
+    if (socketId === socket.id) {
+      socket.emit("start-drawing-shape", {
+        first_point_x: firstPoint.x,
+        first_point_y: firstPoint.y,
+        global_alpha: opacity,
+        color: color,
+        line_width: lineWidth,
+        team_id: teamId.value,
+        socket_id: socketId,
+        tool: tool,
+      });
+    }
+  } else if (step === "draw" || step === "stop") {
+    const firstPoint = tempFirstPoints.value.find(
+      (point) => point.socket_id === socketId,
+    );
+    const centerX = (firstPoint.x + x) / 2;
+    const centerY = (firstPoint.y + y) / 2;
+    const radiusX = Math.abs(x - firstPoint.x) / 2;
+    const radiusY = Math.abs(y - firstPoint.y) / 2;
+
+    tempCtx.value.clearRect(
+      0,
+      0,
+      tempCanvas.value.width,
+      tempCanvas.value.height,
+    );
+    tempCtx.value.closePath();
+
+    if (step === "draw") {
+      tempCtx.value.beginPath();
+      tempCtx.value.ellipse(
+        centerX,
+        centerY,
+        radiusX,
+        radiusY,
+        0,
+        0,
+        Math.PI * 2,
+      );
+
+      if (tool === "ellipse") {
+        tempCtx.value.fill();
+      }
+
+      tempCtx.value.stroke();
+
+      if (socketId === socket.id) {
+        socket.emit("draw", {
+          x: x,
+          y: y,
+          global_alpha: opacity,
+          color: color,
+          team_id: teamId.value,
+          socket_id: socketId,
+          tool: tool,
+        });
+      }
+    } else {
+      ctx.value.beginPath();
+      ctx.value.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
+
+      if (tool === "ellipse") {
+        ctx.value.fill();
+      }
+
+      ctx.value.stroke();
+      ctx.value.closePath();
+
+      tempFirstPoints.value = tempFirstPoints.value.filter(
+        (point) => point.socket_id !== socketId,
+      );
+
+      if (socketId === socket.id) {
+        socket.emit("stop-drawing", {
+          x: x,
+          y: y,
+          global_alpha: opacity,
+          color: color,
+          line_width: lineWidth,
+          team_id: teamId.value,
+          socket_id: socketId,
+          tool: tool,
+        });
+      }
+    }
+  }
+}
+
 function startDrawing(event, player) {
   if (!canvas.value) return;
 
@@ -450,6 +587,11 @@ function startDrawing(event, player) {
     drawingPlayer.tool === "rectangle"
   ) {
     rectangleDraw("start", drawingPlayer);
+  } else if (
+    drawingPlayer.tool === "empty-ellipse" ||
+    drawingPlayer.tool === "ellipse"
+  ) {
+    ellipseDraw("start", drawingPlayer);
   }
 }
 
@@ -483,6 +625,11 @@ function draw(event, player) {
     drawingPlayer.tool === "rectangle"
   ) {
     rectangleDraw("draw", drawingPlayer);
+  } else if (
+    drawingPlayer.tool === "empty-ellipse" ||
+    drawingPlayer.tool === "ellipse"
+  ) {
+    ellipseDraw("draw", drawingPlayer);
   }
 }
 
@@ -515,6 +662,11 @@ function stopDrawing(player, element) {
     drawingPlayer.tool === "rectangle"
   ) {
     rectangleDraw("stop", drawingPlayer);
+  } else if (
+    drawingPlayer.tool === "empty-ellipse" ||
+    drawingPlayer.tool === "ellipse"
+  ) {
+    ellipseDraw("stop", drawingPlayer);
   }
 
   if (element === "board") {
