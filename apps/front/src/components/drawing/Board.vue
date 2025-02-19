@@ -548,6 +548,126 @@ function ellipseDraw(step, player) {
   }
 }
 
+function floodFill(player) {
+  const { x, y, opacity, color, socketId } = player;
+
+  if (!canvas.value || !ctx.value) return;
+
+  ctx.value.globalAlpha = opacity;
+  ctx.value.globalCompositeOperation = "source-over";
+
+  const imageData = ctx.value.getImageData(
+    0,
+    0,
+    canvas.value.width,
+    canvas.value.height,
+  );
+  const data = imageData.data;
+  const width = canvas.value.width;
+  const height = canvas.value.height;
+
+  const startX = Math.floor(x);
+  const startY = Math.floor(y);
+  const targetPos = (startY * width + startX) * 4;
+
+  const targetR = data[targetPos];
+  const targetG = data[targetPos + 1];
+  const targetB = data[targetPos + 2];
+  const targetA = data[targetPos + 3];
+
+  const isEmptyCanvas = targetA < 10;
+
+  const rgbaMatch = color.match(
+    /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([.\d]+))?\)/,
+  );
+  if (!rgbaMatch) return;
+
+  const fillR = parseInt(rgbaMatch[1]);
+  const fillG = parseInt(rgbaMatch[2]);
+  const fillB = parseInt(rgbaMatch[3]);
+  const fillA = rgbaMatch[4] ? parseFloat(rgbaMatch[4]) * 255 : 255;
+
+  if (
+    !isEmptyCanvas &&
+    Math.abs(targetR - fillR) < 5 &&
+    Math.abs(targetG - fillG) < 5 &&
+    Math.abs(targetB - fillB) < 5 &&
+    Math.abs(targetA - fillA) < 5
+  ) {
+    return;
+  }
+
+  const tolerance = 5;
+
+  const isSimilarColor = (pos) => {
+    if (isEmptyCanvas) {
+      return data[pos + 3] < 10;
+    } else {
+      const alphaTolerance = data[pos + 3] < 200 ? tolerance * 2 : tolerance;
+      return (
+        Math.abs(data[pos] - targetR) <= alphaTolerance &&
+        Math.abs(data[pos + 1] - targetG) <= alphaTolerance &&
+        Math.abs(data[pos + 2] - targetB) <= alphaTolerance &&
+        Math.abs(data[pos + 3] - targetA) <= tolerance
+      );
+    }
+  };
+
+  const stack = [[startX, startY]];
+  const processed = new Set();
+  const getIndex = (x, y) => (y * width + x) * 4;
+  const getPosId = (x, y) => `${x},${y}`;
+
+  while (stack.length) {
+    const [curX, curY] = stack.pop();
+    const id = getPosId(curX, curY);
+
+    if (
+      processed.has(id) ||
+      curX < 0 ||
+      curX >= width ||
+      curY < 0 ||
+      curY >= height
+    ) {
+      continue;
+    }
+
+    const pos = getIndex(curX, curY);
+
+    if (!isSimilarColor(pos)) {
+      continue;
+    }
+
+    data[pos] = fillR;
+    data[pos + 1] = fillG;
+    data[pos + 2] = fillB;
+    data[pos + 3] = fillA;
+
+    processed.add(id);
+
+    stack.push([curX + 1, curY]);
+    stack.push([curX - 1, curY]);
+    stack.push([curX, curY + 1]);
+    stack.push([curX, curY - 1]);
+  }
+
+  ctx.value.putImageData(imageData, 0, 0);
+
+  if (socketId === socket.id) {
+    socket.emit("start-drawing", {
+      x: x,
+      y: y,
+      global_alpha: opacity,
+      color: color,
+      team_id: teamId.value,
+      socket_id: socketId,
+      tool: "paint-pot",
+    });
+
+    saveState();
+  }
+}
+
 function startDrawing(event, player) {
   if (!canvas.value) return;
 
@@ -592,6 +712,8 @@ function startDrawing(event, player) {
     drawingPlayer.tool === "ellipse"
   ) {
     ellipseDraw("start", drawingPlayer);
+  } else if (drawingPlayer.tool === "paint-pot") {
+    floodFill(drawingPlayer);
   }
 }
 
@@ -698,14 +820,12 @@ onMounted(() => {
     canvas.value.height = canvas.value.offsetHeight;
     ctx.value = canvas.value.getContext("2d");
     ctx.value.lineCap = "round";
-    ctx.value.lineJoin = "round";
 
     // Temp canvas for preview
     tempCanvas.value.width = tempCanvas.value.offsetWidth;
     tempCanvas.value.height = tempCanvas.value.offsetHeight;
     tempCtx.value = tempCanvas.value.getContext("2d");
     tempCtx.value.lineCap = "round";
-    tempCtx.value.lineJoin = "round";
 
     saveState();
   }
