@@ -597,7 +597,7 @@ function floodFill(player) {
     return;
   }
 
-  const tolerance = 5;
+  const tolerance = 20;
 
   const isSimilarColor = (pos) => {
     if (isEmptyCanvas) {
