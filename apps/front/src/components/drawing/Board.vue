@@ -295,7 +295,7 @@ function rectangleDraw(step, player) {
     if (tool === "empty-rectangle") {
       tempCtx.value.strokeStyle = color;
     } else {
-      ctx.value.strokeStyle = "transparent";
+      tempCtx.value.strokeStyle = "transparent";
       tempCtx.value.fillStyle = color;
     }
 
@@ -303,12 +303,10 @@ function rectangleDraw(step, player) {
     tempCtx.value.moveTo(x, y);
 
     if (tool === "empty-rectangle") {
-      tempCtx.value.rect(x, y, 1, 1);
+      tempCtx.value.strokeRect(x, y, 1, 1);
     } else {
       tempCtx.value.fillRect(x, y, 1, 1);
     }
-
-    tempCtx.value.stroke();
 
     const firstPoint = tempFirstPoints.value.find(
       (point) => point.socket_id === socketId,
@@ -344,11 +342,11 @@ function rectangleDraw(step, player) {
       tempCtx.value.moveTo(firstPoint.x, firstPoint.y);
 
       if (tool === "empty-rectangle") {
-        tempCtx.value.rect(
+        tempCtx.value.strokeRect(
           firstPoint.x,
           firstPoint.y,
-          x - firstPoint.x,
-          y - firstPoint.y,
+          Math.floor(x - firstPoint.x),
+          Math.floor(y - firstPoint.y),
         );
       } else {
         tempCtx.value.fillRect(
@@ -358,8 +356,6 @@ function rectangleDraw(step, player) {
           y - firstPoint.y,
         );
       }
-
-      tempCtx.value.stroke();
 
       if (socketId === socket.id) {
         socket.emit("draw", {
@@ -380,8 +376,8 @@ function rectangleDraw(step, player) {
         ctx.value.rect(
           firstPoint.x,
           firstPoint.y,
-          x - firstPoint.x,
-          y - firstPoint.y,
+          Math.floor(x - firstPoint.x),
+          Math.floor(y - firstPoint.y),
         );
       } else {
         ctx.value.fillRect(
@@ -674,8 +670,8 @@ function startDrawing(event, player) {
   let drawingPlayer = player;
 
   if (!drawingPlayer) {
-    position.value.x = event.clientX - rect.value.left;
-    position.value.y = event.clientY - rect.value.top;
+    position.value.x = Math.floor(event.clientX - rect.value.left);
+    position.value.y = Math.floor(event.clientY - rect.value.top);
     colorRgba.value = hexToRgba(props.color, props.opacity / 100);
 
     if (props.tool !== "rubber") {
@@ -723,8 +719,8 @@ function draw(event, player) {
   let drawingPlayer = player;
 
   if (!drawingPlayer) {
-    position.value.x = event.clientX - rect.value.left;
-    position.value.y = event.clientY - rect.value.top;
+    position.value.x = Math.floor(event.clientX - rect.value.left);
+    position.value.y = Math.floor(event.clientY - rect.value.top);
 
     drawingPlayer = {
       x: position.value.x,
