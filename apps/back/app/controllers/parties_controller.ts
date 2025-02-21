@@ -15,6 +15,7 @@ import Team from '#models/team'
 import Mission from '#models/mission'
 import Category from '#models/category'
 import Objective from '#models/objective'
+import config from '../../../../cp-config.json' assert { type: 'json' }
 
 export default class PartiesController {
   public async create({ request, response }: HttpContext) {
@@ -90,7 +91,7 @@ export default class PartiesController {
 
       const playersInParty = await User.query().where('party_id', party.id).select('id')
 
-      if (playersInParty.length === 12) {
+      if (playersInParty.length === config.max_players) {
         return response.status(403).json({ message: i18n.t('messages.maximum_players_reached') })
       }
 
@@ -343,6 +344,12 @@ export default class PartiesController {
 
     if (playersWithoutTeam.length > 0) {
       return response.status(400).json({ message: i18n.t('messages.players_without_team') })
+    }
+
+    if (players.length < config.minimum_players) {
+      return response.status(400).json({
+        message: i18n.t('messages.minimum_players_required', { quantity: config.minimum_players }),
+      })
     }
 
     party.step = 'drawing'

@@ -13,6 +13,7 @@ import { reactive, ref, provide, onMounted } from 'vue';
 import Configurations from '../components/creating_teams/Configurations.vue';
 import Teams from '../components/creating_teams/Teams.vue';
 import Popin from '../components/utils/Popin.vue';
+import config from '../../../../cp-config.json';
 
 const env = import.meta.env;
 const { t } = useI18n();
@@ -115,7 +116,7 @@ const configurations = reactive([
   },
 ]);
 const teams = ref([]);
-const maxPlayersInTeam = ref(3);
+const maxPlayersInTeam = ref(config.max_players / 4);
 const errors = ref('');
 
 provide('hostId', hostId);
@@ -148,12 +149,8 @@ async function getPartyConfigurations() {
       }
     });
     teams.value = partyConfigurations.teams;
-
-    if (partyConfigurations.teams.length === 2) {
-      maxPlayersInTeam.value = 6;
-    } else if (partyConfigurations.teams.length === 3) {
-      maxPlayersInTeam.value = 4;
-    }
+    maxPlayersInTeam.value =
+      config.max_players / partyConfigurations.teams.length;
 
     const actualConfiguration = partyConfigurations.configurations;
     if (actualConfiguration.drawing_time) {
@@ -323,13 +320,7 @@ async function updateNumberTeams(quantity) {
     });
     teams.value = json.teams;
 
-    if (json.teams.length === 2) {
-      maxPlayersInTeam.value = 6;
-    } else if (json.teams.length === 3) {
-      maxPlayersInTeam.value = 4;
-    } else if (json.teams.length === 4) {
-      maxPlayersInTeam.value = 3;
-    }
+    maxPlayersInTeam.value = config.max_players / json.teams.length;
   } else {
     displayErrors(json);
   }

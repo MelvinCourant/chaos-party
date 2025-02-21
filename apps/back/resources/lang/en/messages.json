@@ -10,6 +10,7 @@
   },
   "forbidden": "Forbidden",
   "maximum_players_reached": "Maximum number of players reached",
+  "minimum_players_required": "A minimum of {quantity} players is required to start the game",
   "missions": {
     "alien_unknown_planet": "An alien from an unknown planet",
     "building_future": "A building of the future",

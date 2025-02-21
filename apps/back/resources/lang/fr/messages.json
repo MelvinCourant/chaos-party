@@ -10,6 +10,7 @@
   },
   "forbidden": "Action non autorisée",
   "maximum_players_reached": "Nombre maximum de joueurs atteint",
+  "minimum_players_required": "Un minimum de {quantity} joueurs est requis pour lancer la partie",
   "missions": {
     "alien_unknown_planet": "Un alien venant d’une planète inconnue",
     "building_future": "Immeuble du futur",
