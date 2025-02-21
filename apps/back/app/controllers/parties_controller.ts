@@ -366,6 +366,13 @@ export default class PartiesController {
         .select('id', 'category_id')
 
       for (const team of teams) {
+        const playersInTeam = players.filter((player) => player.team_id === team.id)
+
+        if (playersInTeam.length === 0) {
+          await team.delete()
+          continue
+        }
+
         const missionSelected = missions[Math.floor(Math.random() * missions.length)]
         team.mission_id = missionSelected.id
         await team.save()
@@ -374,7 +381,6 @@ export default class PartiesController {
           .where('id', missionSelected.category_id)
           .select('id')
           .firstOrFail()
-        const playersInTeam = players.filter((player) => player.team_id === team.id)
 
         if (playersInTeam.length > 0) {
           const saboteurIndex = Math.floor(Math.random() * playersInTeam.length)

@@ -2,6 +2,10 @@ import app from '@adonisjs/core/services/app'
 import Ws from '#services/Ws'
 import User from '#models/user'
 import Party from '#models/party'
+import Team from '#models/team'
+import fs from 'node:fs'
+import { cuid } from '@adonisjs/core/helpers'
+import path from 'node:path'
 
 app.ready(() => {
   Ws.boot()
@@ -170,6 +174,46 @@ app.ready(() => {
       if (allReady) {
         io?.to(partyId).emit('start-timer')
       }
+    })
+
+    socket.on('timer-finished', (data) => {
+      io?.to(data.party_id).emit('timer-finished')
+    })
+
+    socket.on('final-draw', async (data) => {
+      const team = await Team.query().where('id', data.team_id).select('id', 'draw').firstOrFail()
+      const party = await Party.query()
+        .where('id', data.party_id)
+        .select('id', 'step')
+        .firstOrFail()
+
+      if (!team.draw) {
+        const draw = data.draw
+
+        if (draw.startsWith('data:image')) {
+          const uploadsDir = app.makePath('uploads')
+          if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true })
+          }
+
+          const filename = `${cuid()}.png`
+          const filePath = path.join(uploadsDir, filename)
+
+          const base64Data = draw.replace(/^data:image\/\w+;base64,/, '')
+          const buffer = Buffer.from(base64Data, 'base64')
+          fs.writeFileSync(filePath, buffer)
+
+          team.draw = filename
+          await team.save()
+        }
+      }
+
+      if (party.step === 'drawing') {
+        party.step = 'voting'
+        await party.save()
+      }
+
+      io?.to(data.team_id).emit('redirect')
     })
   })
 })

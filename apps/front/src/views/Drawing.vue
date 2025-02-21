@@ -23,7 +23,7 @@ const isSaboteur = ref(false);
 const players = ref([]);
 const mouseMoving = ref(null);
 const mouseUp = ref(false);
-const drawingDuration = ref(1); // TODO to replace with real duration
+const drawingDuration = ref(0.5); // TODO to replace with real duration
 const timer = ref(0);
 const elapsed = ref(0);
 let interval = null;
@@ -81,7 +81,6 @@ function startTimer() {
   }
   interval = setInterval(() => {
     timer.value += 100;
-    console.log(timer.value);
   }, 100);
 }
 
@@ -157,7 +156,15 @@ onMounted(() => {
 
     if (value >= maxTime) {
       stopTimer();
+
+      socket.emit('timer-finished', {
+        party_id: partyId,
+      });
     }
+  });
+
+  socket.on('redirect', async () => {
+    await router.push({ path: '/voting' });
   });
 });
 </script>

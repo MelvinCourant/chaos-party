@@ -4,6 +4,7 @@ import Cursor from './Cursor.vue';
 import { inject, onMounted, ref, useTemplateRef, watch } from 'vue';
 import { useSocketStore } from '../../stores/socket.js';
 import { useI18n } from 'vue-i18n';
+import { usePartyStore } from '../../stores/party.js';
 
 const props = defineProps({
   mouseMoving: { type: Object, default: null },
@@ -30,6 +31,8 @@ const objective = inject('objective');
 const isSaboteur = inject('isSaboteur');
 const players = inject('players');
 const teamId = inject('teamId');
+const partyStore = usePartyStore();
+const partyId = partyStore.partyId;
 const history = ref([]);
 const historyIndex = ref(-1);
 const globalCompositeOperation = ref('source-over');
@@ -956,6 +959,14 @@ onMounted(() => {
 
     historyIndex.value = data.history_index;
     restoreState(history.value[historyIndex.value]);
+  });
+
+  socket.on('timer-finished', () => {
+    socket.emit('final-draw', {
+      team_id: teamId.value,
+      party_id: partyId,
+      draw: canvas.value.toDataURL(),
+    });
   });
 });
 </script>

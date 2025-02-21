@@ -1,32 +1,37 @@
-import { createRouter, createWebHistory } from "vue-router";
-import Home from "../views/Home.vue";
-import Lobby from "../views/Lobby.vue";
-import CreatingTeams from "../views/CreatingTeams.vue";
-import Drawing from "../views/Drawing.vue";
+import { createRouter, createWebHistory } from 'vue-router';
+import Home from '../views/Home.vue';
+import Lobby from '../views/Lobby.vue';
+import CreatingTeams from '../views/CreatingTeams.vue';
+import Drawing from '../views/Drawing.vue';
+import Voting from '../views/Voting.vue';
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: "/",
+      path: '/',
       component: Home,
     },
     {
-      path: "/:id",
+      path: '/:id',
       component: Home,
     },
     {
-      path: "/lobby",
+      path: '/lobby',
       component: Lobby,
     },
     {
-      path: "/creating-teams",
+      path: '/creating-teams',
       component: CreatingTeams,
     },
     {
-      path: "/drawing",
+      path: '/drawing',
       component: Drawing,
-    }
+    },
+    {
+      path: '/voting',
+      component: Voting,
+    },
   ],
 });
 
