@@ -56,8 +56,12 @@ app.ready(() => {
       Ws.sockets.delete(socket.id)
     })
 
-    socket.on('get-state', (data) => {
-      io?.to(data.team_id).emit('get-state')
+    socket.on('team-state', (data) => {
+      io?.to(data.team_id).emit('team-state')
+    })
+
+    socket.on('party-state', (data) => {
+      io?.to(data.party_id).emit('party-state')
     })
 
     socket.on('player-state', (data) => {
@@ -74,6 +78,13 @@ app.ready(() => {
         canvas: data.canvas,
         history: data.history,
         history_index: data.history_index,
+      })
+    })
+
+    socket.on('timer-state', (data) => {
+      io?.to(data.party_id).emit('timer-state', {
+        socket_id: data.socket_id,
+        timer: data.timer,
       })
     })
 
@@ -144,6 +155,21 @@ app.ready(() => {
         socket_id: data.socket_id,
         history_index: data.history_index,
       })
+    })
+
+    socket.on('player-ready', async (data) => {
+      socket.data.status = 'ready'
+
+      const partyId = data.party_id
+      const partySockets = Array.from(Ws.sockets.values()).filter(
+        (s) => s.data.party_id === partyId
+      )
+
+      const allReady = partySockets.every((s) => s.data.status === 'ready')
+
+      if (allReady) {
+        io?.to(partyId).emit('start-timer')
+      }
     })
   })
 })

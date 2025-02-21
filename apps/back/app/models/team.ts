@@ -26,6 +26,9 @@ export default class Team extends BaseModel {
   @belongsTo(() => Mission)
   declare mission: BelongsTo<typeof Mission>
 
+  @column()
+  declare draw: string
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

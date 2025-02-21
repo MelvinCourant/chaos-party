@@ -10,18 +10,18 @@
     display: flex;
     width: 100%;
     height: 100%;
-    background: conic-gradient(var(--red) 0, var(--red) var(--countdown), transparent var(--countdown)) border-box;
-    animation: deplete var(--duration) linear forwards;
+    background: conic-gradient(var(--red) 0, var(--red) var(--elapsed), transparent var(--elapsed)) border-box;
+    animation: deplete var(--countdown-duration) linear forwards;
+  }
 
-    @keyframes deplete {
-      100% {
-        --countdown: 100%;
-      }
+  @keyframes deplete {
+    100% {
+      --elapsed: 100%;
     }
   }
 }
 
-@property --countdown {
+@property --elapsed {
   syntax: "<percentage>";
   initial-value: 0%;
   inherits: false;

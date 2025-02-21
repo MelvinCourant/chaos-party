@@ -8,6 +8,7 @@ export default class extends BaseSchema {
       table.uuid('id')
       table.uuid('party_id').notNullable()
       table.integer('mission_id').nullable()
+      table.string('draw').nullable()
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

@@ -1,23 +1,23 @@
 <script setup>
-import "../../assets/css/components/drawing/_board.scss";
-import Cursor from "./Cursor.vue";
-import { inject, onMounted, ref, useTemplateRef, watch } from "vue";
-import { useSocketStore } from "../../stores/socket.js";
-import { useI18n } from "vue-i18n";
+import '../../assets/css/components/drawing/_board.scss';
+import Cursor from './Cursor.vue';
+import { inject, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { useSocketStore } from '../../stores/socket.js';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
   mouseMoving: { type: Object, default: null },
   mouseUp: { type: Boolean, default: false },
-  color: { type: String, default: "#1A120F" },
+  color: { type: String, default: '#1A120F' },
   lineWidth: { type: Number, default: 8 },
   opacity: { type: Number, default: 100 },
-  tool: { type: String, default: "pen" },
+  tool: { type: String, default: 'pen' },
 });
 
 const { socket } = useSocketStore();
 const { t } = useI18n();
-const canvas = useTemplateRef("canvas");
-const tempCanvas = useTemplateRef("tempCanvas");
+const canvas = useTemplateRef('canvas');
+const tempCanvas = useTemplateRef('tempCanvas');
 const rect = ref(null);
 const position = ref({ x: 0, y: 0 });
 const ctx = ref(null);
@@ -25,14 +25,14 @@ const tempCtx = ref(null);
 const tempFirstPoints = ref([]);
 const colorRgba = ref(hexToRgba(props.color, props.opacity / 100));
 const isDrawingMap = ref({});
-const mission = inject("mission");
-const objective = inject("objective");
-const isSaboteur = inject("isSaboteur");
-const players = inject("players");
-const teamId = inject("teamId");
+const mission = inject('mission');
+const objective = inject('objective');
+const isSaboteur = inject('isSaboteur');
+const players = inject('players');
+const teamId = inject('teamId');
 const history = ref([]);
 const historyIndex = ref(-1);
-const globalCompositeOperation = ref("source-over");
+const globalCompositeOperation = ref('source-over');
 
 function saveState() {
   if (!canvas.value) return;
@@ -51,7 +51,7 @@ function undo() {
   historyIndex.value--;
   restoreState(history.value[historyIndex.value]);
 
-  socket.emit("undo", {
+  socket.emit('undo', {
     team_id: teamId.value,
     socket_id: socket.id,
     history: history.value,
@@ -65,7 +65,7 @@ function redo() {
   historyIndex.value++;
   restoreState(history.value[historyIndex.value]);
 
-  socket.emit("redo", {
+  socket.emit('redo', {
     team_id: teamId.value,
     socket_id: socket.id,
     history_index: historyIndex.value,
@@ -75,8 +75,8 @@ function redo() {
 function restoreState(imageData) {
   if (!canvas.value || !ctx.value) return;
 
-  if (globalCompositeOperation.value === "destination-out") {
-    ctx.value.globalCompositeOperation = "source-over";
+  if (globalCompositeOperation.value === 'destination-out') {
+    ctx.value.globalCompositeOperation = 'source-over';
   }
 
   const img = new Image();
@@ -87,14 +87,14 @@ function restoreState(imageData) {
   };
 }
 
-window.addEventListener("keydown", (event) => {
+window.addEventListener('keydown', (event) => {
   event.preventDefault();
 
   if (!canvas.value) return;
 
-  if ((event.ctrlKey || event.metaKey) && event.key === "z") {
+  if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
     undo();
-  } else if ((event.ctrlKey || event.metaKey) && event.key === "y") {
+  } else if ((event.ctrlKey || event.metaKey) && event.key === 'y') {
     redo();
   }
 });
@@ -118,7 +118,7 @@ function handDraw(step, player) {
     socketId,
   } = player;
 
-  if (step === "start") {
+  if (step === 'start') {
     ctx.value.strokeStyle = color;
     ctx.value.lineWidth = lineWidth;
     ctx.value.globalCompositeOperation = globalCompositeOperation;
@@ -129,7 +129,7 @@ function handDraw(step, player) {
     ctx.value.stroke();
 
     if (socketId === socket.id) {
-      socket.emit("start-drawing", {
+      socket.emit('start-drawing', {
         x: x,
         y: y,
         global_composite_operation: globalCompositeOperation,
@@ -141,12 +141,12 @@ function handDraw(step, player) {
         tool: tool,
       });
     }
-  } else if (step === "draw") {
+  } else if (step === 'draw') {
     ctx.value.lineTo(x, y);
     ctx.value.stroke();
 
     if (socketId === socket.id) {
-      socket.emit("draw", {
+      socket.emit('draw', {
         x: x,
         y: y,
         global_alpha: opacity,
@@ -156,11 +156,11 @@ function handDraw(step, player) {
         tool: tool,
       });
     }
-  } else if (step === "stop") {
+  } else if (step === 'stop') {
     ctx.value.closePath();
 
     if (socketId === socket.id) {
-      socket.emit("stop-drawing", {
+      socket.emit('stop-drawing', {
         x: x,
         y: y,
         global_alpha: opacity,
@@ -176,11 +176,11 @@ function handDraw(step, player) {
 function lineDraw(step, player) {
   const { x, y, opacity, color, lineWidth, tool, socketId } = player;
 
-  if (step === "start") {
+  if (step === 'start') {
     ctx.value.globalAlpha = opacity;
     ctx.value.strokeStyle = color;
     ctx.value.lineWidth = lineWidth;
-    ctx.value.globalCompositeOperation = "source-over";
+    ctx.value.globalCompositeOperation = 'source-over';
 
     tempCtx.value.globalAlpha = opacity;
     tempCtx.value.strokeStyle = color;
@@ -201,7 +201,7 @@ function lineDraw(step, player) {
     );
 
     if (socketId === socket.id) {
-      socket.emit("start-drawing-shape", {
+      socket.emit('start-drawing-shape', {
         first_point_x: firstPoint.x,
         first_point_y: firstPoint.y,
         global_alpha: opacity,
@@ -212,7 +212,7 @@ function lineDraw(step, player) {
         tool: tool,
       });
     }
-  } else if (step === "draw" || step === "stop") {
+  } else if (step === 'draw' || step === 'stop') {
     const firstPoint = tempFirstPoints.value.find(
       (point) => point.socket_id === socketId,
     );
@@ -225,14 +225,14 @@ function lineDraw(step, player) {
     );
     tempCtx.value.closePath();
 
-    if (step === "draw") {
+    if (step === 'draw') {
       tempCtx.value.beginPath();
       tempCtx.value.moveTo(firstPoint.x, firstPoint.y);
       tempCtx.value.lineTo(x, y);
       tempCtx.value.stroke();
 
       if (socketId === socket.id) {
-        socket.emit("draw", {
+        socket.emit('draw', {
           x: x,
           y: y,
           global_alpha: opacity,
@@ -254,7 +254,7 @@ function lineDraw(step, player) {
       );
 
       if (socketId === socket.id) {
-        socket.emit("stop-drawing", {
+        socket.emit('stop-drawing', {
           x: x,
           y: y,
           global_alpha: opacity,
@@ -272,15 +272,15 @@ function lineDraw(step, player) {
 function rectangleDraw(step, player) {
   const { x, y, opacity, color, lineWidth, tool, socketId } = player;
 
-  if (step === "start") {
+  if (step === 'start') {
     ctx.value.globalAlpha = opacity;
     ctx.value.lineWidth = lineWidth;
-    ctx.value.globalCompositeOperation = "source-over";
+    ctx.value.globalCompositeOperation = 'source-over';
 
-    if (tool === "empty-rectangle") {
+    if (tool === 'empty-rectangle') {
       ctx.value.strokeStyle = color;
     } else {
-      ctx.value.strokeStyle = "transparent";
+      ctx.value.strokeStyle = 'transparent';
       ctx.value.fillStyle = color;
     }
 
@@ -292,17 +292,17 @@ function rectangleDraw(step, player) {
       y: y,
     });
 
-    if (tool === "empty-rectangle") {
+    if (tool === 'empty-rectangle') {
       tempCtx.value.strokeStyle = color;
     } else {
-      tempCtx.value.strokeStyle = "transparent";
+      tempCtx.value.strokeStyle = 'transparent';
       tempCtx.value.fillStyle = color;
     }
 
     tempCtx.value.beginPath();
     tempCtx.value.moveTo(x, y);
 
-    if (tool === "empty-rectangle") {
+    if (tool === 'empty-rectangle') {
       tempCtx.value.strokeRect(x, y, 1, 1);
     } else {
       tempCtx.value.fillRect(x, y, 1, 1);
@@ -313,7 +313,7 @@ function rectangleDraw(step, player) {
     );
 
     if (socketId === socket.id) {
-      socket.emit("start-drawing-shape", {
+      socket.emit('start-drawing-shape', {
         first_point_x: firstPoint.x,
         first_point_y: firstPoint.y,
         global_alpha: opacity,
@@ -324,7 +324,7 @@ function rectangleDraw(step, player) {
         tool: tool,
       });
     }
-  } else if (step === "draw" || step === "stop") {
+  } else if (step === 'draw' || step === 'stop') {
     const firstPoint = tempFirstPoints.value.find(
       (point) => point.socket_id === socketId,
     );
@@ -337,11 +337,11 @@ function rectangleDraw(step, player) {
     );
     tempCtx.value.closePath();
 
-    if (step === "draw") {
+    if (step === 'draw') {
       tempCtx.value.beginPath();
       tempCtx.value.moveTo(firstPoint.x, firstPoint.y);
 
-      if (tool === "empty-rectangle") {
+      if (tool === 'empty-rectangle') {
         tempCtx.value.strokeRect(
           firstPoint.x,
           firstPoint.y,
@@ -358,7 +358,7 @@ function rectangleDraw(step, player) {
       }
 
       if (socketId === socket.id) {
-        socket.emit("draw", {
+        socket.emit('draw', {
           x: x,
           y: y,
           global_alpha: opacity,
@@ -372,7 +372,7 @@ function rectangleDraw(step, player) {
       ctx.value.beginPath();
       ctx.value.moveTo(firstPoint.x, firstPoint.y);
 
-      if (tool === "empty-rectangle") {
+      if (tool === 'empty-rectangle') {
         ctx.value.rect(
           firstPoint.x,
           firstPoint.y,
@@ -396,7 +396,7 @@ function rectangleDraw(step, player) {
       );
 
       if (socketId === socket.id) {
-        socket.emit("stop-drawing", {
+        socket.emit('stop-drawing', {
           x: x,
           y: y,
           global_alpha: opacity,
@@ -414,15 +414,15 @@ function rectangleDraw(step, player) {
 function ellipseDraw(step, player) {
   const { x, y, opacity, color, lineWidth, tool, socketId } = player;
 
-  if (step === "start") {
+  if (step === 'start') {
     ctx.value.globalAlpha = opacity;
     ctx.value.lineWidth = lineWidth;
-    ctx.value.globalCompositeOperation = "source-over";
+    ctx.value.globalCompositeOperation = 'source-over';
 
-    if (tool === "empty-ellipse") {
+    if (tool === 'empty-ellipse') {
       ctx.value.strokeStyle = color;
     } else {
-      ctx.value.strokeStyle = "transparent";
+      ctx.value.strokeStyle = 'transparent';
       ctx.value.fillStyle = color;
     }
 
@@ -434,10 +434,10 @@ function ellipseDraw(step, player) {
       y: y,
     });
 
-    if (tool === "empty-ellipse") {
+    if (tool === 'empty-ellipse') {
       tempCtx.value.strokeStyle = color;
     } else {
-      tempCtx.value.strokeStyle = "transparent";
+      tempCtx.value.strokeStyle = 'transparent';
       tempCtx.value.fillStyle = color;
     }
 
@@ -445,7 +445,7 @@ function ellipseDraw(step, player) {
     tempCtx.value.moveTo(x, y);
     tempCtx.value.ellipse(x, y, 1, 1, 0, 0, Math.PI * 2);
 
-    if (tool === "ellipse") {
+    if (tool === 'ellipse') {
       tempCtx.value.fill();
     }
 
@@ -456,7 +456,7 @@ function ellipseDraw(step, player) {
     );
 
     if (socketId === socket.id) {
-      socket.emit("start-drawing-shape", {
+      socket.emit('start-drawing-shape', {
         first_point_x: firstPoint.x,
         first_point_y: firstPoint.y,
         global_alpha: opacity,
@@ -467,7 +467,7 @@ function ellipseDraw(step, player) {
         tool: tool,
       });
     }
-  } else if (step === "draw" || step === "stop") {
+  } else if (step === 'draw' || step === 'stop') {
     const firstPoint = tempFirstPoints.value.find(
       (point) => point.socket_id === socketId,
     );
@@ -484,7 +484,7 @@ function ellipseDraw(step, player) {
     );
     tempCtx.value.closePath();
 
-    if (step === "draw") {
+    if (step === 'draw') {
       tempCtx.value.beginPath();
       tempCtx.value.ellipse(
         centerX,
@@ -496,14 +496,14 @@ function ellipseDraw(step, player) {
         Math.PI * 2,
       );
 
-      if (tool === "ellipse") {
+      if (tool === 'ellipse') {
         tempCtx.value.fill();
       }
 
       tempCtx.value.stroke();
 
       if (socketId === socket.id) {
-        socket.emit("draw", {
+        socket.emit('draw', {
           x: x,
           y: y,
           global_alpha: opacity,
@@ -517,7 +517,7 @@ function ellipseDraw(step, player) {
       ctx.value.beginPath();
       ctx.value.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
 
-      if (tool === "ellipse") {
+      if (tool === 'ellipse') {
         ctx.value.fill();
       }
 
@@ -529,7 +529,7 @@ function ellipseDraw(step, player) {
       );
 
       if (socketId === socket.id) {
-        socket.emit("stop-drawing", {
+        socket.emit('stop-drawing', {
           x: x,
           y: y,
           global_alpha: opacity,
@@ -550,7 +550,7 @@ function floodFill(player) {
   if (!canvas.value || !ctx.value) return;
 
   ctx.value.globalAlpha = opacity;
-  ctx.value.globalCompositeOperation = "source-over";
+  ctx.value.globalCompositeOperation = 'source-over';
 
   const imageData = ctx.value.getImageData(
     0,
@@ -650,14 +650,14 @@ function floodFill(player) {
   ctx.value.putImageData(imageData, 0, 0);
 
   if (socketId === socket.id) {
-    socket.emit("start-drawing", {
+    socket.emit('start-drawing', {
       x: x,
       y: y,
       global_alpha: opacity,
       color: color,
       team_id: teamId.value,
       socket_id: socketId,
-      tool: "paint-pot",
+      tool: 'paint-pot',
     });
 
     saveState();
@@ -674,10 +674,10 @@ function startDrawing(event, player) {
     position.value.y = Math.floor(event.clientY - rect.value.top);
     colorRgba.value = hexToRgba(props.color, props.opacity / 100);
 
-    if (props.tool !== "rubber") {
-      globalCompositeOperation.value = "source-over";
+    if (props.tool !== 'rubber') {
+      globalCompositeOperation.value = 'source-over';
     } else {
-      globalCompositeOperation.value = "destination-out";
+      globalCompositeOperation.value = 'destination-out';
     }
 
     drawingPlayer = {
@@ -694,21 +694,21 @@ function startDrawing(event, player) {
 
   isDrawingMap.value[drawingPlayer.socketId] = true;
 
-  if (drawingPlayer.tool === "pen" || drawingPlayer.tool === "rubber") {
-    handDraw("start", drawingPlayer);
-  } else if (drawingPlayer.tool === "line") {
-    lineDraw("start", drawingPlayer);
+  if (drawingPlayer.tool === 'pen' || drawingPlayer.tool === 'rubber') {
+    handDraw('start', drawingPlayer);
+  } else if (drawingPlayer.tool === 'line') {
+    lineDraw('start', drawingPlayer);
   } else if (
-    drawingPlayer.tool === "empty-rectangle" ||
-    drawingPlayer.tool === "rectangle"
+    drawingPlayer.tool === 'empty-rectangle' ||
+    drawingPlayer.tool === 'rectangle'
   ) {
-    rectangleDraw("start", drawingPlayer);
+    rectangleDraw('start', drawingPlayer);
   } else if (
-    drawingPlayer.tool === "empty-ellipse" ||
-    drawingPlayer.tool === "ellipse"
+    drawingPlayer.tool === 'empty-ellipse' ||
+    drawingPlayer.tool === 'ellipse'
   ) {
-    ellipseDraw("start", drawingPlayer);
-  } else if (drawingPlayer.tool === "paint-pot") {
+    ellipseDraw('start', drawingPlayer);
+  } else if (drawingPlayer.tool === 'paint-pot') {
     floodFill(drawingPlayer);
   }
 }
@@ -734,20 +734,20 @@ function draw(event, player) {
 
   if (!isDrawingMap.value[drawingPlayer.socketId]) return;
 
-  if (drawingPlayer.tool === "pen" || drawingPlayer.tool === "rubber") {
-    handDraw("draw", drawingPlayer);
-  } else if (drawingPlayer.tool === "line") {
-    lineDraw("draw", drawingPlayer);
+  if (drawingPlayer.tool === 'pen' || drawingPlayer.tool === 'rubber') {
+    handDraw('draw', drawingPlayer);
+  } else if (drawingPlayer.tool === 'line') {
+    lineDraw('draw', drawingPlayer);
   } else if (
-    drawingPlayer.tool === "empty-rectangle" ||
-    drawingPlayer.tool === "rectangle"
+    drawingPlayer.tool === 'empty-rectangle' ||
+    drawingPlayer.tool === 'rectangle'
   ) {
-    rectangleDraw("draw", drawingPlayer);
+    rectangleDraw('draw', drawingPlayer);
   } else if (
-    drawingPlayer.tool === "empty-ellipse" ||
-    drawingPlayer.tool === "ellipse"
+    drawingPlayer.tool === 'empty-ellipse' ||
+    drawingPlayer.tool === 'ellipse'
   ) {
-    ellipseDraw("draw", drawingPlayer);
+    ellipseDraw('draw', drawingPlayer);
   }
 }
 
@@ -771,23 +771,23 @@ function stopDrawing(player, element) {
 
   isDrawingMap.value[drawingPlayer.socketId] = false;
 
-  if (drawingPlayer.tool === "pen" || drawingPlayer.tool === "rubber") {
-    handDraw("stop", drawingPlayer);
-  } else if (drawingPlayer.tool === "line") {
-    lineDraw("stop", drawingPlayer);
+  if (drawingPlayer.tool === 'pen' || drawingPlayer.tool === 'rubber') {
+    handDraw('stop', drawingPlayer);
+  } else if (drawingPlayer.tool === 'line') {
+    lineDraw('stop', drawingPlayer);
   } else if (
-    drawingPlayer.tool === "empty-rectangle" ||
-    drawingPlayer.tool === "rectangle"
+    drawingPlayer.tool === 'empty-rectangle' ||
+    drawingPlayer.tool === 'rectangle'
   ) {
-    rectangleDraw("stop", drawingPlayer);
+    rectangleDraw('stop', drawingPlayer);
   } else if (
-    drawingPlayer.tool === "empty-ellipse" ||
-    drawingPlayer.tool === "ellipse"
+    drawingPlayer.tool === 'empty-ellipse' ||
+    drawingPlayer.tool === 'ellipse'
   ) {
-    ellipseDraw("stop", drawingPlayer);
+    ellipseDraw('stop', drawingPlayer);
   }
 
-  if (element === "board") {
+  if (element === 'board') {
     saveState();
   }
 }
@@ -807,21 +807,21 @@ onMounted(() => {
     observer.disconnect();
   }, 500);
 
-  window.addEventListener("resize", () => {
+  window.addEventListener('resize', () => {
     rect.value = canvas.value.getBoundingClientRect();
   });
 
   if (canvas.value) {
     canvas.value.width = canvas.value.offsetWidth;
     canvas.value.height = canvas.value.offsetHeight;
-    ctx.value = canvas.value.getContext("2d");
-    ctx.value.lineCap = "round";
+    ctx.value = canvas.value.getContext('2d');
+    ctx.value.lineCap = 'round';
 
     // Temp canvas for preview
     tempCanvas.value.width = tempCanvas.value.offsetWidth;
     tempCanvas.value.height = tempCanvas.value.offsetHeight;
-    tempCtx.value = tempCanvas.value.getContext("2d");
-    tempCtx.value.lineCap = "round";
+    tempCtx.value = tempCanvas.value.getContext('2d');
+    tempCtx.value.lineCap = 'round';
 
     saveState();
   }
@@ -830,7 +830,7 @@ onMounted(() => {
     position.value.x = event.clientX - rect.value.left;
     position.value.y = event.clientY - rect.value.top;
 
-    socket.emit("player-move", {
+    socket.emit('player-move', {
       x: position.value.x,
       y: position.value.y,
       team_id: teamId.value,
@@ -854,17 +854,17 @@ onMounted(() => {
     },
   );
 
-  socket.on("get-state", () => {
+  socket.on('party-state', () => {
     if (!canvas.value) return;
 
-    socket.emit("player-state", {
+    socket.emit('player-state', {
       x: position.value.x,
       y: position.value.y,
       team_id: teamId.value,
       socket_id: socket.id,
     });
 
-    socket.emit("canvas-state", {
+    socket.emit('canvas-state', {
       team_id: teamId.value,
       canvas: canvas.value.toDataURL(),
       history: history.value,
@@ -872,7 +872,7 @@ onMounted(() => {
     });
   });
 
-  socket.on("canvas-state", (data) => {
+  socket.on('canvas-state', (data) => {
     if (!canvas.value || socket.id === data.socket_id) return;
 
     const img = new Image();
@@ -886,7 +886,7 @@ onMounted(() => {
     historyIndex.value = data.history_index;
   });
 
-  socket.on("start-drawing", (data) => {
+  socket.on('start-drawing', (data) => {
     if (socket.id === data.socket_id) return;
 
     startDrawing(null, {
@@ -901,7 +901,7 @@ onMounted(() => {
     });
   });
 
-  socket.on("start-drawing-shape", (data) => {
+  socket.on('start-drawing-shape', (data) => {
     if (socket.id === data.socket_id) return;
 
     startDrawing(null, {
@@ -915,7 +915,7 @@ onMounted(() => {
     });
   });
 
-  socket.on("draw", (data) => {
+  socket.on('draw', (data) => {
     if (socket.id === data.socket_id) return;
 
     draw(null, {
@@ -928,7 +928,7 @@ onMounted(() => {
     });
   });
 
-  socket.on("stop-drawing", (data) => {
+  socket.on('stop-drawing', (data) => {
     if (socket.id === data.socket_id) return;
 
     stopDrawing(
@@ -940,18 +940,18 @@ onMounted(() => {
         socketId: data.socket_id,
         tool: data.tool,
       },
-      "board",
+      'board',
     );
   });
 
-  socket.on("undo", (data) => {
+  socket.on('undo', (data) => {
     if (socket.id === data.socket_id) return;
 
     historyIndex.value = data.history_index;
     restoreState(history.value[historyIndex.value]);
   });
 
-  socket.on("redo", (data) => {
+  socket.on('redo', (data) => {
     if (socket.id === data.socket_id) return;
 
     historyIndex.value = data.history_index;
@@ -963,7 +963,7 @@ onMounted(() => {
 <template>
   <div class="board">
     <h2 class="board__mission">
-      {{ t("draw_dots") }} {{ mission }}{{ t("exclamation_mark") }}
+      {{ t('draw_dots') }} {{ mission }}{{ t('exclamation_mark') }}
     </h2>
     <p
       :class="[
