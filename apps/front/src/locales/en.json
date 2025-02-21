@@ -1,5 +1,6 @@
 {
   "automatic": "Automatic",
+  "back-home": "Back to home",
   "create_party": "Create party",
   "creating_teams": "Creating teams",
   "choose_pseudo": "Choose a pseudo",
@@ -15,6 +16,7 @@
     "description": "The duration to complete the drawing assigned to each team"
   },
   "empty": "Empty",
+  "error": "Error",
   "exclamation_mark": "!",
   "game_configuration": "game configuration",
   "game_modes": "Game modes",

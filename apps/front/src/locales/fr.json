@@ -1,5 +1,6 @@
 {
   "automatic": "Automatique",
+  "back-home": "Retour à l'accueil",
   "create_party": "Créer la partie",
   "creating_teams": "Créer les équipes",
   "choose_pseudo": "Choisis un pseudo",
@@ -15,6 +16,7 @@
     "description": "La durée pour réaliser le dessin attribué à chaque équipe"
   },
   "empty": "Vide",
+  "error": "Erreur",
   "exclamation_mark": " !",
   "game_configuration": "Configuration de la partie",
   "game_modes": "Modes de jeu",

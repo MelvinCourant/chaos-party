@@ -34,7 +34,11 @@
     font-family: fonts.$lilita-one;
     font-weight: 400;
     font-size: 1rem; // 16px
-  }  @else if($text-type == 'text') {
+  }  @else if($text-type == 'big text') {
+    font-family: fonts.$inter;
+    font-weight: 600;
+    font-size: 1.5rem; // 24px
+  } @else if($text-type == 'text') {
     font-family: fonts.$inter;
     font-weight: 600;
     font-size: 0.938rem; // 15px

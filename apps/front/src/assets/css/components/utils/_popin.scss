@@ -6,15 +6,24 @@
   transform: translate(-50%, -50%);
   border: var(--card-border);
   border-radius: var(--card-radius);
-  background: var(--yellow);
   box-shadow: var(--3d-shadow);
   padding: 30px 60px 50px 60px;
-  min-height: 300px;
+  @include mixins.font('big text');
   
   @media screen and (max-width: 767px) {
     padding: 30px 30px 50px 30px;
     width: 90%;
     min-height: initial;
+  }
+
+  &:not(&--error) {
+    background: var(--yellow);
+    min-height: 300px;
+  }
+
+  &--error {
+    background: var(--red);
+    color: var(--text);
   }
 
   &::backdrop {
@@ -58,5 +67,11 @@
 
   &__label {
     max-width: 230px;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
   }
 }

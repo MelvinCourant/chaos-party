@@ -78,7 +78,12 @@ export default class PartiesController {
       const party = await Party.query()
         .where('id', partyId)
         .select('id', 'step', 'in_progress')
-        .firstOrFail()
+        .first()
+
+      if (!party) {
+        return response.status(404).json({ message: i18n.t('messages.party_not_found') })
+      }
+
       if (!Ws.io?.sockets.adapter.rooms.has(party.id)) {
         return response.status(404).json({ message: i18n.t('messages.party_not_found') })
       }

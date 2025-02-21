@@ -1,15 +1,18 @@
 <script setup>
-import "../assets/css/views/_home.scss";
-import Footer from "../components/layouts/Footer.vue";
-import PlayerPanel from "../components/home/PlayerPanel.vue";
-import Tutorial from "../components/home/Tutorial.vue";
-import {useRoute, useRouter} from "vue-router";
-import {ref} from "vue";
-import { useUserStore } from "../stores/user.js";
-import { usePartyStore } from "../stores/party.js";
-import { useSocketStore } from "../stores/socket.js";
+import '../assets/css/views/_home.scss';
+import Footer from '../components/layouts/Footer.vue';
+import PlayerPanel from '../components/home/PlayerPanel.vue';
+import Tutorial from '../components/home/Tutorial.vue';
+import { useRoute, useRouter } from 'vue-router';
+import { ref } from 'vue';
+import { useUserStore } from '../stores/user.js';
+import { usePartyStore } from '../stores/party.js';
+import { useSocketStore } from '../stores/socket.js';
+import { useI18n } from 'vue-i18n';
+import Popin from '../components/utils/Popin.vue';
 
 const env = import.meta.env;
+const { t } = useI18n();
 const route = useRoute();
 const params = route.params;
 const id = params.id;
@@ -19,11 +22,19 @@ const user = userStore.user;
 const partyStore = usePartyStore();
 const { socket } = useSocketStore();
 const formValues = ref({});
+const error = ref('');
+const errorAction = [
+  {
+    type: 'primary',
+    text: t('back-home'),
+    icon: 'back',
+  },
+];
 
-partyStore.updateHostId("");
+partyStore.updateHostId('');
 
-if(!id) {
-  partyStore.updatePartyId("");
+if (!id) {
+  partyStore.updatePartyId('');
 }
 
 function saveValues(values) {
@@ -31,7 +42,7 @@ function saveValues(values) {
   formValues.value.user_id = user.id;
   formValues.value.socket_id = socket.id;
 
-  if(id) {
+  if (id) {
     formValues.value.party_id = id;
     joinParty(formValues.value);
   } else {
@@ -41,10 +52,10 @@ function saveValues(values) {
 
 async function createParty() {
   const response = await fetch(`${env.VITE_URL}/api/parties/create-party`, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
-      "Accept-Language": userStore.language,
+      'Content-Type': 'application/json',
+      'Accept-Language': userStore.language,
     },
     body: JSON.stringify(formValues.value),
   });
@@ -60,38 +71,58 @@ async function createParty() {
 
 async function joinParty() {
   const response = await fetch(`${env.VITE_URL}/api/parties/join-party`, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
-      "Accept-Language": userStore.language,
+      'Content-Type': 'application/json',
+      'Accept-Language': userStore.language,
     },
     body: JSON.stringify(formValues.value),
   });
+  const json = await response.json();
 
   if (response.ok) {
-    const party = await response.json();
+    userStore.updateUser(json.user);
+    partyStore.updatePartyId(json.id);
+    await router.push({ path: `/${json.step}` });
+  } else {
+    if (json.message) {
+      error.value = json.message;
+    } else {
+      let errorsMessages = '';
 
-    userStore.updateUser(party.user);
-    partyStore.updatePartyId(party.id);
-    await router.push({ path: `/${party.step}` });
+      json.errors.forEach((error) => {
+        errorsMessages += `${error.message} \n`;
+      });
+
+      error.value = errorsMessages;
+    }
+
+    document.querySelector('#error-popin').showPopover();
   }
+}
+
+async function backHome() {
+  await router.push({ path: '/' });
+  window.location.reload();
 }
 </script>
 
 <template>
   <main class="home">
     <h1 class="hidden-title">Chaos Party</h1>
-    <img
-        src="../assets/imgs/logo.png"
-        alt="Chaos Party"
-        class="home__logo"
-    />
+    <img src="../assets/imgs/logo.png" alt="Chaos Party" class="home__logo" />
     <div class="home__onboarding">
-      <PlayerPanel
-        @submitPlayer="saveValues"
-      />
+      <PlayerPanel @submitPlayer="saveValues" />
       <Tutorial />
     </div>
     <Footer />
+    <Popin
+      type="error"
+      id="error-popin"
+      :title="t('error')"
+      :actions="errorAction"
+      @actionClick="backHome"
+      >{{ error }}</Popin
+    >
   </main>
 </template>
