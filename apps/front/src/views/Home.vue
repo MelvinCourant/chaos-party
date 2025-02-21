@@ -22,8 +22,8 @@ const user = userStore.user;
 const partyStore = usePartyStore();
 const { socket } = useSocketStore();
 const formValues = ref({});
-const error = ref('');
-const errorAction = [
+const errors = ref('');
+const errorsAction = [
   {
     type: 'primary',
     text: t('back-home'),
@@ -86,7 +86,7 @@ async function joinParty() {
     await router.push({ path: `/${json.step}` });
   } else {
     if (json.message) {
-      error.value = json.message;
+      errors.value = json.message;
     } else {
       let errorsMessages = '';
 
@@ -94,7 +94,7 @@ async function joinParty() {
         errorsMessages += `${error.message} \n`;
       });
 
-      error.value = errorsMessages;
+      errors.value = errorsMessages;
     }
 
     document.querySelector('#error-popin').showPopover();
@@ -122,7 +122,7 @@ async function backHome() {
       :title="t('error')"
       :actions="errorAction"
       @actionClick="backHome"
-      >{{ error }}</Popin
+      >{{ errors }}</Popin
     >
   </main>
 </template>

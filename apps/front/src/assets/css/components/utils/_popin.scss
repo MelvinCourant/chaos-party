@@ -19,11 +19,13 @@
   &:not(&--error) {
     background: var(--yellow);
     min-height: 300px;
+    z-index: 9998;
   }
 
   &--error {
     background: var(--red);
     color: var(--text);
+    z-index: 9999;
   }
 
   &::backdrop {

@@ -90,7 +90,7 @@ export default class PartiesController {
 
       const playersInParty = await User.query().where('party_id', party.id).select('id')
 
-      if (playersInParty.length === 16) {
+      if (playersInParty.length === 12) {
         return response.status(403).json({ message: i18n.t('messages.maximum_players_reached') })
       }
 
