@@ -796,25 +796,25 @@ function stopDrawing(player, element) {
 }
 
 onMounted(() => {
-  const observer = new MutationObserver(() => {
-    rect.value = canvas.value.getBoundingClientRect();
-  });
-
-  observer.observe(document.body, {
-    attributes: true,
-    childList: true,
-    subtree: true,
-  });
-
-  setTimeout(() => {
-    observer.disconnect();
-  }, 500);
-
-  window.addEventListener('resize', () => {
-    rect.value = canvas.value.getBoundingClientRect();
-  });
-
   if (canvas.value) {
+    const observer = new MutationObserver(() => {
+      rect.value = canvas.value.getBoundingClientRect();
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+    });
+
+    setTimeout(() => {
+      observer.disconnect();
+    }, 500);
+
+    window.addEventListener('resize', () => {
+      rect.value = canvas.value.getBoundingClientRect();
+    });
+
     canvas.value.width = canvas.value.offsetWidth;
     canvas.value.height = canvas.value.offsetHeight;
     ctx.value = canvas.value.getContext('2d');

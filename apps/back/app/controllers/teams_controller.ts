@@ -268,6 +268,7 @@ export default class TeamsController {
 
     if (user.role === 'saboteur') {
       return response.json({
+        drawing_time: party.drawing_time,
         team_id: team.id,
         mission: i18n.t(`messages.${mission.description}`),
         sabotage: i18n.t('messages.sabotage'),
@@ -281,6 +282,7 @@ export default class TeamsController {
       .firstOrFail()
 
     return response.json({
+      drawing_time: party.drawing_time,
       team_id: team.id,
       mission: i18n.t(`messages.${mission.description}`),
       objective: i18n.t(`messages.${objective.description}`),

@@ -1,15 +1,25 @@
 <script setup>
 import '../../assets/css/components/drawing/_timer.scss';
-import { inject, computed } from 'vue';
+import { inject, computed, watch, ref } from 'vue';
 
 const duration = inject('duration');
 const elapsed = inject('elapsed');
-const durationTimer = duration.value * 60;
+const durationTimer = ref(duration.value * 60);
 
 const elapsedPercentage = computed(
-  () => (elapsed.value / (durationTimer * 1000)) * 100,
+  () => (elapsed.value / (durationTimer.value * 1000)) * 100,
 );
-const remainingTime = computed(() => durationTimer - elapsed.value / 1000);
+const remainingTime = computed(
+  () => durationTimer.value - elapsed.value / 1000,
+);
+
+watch(
+  duration,
+  () => {
+    durationTimer.value = duration.value * 60;
+  },
+  { immediate: true },
+);
 </script>
 
 <template>

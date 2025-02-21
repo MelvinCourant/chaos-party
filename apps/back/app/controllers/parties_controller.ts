@@ -296,7 +296,7 @@ export default class PartiesController {
     let newConfiguration = {}
 
     if (drawingTime) {
-      party.drawing_time = drawingTime
+      party.drawing_time = drawingTime.toString()
       newConfiguration = { drawing_time: drawingTime }
     } else if (votingTime) {
       party.voting_time = votingTime

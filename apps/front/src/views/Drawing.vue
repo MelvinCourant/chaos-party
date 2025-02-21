@@ -8,6 +8,7 @@ import { onMounted, ref, provide, watch } from 'vue';
 import router from '../router/index.js';
 import Settings from '../components/inputs/Settings.vue';
 import Draw from '../components/drawing/Draw.vue';
+import config from '../../../../cp-config.json';
 
 const env = import.meta.env;
 const { t } = useI18n();
@@ -23,7 +24,7 @@ const isSaboteur = ref(false);
 const players = ref([]);
 const mouseMoving = ref(null);
 const mouseUp = ref(false);
-const drawingDuration = ref(0.5); // TODO to replace with real duration
+const drawingDuration = ref(3);
 const timer = ref(0);
 const elapsed = ref(0);
 let interval = null;
@@ -52,6 +53,7 @@ async function getDrawingDatas() {
   if (response.ok) {
     const json = await response.json();
 
+    drawingDuration.value = parseInt(json.drawing_time);
     teamId.value = json.team_id;
     mission.value = json.mission;
     players.value = json.players;
@@ -163,9 +165,11 @@ onMounted(() => {
     }
   });
 
-  socket.on('redirect', async () => {
-    await router.push({ path: '/voting' });
-  });
+  if (config.timer_actived) {
+    socket.on('redirect', async () => {
+      await router.push({ path: '/voting' });
+    });
+  }
 });
 </script>
 

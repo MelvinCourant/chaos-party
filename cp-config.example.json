@@ -1,5 +1,5 @@
 {
-  "max-players": 12,
-  "minimum-players": 3,
-  "timer-actived": true
+  "max_players": 12,
+  "minimum_players": 3,
+  "timer_actived": true
 }
