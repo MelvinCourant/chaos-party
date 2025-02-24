@@ -34,6 +34,10 @@
     z-index: 1;
   }
 
+  &--step-1 {
+    align-items: center;
+  }
+
   .settings {
     position: absolute;
     top: 40px;

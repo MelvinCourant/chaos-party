@@ -6,6 +6,7 @@ import TeamDraw from '../components/voting/TeamDraw.vue';
 import { useUserStore } from '../stores/user.js';
 import { usePartyStore } from '../stores/party.js';
 import { onMounted, ref, useTemplateRef } from 'vue';
+import Loading from '../components/voting/Loading.vue';
 
 const { t } = useI18n();
 const userStore = useUserStore();
@@ -26,9 +27,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <main ref="voting" class="voting">
+  <main ref="voting" :class="['voting', `voting--step-${step}`]">
     <h1 class="hidden-title">{{ t('voting') }}</h1>
-    <TeamDraw :step="step" mission="Une voiture futuriste" number-team="1" />
+    <Loading v-if="step === 1" />
+    <TeamDraw
+      v-else
+      :step="step"
+      mission="Une voiture futuriste"
+      number-team="1"
+    />
     <Settings />
   </main>
 </template>
