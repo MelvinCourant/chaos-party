@@ -36,6 +36,7 @@ const partyId = partyStore.partyId;
 const history = ref([]);
 const historyIndex = ref(-1);
 const globalCompositeOperation = ref('source-over');
+const onSaving = ref(false);
 
 function saveState() {
   if (!canvas.value) return;
@@ -964,12 +965,20 @@ onMounted(() => {
     restoreState(history.value[historyIndex.value]);
   });
 
+  socket.on('on-saving-draw', () => {
+    onSaving.value = true;
+  });
+
   socket.on('timer-finished', () => {
-    socket.emit('final-draw', {
-      team_id: teamId.value,
-      party_id: partyId,
-      draw: canvas.value.toDataURL(),
-    });
+    setTimeout(() => {
+      if (!onSaving.value) {
+        socket.emit('final-draw', {
+          team_id: teamId.value,
+          party_id: partyId,
+          draw: canvas.value.toDataURL(),
+        });
+      }
+    }, Math.random() * 500);
   });
 });
 </script>

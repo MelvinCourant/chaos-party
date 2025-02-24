@@ -186,26 +186,25 @@ app.ready(() => {
         .where('id', data.party_id)
         .select('id', 'step')
         .firstOrFail()
+      const draw = data.draw
 
-      if (!team.draw) {
-        const draw = data.draw
+      io?.to(data.team_id).emit('on-saving-draw')
 
-        if (draw.startsWith('data:image')) {
-          const uploadsDir = app.makePath('uploads')
-          if (!fs.existsSync(uploadsDir)) {
-            fs.mkdirSync(uploadsDir, { recursive: true })
-          }
-
-          const filename = `${cuid()}.png`
-          const filePath = path.join(uploadsDir, filename)
-
-          const base64Data = draw.replace(/^data:image\/\w+;base64,/, '')
-          const buffer = Buffer.from(base64Data, 'base64')
-          fs.writeFileSync(filePath, buffer)
-
-          team.draw = filename
-          await team.save()
+      if (draw.startsWith('data:image')) {
+        const uploadsDir = app.makePath('uploads')
+        if (!fs.existsSync(uploadsDir)) {
+          fs.mkdirSync(uploadsDir, { recursive: true })
         }
+
+        const filename = `${cuid()}.png`
+        const filePath = path.join(uploadsDir, filename)
+
+        const base64Data = draw.replace(/^data:image\/\w+;base64,/, '')
+        const buffer = Buffer.from(base64Data, 'base64')
+        fs.writeFileSync(filePath, buffer)
+
+        team.draw = filename
+        await team.save()
       }
 
       if (party.step === 'drawing') {
