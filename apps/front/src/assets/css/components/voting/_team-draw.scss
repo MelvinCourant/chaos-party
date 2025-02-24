@@ -6,7 +6,7 @@
   gap: 37px;
   height: fit-content;
   transform-origin: top;
-  transition: transform 0.5s ease-in-out;
+  transition: transform 0.3s ease-in-out;
 
   &__title {
     @include mixins.font('xl title');
@@ -59,7 +59,70 @@
     }
   }
 
-  &--step-2 {
+  &--step-2,
+  &--step-3 {
     transform: scale(1.2);
+  }
+
+  &--step-2 {
+    .team-draw {
+      &__mission,
+      &__illustration {
+        opacity: 0;
+        transform: scale(1.5);
+      }
+    }
+  }
+
+  &--step-3 {
+    .team-draw {
+      &__mission {
+        opacity: 1;
+        animation: mission-pop 0.3s;
+
+        @keyframes mission-pop {
+          0% {
+            transform: scale(1.5);
+            opacity: 0;
+          }
+          1% {
+            transform: scale(1.5);
+            opacity: 1;
+          }
+          90% {
+            transform: scale(0.98) translateX(2px);
+          }
+          100% {
+            transform: scale(1) translateX(0);
+          }
+        }
+      }
+
+      &__illustration {
+        opacity: 1;
+        animation: illustration-pop 0.4s;
+
+        @keyframes illustration-pop {
+          0% {
+            opacity: 0;
+            transform: scale(1.5);
+          }
+          24% {
+            opacity: 0;
+            transform: scale(1.5);
+          }
+          25% {
+            opacity: 1;
+            transform: scale(1.5);
+          }
+          90% {
+            transform: scale(0.98) translateX(2px);
+          }
+          100% {
+            transform: scale(1) translateX(0);
+          }
+        }
+      }
+    }
   }
 }

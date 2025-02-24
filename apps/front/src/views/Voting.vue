@@ -17,21 +17,24 @@ const votingElement = useTemplateRef('voting');
 const step = ref(1);
 
 onMounted(() => {
-  if (user.id === hostId.value) {
-    votingElement.value.addEventListener('click', (e) => {
-      e.stopImmediatePropagation();
+  /*if (user.id === hostId.value) {*/
+  votingElement.value.addEventListener('click', (e) => {
+    e.stopImmediatePropagation();
+
+    if (!e.target.closest('.settings') && !e.target.closest('.popin')) {
       step.value++;
-    });
-  }
+    }
+  });
+  /*}*/
 });
 </script>
 
 <template>
   <main ref="voting" :class="['voting', `voting--step-${step}`]">
     <h1 class="hidden-title">{{ t('voting') }}</h1>
-    <Loading v-if="step === 1" />
+    <Loading v-show="step === 1" />
     <TeamDraw
-      v-else
+      v-show="step > 1"
       :step="step"
       mission="Une voiture futuriste"
       number-team="1"

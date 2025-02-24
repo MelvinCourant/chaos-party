@@ -3,6 +3,7 @@
   justify-content: center;
   background: var(--blue-gradient);
   padding: 40px 120px 0 120px;
+  overflow: hidden;
 
   @media screen and (max-width: 1499px) {
     padding: 40px 120px 0 40px;
