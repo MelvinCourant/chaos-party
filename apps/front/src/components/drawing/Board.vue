@@ -663,7 +663,15 @@ function floodFill(player) {
       tool: 'paint-pot',
     });
 
-    saveState();
+    socket.emit('stop-drawing', {
+      x: x,
+      y: y,
+      global_alpha: opacity,
+      color: color,
+      team_id: teamId.value,
+      socket_id: socketId,
+      tool: 'paint-pot',
+    });
   }
 }
 
@@ -754,7 +762,7 @@ function draw(event, player) {
   }
 }
 
-function stopDrawing(player, element) {
+function stopDrawing(player) {
   if (!canvas.value) return;
 
   let drawingPlayer = player;
@@ -790,9 +798,7 @@ function stopDrawing(player, element) {
     ellipseDraw('stop', drawingPlayer);
   }
 
-  if (element === 'board') {
-    saveState();
-  }
+  saveState();
 }
 
 onMounted(() => {
@@ -934,17 +940,14 @@ onMounted(() => {
   socket.on('stop-drawing', (data) => {
     if (socket.id === data.socket_id) return;
 
-    stopDrawing(
-      {
-        x: data.x,
-        y: data.y,
-        opacity: data.global_alpha,
-        color: data.color,
-        socketId: data.socket_id,
-        tool: data.tool,
-      },
-      'board',
-    );
+    stopDrawing({
+      x: data.x,
+      y: data.y,
+      opacity: data.global_alpha,
+      color: data.color,
+      socketId: data.socket_id,
+      tool: data.tool,
+    });
   });
 
   socket.on('undo', (data) => {
@@ -991,7 +994,7 @@ onMounted(() => {
         class="board__canvas"
         @mousedown="startDrawing"
         @mousemove="draw"
-        @mouseup.stop="stopDrawing(null, 'board')"
+        @mouseup.stop="stopDrawing()"
       />
       <div class="board__background"></div>
       <Cursor
