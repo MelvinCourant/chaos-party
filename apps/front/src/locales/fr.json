@@ -34,6 +34,7 @@
   "seconds": "{number} secondes",
   "settings": "Paramètres",
   "start_game": "Démarrer la partie",
+  "team_number_drew": "L'équipe {number} a dessiné ...",
   "tutorial_1": {
     "title": "Votre mission si vous l’acceptez",
     "description": "Chaque équipe recevra un dessin à réaliser en coopération (une voiture futuriste, un animal légendaire...etc)"
@@ -54,6 +55,7 @@
     "title": "Trouver l’imposteur !",
     "description": "Votez pour le joueur qui a saboté la mission pour gagner des points bonus, attention à ne pas vous tromper !"
   },
+  "voting": "Vote",
   "voting_time": {
     "title": "Temps de vote",
     "description": "La durée du débat pour trouver le saboteur"

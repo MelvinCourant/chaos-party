@@ -34,6 +34,7 @@
   "seconds": "{number} seconds",
   "settings": "Settings",
   "start_game": "Start game",
+  "team_number_drew": "Team {number} drew ...",
   "tutorial_1": {
     "title": "Your mission if you accept it",
     "description": "Each team will be given a drawing to work on together (a futuristic car, a legendary animal, etc.)."
@@ -54,6 +55,7 @@
     "title": "Find the impostor!",
     "description": "Vote for the player who sabotaged the mission to earn bonus points, be careful not to make a mistake!"
   },
+  "voting": "Voting",
   "voting_time": {
     "title": "Voting time",
     "description": "The duration of the debate to find the saboteur."
