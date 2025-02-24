@@ -853,6 +853,10 @@ onMounted(() => {
     (newValue) => {
       if (!newValue) return;
       mouseMove(newValue);
+
+      if (isDrawingMap.value[socket.id]) {
+        draw(newValue);
+      }
     },
   );
 
