@@ -25,6 +25,7 @@ const numberTeam = ref(1);
 const team = ref({});
 const step = ref(1);
 const votes = ref([]);
+const previousNotesSelected = ref([]);
 
 async function getVoting() {
   const response = await fetch(`${env.VITE_URL}/api/parties/voting`, {
@@ -78,8 +79,26 @@ function selectNote({ vote_id, note }) {
   const vote = votes.value.find((v) => v.id === vote_id);
 
   vote.notes.forEach((n) => {
-    n.selected = n.note === note.note;
+    if (
+      previousNotesSelected.value.some(
+        ([id, note]) => id === vote_id && note === n.note,
+      )
+    ) {
+      n.quantity--;
+      previousNotesSelected.value = previousNotesSelected.value.filter(
+        ([id, note]) => id !== vote_id || note !== n.note,
+      );
+    }
+
+    if (n.note === note.note) {
+      n.quantity++;
+      n.selected = !n.selected;
+    } else {
+      n.selected = false;
+    }
   });
+
+  previousNotesSelected.value.push([vote_id, note.note]);
 }
 
 onMounted(() => {
