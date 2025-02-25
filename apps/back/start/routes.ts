@@ -11,6 +11,7 @@ import router from '@adonisjs/core/services/router'
 import PartiesController from '#controllers/parties_controller'
 import ModesController from '#controllers/modes_controller'
 import TeamsController from '#controllers/teams_controller'
+import app from '@adonisjs/core/services/app'
 
 router
   .group(() => {
@@ -42,6 +43,10 @@ router
 
     router.post('/start-party', async (data) => {
       return partiesController.start(data)
+    })
+
+    router.post('/voting', async (data) => {
+      return partiesController.voting(data)
     })
   })
   .prefix('api/parties')
@@ -85,3 +90,12 @@ router
     })
   })
   .prefix('api/teams')
+
+router
+  .group(() => {
+    router.get('/:filename', async ({ params, response }) => {
+      const { filename } = params
+      response.download(app.makePath('uploads', filename))
+    })
+  })
+  .prefix('uploads')

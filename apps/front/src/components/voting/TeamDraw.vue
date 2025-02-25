@@ -1,8 +1,9 @@
 <script setup>
 import '../../assets/css/components/voting/_team-draw.scss';
 import { useI18n } from 'vue-i18n';
+import { computed } from 'vue';
 
-defineProps({
+const props = defineProps({
   step: {
     type: Number,
     default: 2,
@@ -23,6 +24,10 @@ defineProps({
 });
 
 const { t } = useI18n();
+const env = import.meta.env;
+const generateSrc = computed(() => {
+  return `${env.VITE_URL}/uploads/${props.imgSrc}`;
+});
 </script>
 
 <template>
@@ -36,9 +41,9 @@ const { t } = useI18n();
     <div class="team-draw__illustration">
       <img
         v-if="imgSrc"
-        :src="imgSrc"
+        :src="generateSrc"
         class="team-draw__img"
-        :alt="`${t('team_number_drew', { number: numberTeam })}' illustration`"
+        :alt="`Illustration ${numberTeam}`"
       />
       <div class="team-draw__background"></div>
     </div>

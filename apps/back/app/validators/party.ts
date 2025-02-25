@@ -51,3 +51,12 @@ export const updateConfigurationValidator = vine.compile(
     party_id: vine.string().trim().uuid(),
   })
 )
+
+export const votingValidator = vine.compile(
+  vine.object({
+    socket_id: vine.string().trim(),
+    user_id: vine.string().trim().uuid(),
+    party_id: vine.string().trim().uuid(),
+    number_team: vine.number().min(1),
+  })
+)

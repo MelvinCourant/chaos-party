@@ -7,6 +7,7 @@ import {
   showPartyValidator,
   updateConfigurationValidator,
   updateModeValidator,
+  votingValidator,
 } from '#validators/party'
 import User from '#models/user'
 import Party from '#models/party'
@@ -415,5 +416,49 @@ export default class PartiesController {
     Ws?.io?.to(partyId).emit('new-step', party.step)
 
     return response.json({ message: i18n.t('messages.party_started') })
+  }
+
+  public async voting({ i18n, request, response }: HttpContext) {
+    const payload = await request.validateUsing(votingValidator)
+    const partyId = payload.party_id
+    const socketId = payload.socket_id
+    const userId = payload.user_id
+    const numberTeam = payload.number_team
+
+    if (!Ws.io?.sockets.adapter.rooms.has(partyId)) {
+      return response.status(404).json({ message: i18n.t('messages.party_not_found') })
+    } else {
+      // @ts-ignore
+      if (!Ws.io?.sockets.adapter.rooms.get(partyId).has(socketId)) {
+        return response.status(403).json({ message: i18n.t('messages.forbidden') })
+      }
+    }
+
+    const user = await User.query().where('id', userId).select('role', 'party_id').firstOrFail()
+    const party = await Party.findOrFail(partyId)
+
+    if (user.party_id !== party.id) {
+      return response.status(403).json({ message: i18n.t('messages.forbidden') })
+    }
+
+    const teams = await Team.query()
+      .where('party_id', party.id)
+      .select('id', 'mission_id', 'draw')
+      .orderBy('updated_at', 'asc')
+    const team = teams[numberTeam - 1]
+    const mission = await Mission.query()
+      .where('id', team.mission_id)
+      .select('description')
+      .firstOrFail()
+    const playersInTeam = await User.query().where('team_id', team.id).select('pseudo', 'image')
+
+    return response.json({
+      team: {
+        mission: i18n.t(`messages.${mission.description}`),
+        draw: team.draw,
+        players: playersInTeam,
+      },
+      teams_length: teams.length,
+    })
   }
 }

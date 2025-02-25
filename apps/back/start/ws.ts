@@ -191,6 +191,8 @@ app.ready(() => {
       io?.to(data.team_id).emit('on-saving-draw')
 
       if (draw.startsWith('data:image')) {
+        io?.to(data.team_id).emit('redirect')
+
         const uploadsDir = app.makePath('uploads')
         if (!fs.existsSync(uploadsDir)) {
           fs.mkdirSync(uploadsDir, { recursive: true })
@@ -211,8 +213,27 @@ app.ready(() => {
         party.step = 'voting'
         await party.save()
       }
+    })
 
-      io?.to(data.team_id).emit('redirect')
+    socket.on('voting-player-ready', async (data) => {
+      socket.data.status = 'ready'
+
+      const partyId = data.party_id
+      const partySockets = Array.from(Ws.sockets.values()).filter(
+        (s) => s.data.party_id === partyId
+      )
+
+      const allReady = partySockets.every((s) => s.data.status === 'ready')
+
+      if (allReady) {
+        io?.to(partyId).emit('voting-start')
+      }
+    })
+
+    socket.on('next-step', async (data) => {
+      io?.to(data.party_id).emit('next-step', {
+        socket_id: data.socket_id,
+      })
     })
   })
 })
