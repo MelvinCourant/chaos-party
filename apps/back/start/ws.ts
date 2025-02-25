@@ -6,6 +6,8 @@ import Team from '#models/team'
 import fs from 'node:fs'
 import { cuid } from '@adonisjs/core/helpers'
 import path from 'node:path'
+import Category from '#models/category'
+import i18nManager from '@adonisjs/i18n/services/main'
 
 app.ready(() => {
   Ws.boot()
@@ -234,6 +236,55 @@ app.ready(() => {
       io?.to(data.party_id).emit('next-step', {
         socket_id: data.socket_id,
       })
+    })
+
+    socket.on('step-voting', async (data) => {
+      if (data.step === 'mission') {
+        const i18n = i18nManager.locale(data.locale)
+
+        const team = await Team.query()
+          .where('id', data.team_id)
+          .select('id', 'category_id')
+          .firstOrFail()
+        const category = await Category.query()
+          .where('id', team.category_id)
+          .select('id', 'name')
+          .firstOrFail()
+
+        const votes = [
+          {
+            note: 0,
+            quantity: 0,
+          },
+          {
+            note: 1,
+            quantity: 0,
+          },
+          {
+            note: 2,
+            quantity: 0,
+          },
+          {
+            note: 3,
+            quantity: 0,
+          },
+        ]
+
+        io?.to(data.party_id).emit('voting-questions', {
+          questions: [
+            {
+              id: 1,
+              text: i18n.t(`messages.voting.${category.name}`),
+              votes,
+            },
+            {
+              id: 2,
+              text: i18n.t('messages.voting.originality_creativity'),
+              votes,
+            },
+          ],
+        })
+      }
     })
   })
 })

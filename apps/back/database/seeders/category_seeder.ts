@@ -6,23 +6,23 @@ export default class extends BaseSeeder {
     await Category.createMany([
       {
         id: 1,
-        name: 'categories.buildings_cities',
+        name: 'buildings_cities',
       },
       {
         id: 2,
-        name: 'categories.characters_heroes',
+        name: 'characters_heroes',
       },
       {
         id: 3,
-        name: 'categories.creatures_monsters',
+        name: 'creatures_monsters',
       },
       {
         id: 4,
-        name: 'categories.machines_inventions',
+        name: 'machines_inventions',
       },
       {
         id: 5,
-        name: 'categories.nature_landscapes',
+        name: 'nature_landscapes',
       },
     ])
   }

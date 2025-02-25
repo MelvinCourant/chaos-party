@@ -448,16 +448,19 @@ export default class PartiesController {
     const team = teams[numberTeam - 1]
     const mission = await Mission.query()
       .where('id', team.mission_id)
-      .select('description')
+      .select('description', 'category_id')
       .firstOrFail()
-    const playersInTeam = await User.query().where('team_id', team.id).select('pseudo', 'image')
+    const playersInTeam = await User.query()
+      .where('team_id', team.id)
+      .select('pseudo', 'image', 'socket_id')
 
     return response.json({
       team: {
-        mission: i18n.t(`messages.${mission.description}`),
+        id: team.id,
         draw: team.draw,
         players: playersInTeam,
       },
+      mission: i18n.t(`messages.${mission.description}`),
       teams_length: teams.length,
     })
   }

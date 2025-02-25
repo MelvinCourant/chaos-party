@@ -6,7 +6,7 @@ import TeamDraw from '../components/voting/TeamDraw.vue';
 import { useUserStore } from '../stores/user.js';
 import { usePartyStore } from '../stores/party.js';
 import { useSocketStore } from '../stores/socket.js';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import Loading from '../components/voting/Loading.vue';
 import { useRouter } from 'vue-router';
 
@@ -21,8 +21,9 @@ const { socket } = useSocketStore();
 const router = useRouter();
 const mission = ref('');
 const numberTeam = ref(1);
-const draw = ref('');
+const team = ref({});
 const step = ref(1);
+const questions = ref([]);
 
 async function getVoting() {
   const response = await fetch(`${env.VITE_URL}/api/parties/voting`, {
@@ -42,8 +43,8 @@ async function getVoting() {
   if (response.ok) {
     const json = await response.json();
 
-    mission.value = json.team.mission;
-    draw.value = json.team.draw;
+    mission.value = json.mission;
+    team.value = json.team;
 
     socket.emit('voting-player-ready', {
       party_id: partyId,
@@ -58,7 +59,8 @@ getVoting();
 function nextStep(e) {
   if (
     user.id === hostId.value &&
-    step.value > 1 &&
+    step.value !== 1 &&
+    step.value !== 4 &&
     !e.target.closest('.settings') &&
     !e.target.closest('.popin')
   ) {
@@ -81,6 +83,21 @@ onMounted(() => {
 
     step.value++;
   });
+
+  socket.on('voting-questions', (data) => {
+    questions.value = data.questions;
+  });
+});
+
+watch(step, (value) => {
+  if (value === 4) {
+    socket.emit('step-voting', {
+      party_id: partyId,
+      team_id: team.value.id,
+      step: 'mission',
+      locale: userStore.language,
+    });
+  }
 });
 </script>
 
@@ -95,9 +112,9 @@ onMounted(() => {
     <TeamDraw
       v-show="step > 1"
       :step="step"
-      :mission="mission"
+      :mission="mission.description"
       :number-team="numberTeam"
-      :img-src="draw"
+      :img-src="team.draw"
     />
     <Settings />
   </main>

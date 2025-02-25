@@ -5,7 +5,6 @@
     "characters_heroes": "Characters and heroes",
     "creatures_monsters": "Creatures and monsters",
     "machines_inventions": "Machines and inventions",
-    "magical_objects_artefacts": "Magical objects and artefacts",
     "nature_landscapes": "Nature and landscapes"
   },
   "forbidden": "Forbidden",
@@ -84,5 +83,13 @@
   "party_started": "Party started",
   "players_without_team": "Some players have no team",
   "sabotage": "Sabotage: ruin the drawing discreetly",
-  "teams_created": "{quantity} teams created"
+  "teams_created": "{quantity} teams created",
+  "voting": {
+    "buildings_cities": "Does the building or city seem to be standing?",
+    "characters_heroes": "Does the character or hero seem credible?",
+    "creatures_monsters": "Does the creature or monster seem credible?",
+    "machines_inventions": "Does the machine or invention seem to be working?",
+    "nature_landscapes": "Does the nature or landscape seem real?",
+    "originality_creativity": "Originality/creativity"
+  }
 }
