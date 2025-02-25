@@ -9,6 +9,7 @@ import { useSocketStore } from '../stores/socket.js';
 import { onMounted, ref, watch } from 'vue';
 import Loading from '../components/voting/Loading.vue';
 import { useRouter } from 'vue-router';
+import Votes from '../components/voting/Votes.vue';
 
 const { t } = useI18n();
 const env = import.meta.env;
@@ -23,7 +24,7 @@ const mission = ref('');
 const numberTeam = ref(1);
 const team = ref({});
 const step = ref(1);
-const questions = ref([]);
+const votes = ref([]);
 
 async function getVoting() {
   const response = await fetch(`${env.VITE_URL}/api/parties/voting`, {
@@ -73,6 +74,14 @@ function nextStep(e) {
   }
 }
 
+function selectNote({ vote_id, note }) {
+  const vote = votes.value.find((v) => v.id === vote_id);
+
+  vote.notes.forEach((n) => {
+    n.selected = n.note === note.note;
+  });
+}
+
 onMounted(() => {
   socket.on('voting-start', () => {
     step.value = 2;
@@ -84,8 +93,13 @@ onMounted(() => {
     step.value++;
   });
 
-  socket.on('voting-questions', (data) => {
-    questions.value = data.questions;
+  socket.on('votes', (data) => {
+    votes.value = data.votes;
+    votes.value.forEach((vote) => {
+      vote.notes.forEach((note) => {
+        note.selected = false;
+      });
+    });
   });
 });
 
@@ -112,9 +126,15 @@ watch(step, (value) => {
     <TeamDraw
       v-show="step > 1"
       :step="step"
-      :mission="mission.description"
+      :mission="mission"
       :number-team="numberTeam"
       :img-src="team.draw"
+    />
+    <Votes
+      :votes="votes"
+      :notesSelected="notesSelected"
+      v-if="votes.length > 0"
+      @noteSelected="selectNote"
     />
     <Settings />
   </main>

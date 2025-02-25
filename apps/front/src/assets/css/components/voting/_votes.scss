@@ -1,0 +1,45 @@
+@use "../../partials/mixins";
+
+.votes {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 136px;
+
+  .vote {
+    display: flex;
+    max-width: 430px;
+    padding: 15px 25px;
+    flex-direction: column;
+    gap: 20px;
+    background-color: var(--black-transparent-10);
+    border-radius: var(--card-radius);
+
+    &__title {
+      @include mixins.font('title');
+      color: var(--text);
+    }
+
+    &__notes {
+      display: flex;
+      gap: 10px;
+    }
+
+    &__note {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    &__quantity {
+      @include mixins.font('title');
+      color: var(--text);
+      -webkit-text-stroke-width: 2px;
+      -webkit-text-stroke-color: var(--black);
+      filter: drop-shadow(0 2px 0 var(--black));
+    }
+  }
+}

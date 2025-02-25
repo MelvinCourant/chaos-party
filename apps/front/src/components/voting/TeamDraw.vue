@@ -35,7 +35,7 @@ const generateSrc = computed(() => {
     <h2 class="team-draw__title">
       {{ t('team_number_drew', { number: numberTeam }) }} <br />
       <span class="team-draw__mission"
-        >{{ mission }} {{ t('exclamation_mark') }}</span
+        >{{ mission }}{{ t('exclamation_mark') }}</span
       >
     </h2>
     <div class="team-draw__illustration">

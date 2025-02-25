@@ -8,6 +8,7 @@ import { cuid } from '@adonisjs/core/helpers'
 import path from 'node:path'
 import Category from '#models/category'
 import i18nManager from '@adonisjs/i18n/services/main'
+import Mission from '#models/mission'
 
 app.ready(() => {
   Ws.boot()
@@ -244,14 +245,18 @@ app.ready(() => {
 
         const team = await Team.query()
           .where('id', data.team_id)
-          .select('id', 'category_id')
+          .select('id', 'mission_id')
+          .firstOrFail()
+        const mission = await Mission.query()
+          .where('id', team.mission_id)
+          .select('category_id')
           .firstOrFail()
         const category = await Category.query()
-          .where('id', team.category_id)
+          .where('id', mission.category_id)
           .select('id', 'name')
           .firstOrFail()
 
-        const votes = [
+        const notes = [
           {
             note: 0,
             quantity: 0,
@@ -270,17 +275,17 @@ app.ready(() => {
           },
         ]
 
-        io?.to(data.party_id).emit('voting-questions', {
-          questions: [
+        io?.to(data.party_id).emit('votes', {
+          votes: [
             {
               id: 1,
-              text: i18n.t(`messages.voting.${category.name}`),
-              votes,
+              title: i18n.t(`messages.voting.${category.name}`),
+              notes,
             },
             {
               id: 2,
-              text: i18n.t('messages.voting.originality_creativity'),
-              votes,
+              title: i18n.t('messages.voting.originality_creativity'),
+              notes,
             },
           ],
         })
