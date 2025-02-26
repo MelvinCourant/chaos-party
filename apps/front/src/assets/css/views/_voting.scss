@@ -55,4 +55,14 @@
       right: 20px;
     }
   }
+
+  &__votes {
+    position: relative;
+
+    .timer {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+  }
 }

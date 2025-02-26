@@ -1,5 +1,5 @@
 <script setup>
-import '../../assets/css/components/drawing/_timer.scss';
+import '../../assets/css/components/utils/_timer.scss';
 import { inject, computed, watch, ref } from 'vue';
 
 const duration = inject('duration');

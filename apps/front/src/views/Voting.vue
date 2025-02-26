@@ -6,10 +6,11 @@ import TeamDraw from '../components/voting/TeamDraw.vue';
 import { useUserStore } from '../stores/user.js';
 import { usePartyStore } from '../stores/party.js';
 import { useSocketStore } from '../stores/socket.js';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, provide, ref, watch } from 'vue';
 import Loading from '../components/voting/Loading.vue';
 import { useRouter } from 'vue-router';
 import Votes from '../components/voting/Votes.vue';
+import Timer from '../components/utils/Timer.vue';
 
 const { t } = useI18n();
 const env = import.meta.env;
@@ -26,6 +27,13 @@ const team = ref({});
 const step = ref(1);
 const votes = ref([]);
 const previousNotesSelected = ref([]);
+const votingDuration = ref(1);
+const timer = ref(0);
+const elapsed = ref(0);
+let interval = null;
+
+provide('duration', votingDuration);
+provide('elapsed', elapsed);
 
 async function getVoting() {
   const response = await fetch(`${env.VITE_URL}/api/parties/voting`, {
@@ -45,6 +53,7 @@ async function getVoting() {
   if (response.ok) {
     const json = await response.json();
 
+    votingDuration.value = parseInt(json.voting_time);
     mission.value = json.mission;
     team.value = json.team;
 
@@ -108,6 +117,32 @@ function selectNote({ vote_id, note }) {
   });
 }
 
+function startTimer() {
+  if (interval) {
+    clearInterval(interval);
+  }
+  interval = setInterval(() => {
+    timer.value += 100;
+  }, 100);
+}
+
+function stopTimer() {
+  clearInterval(interval);
+  interval = null;
+}
+
+watch(timer, (value) => {
+  const maxTime = votingDuration.value * 60 * 1000;
+
+  if (value >= maxTime) {
+    stopTimer();
+
+    socket.emit('timer-finished', {
+      party_id: partyId,
+    });
+  }
+});
+
 onMounted(() => {
   socket.on('voting-start', () => {
     step.value = 2;
@@ -141,6 +176,22 @@ onMounted(() => {
       }
     });
   });
+
+  socket.on('start-timer', startTimer);
+
+  socket.on('timer-state', (data) => {
+    if (socket.id === data.socket_id) return;
+
+    if (data.timer !== 0) {
+      timer.value = data.timer;
+      elapsed.value = data.timer;
+      startTimer();
+    }
+  });
+
+  socket.on('timer-finished', () => {
+    step.value++;
+  });
 });
 
 watch(step, (value) => {
@@ -170,12 +221,15 @@ watch(step, (value) => {
       :number-team="numberTeam"
       :img-src="team.draw"
     />
-    <Votes
-      :votes="votes"
-      :notesSelected="notesSelected"
-      v-if="votes.length > 0"
-      @noteSelected="selectNote"
-    />
+    <div class="voting__votes">
+      <Timer v-if="step === 4" :duration="votingDuration" :elapsed="elapsed" />
+      <Votes
+        :votes="votes"
+        :notesSelected="notesSelected"
+        v-if="votes.length > 0"
+        @noteSelected="selectNote"
+      />
+    </div>
     <Settings />
   </main>
 </template>

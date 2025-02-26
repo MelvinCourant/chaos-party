@@ -1,12 +1,12 @@
 <script setup>
-import "../../assets/css/components/drawing/_draw.scss";
-import Board from "./Board.vue";
-import Timer from "./Timer.vue";
-import Tools from "./Tools.vue";
-import { reactive, ref } from "vue";
-import Palette from "./Palette.vue";
-import Thicknesses from "./Thicknesses.vue";
-import Opacity from "./Opacity.vue";
+import '../../assets/css/components/drawing/_draw.scss';
+import Board from './Board.vue';
+import Timer from '../utils/Timer.vue';
+import Tools from './Tools.vue';
+import { reactive, ref } from 'vue';
+import Palette from './Palette.vue';
+import Thicknesses from './Thicknesses.vue';
+import Opacity from './Opacity.vue';
 
 defineProps({
   mouseMoving: {
@@ -21,131 +21,131 @@ defineProps({
 
 const tools = reactive([
   {
-    name: "pen",
-    icon: "pen",
+    name: 'pen',
+    icon: 'pen',
     selected: true,
   },
   {
-    name: "rubber",
-    icon: "rubber",
+    name: 'rubber',
+    icon: 'rubber',
     selected: false,
   },
   {
-    name: "paint-pot",
-    icon: "paint-pot",
+    name: 'paint-pot',
+    icon: 'paint-pot',
     selected: false,
   },
   {
-    name: "line",
-    icon: "line",
+    name: 'line',
+    icon: 'line',
     selected: false,
   },
   {
-    name: "empty-rectangle",
-    icon: "empty-rectangle",
+    name: 'empty-rectangle',
+    icon: 'empty-rectangle',
     selected: false,
   },
   {
-    name: "rectangle",
-    icon: "rectangle",
+    name: 'rectangle',
+    icon: 'rectangle',
     selected: false,
   },
   {
-    name: "empty-ellipse",
-    icon: "empty-ellipse",
+    name: 'empty-ellipse',
+    icon: 'empty-ellipse',
     selected: false,
   },
   {
-    name: "ellipse",
-    icon: "ellipse",
+    name: 'ellipse',
+    icon: 'ellipse',
     selected: false,
   },
 ]);
 const colors = reactive([
   {
-    name: "gray",
-    value: "#807978",
+    name: 'gray',
+    value: '#807978',
     selected: false,
   },
   {
-    name: "black",
-    value: "#1A120F",
+    name: 'black',
+    value: '#1A120F',
     selected: true,
   },
   {
-    name: "beige",
-    value: "#FF9066",
+    name: 'beige',
+    value: '#FF9066',
     selected: false,
   },
   {
-    name: "text",
-    value: "#FDF1ED",
+    name: 'text',
+    value: '#FDF1ED',
     selected: false,
   },
   {
-    name: "dark-blue",
-    value: "#2852EB",
+    name: 'dark-blue',
+    value: '#2852EB',
     selected: false,
   },
   {
-    name: "blue",
-    value: "#28B4EB",
+    name: 'blue',
+    value: '#28B4EB',
     selected: false,
   },
   {
-    name: "dark-red-2",
-    value: "#B20000",
+    name: 'dark-red-2',
+    value: '#B20000',
     selected: false,
   },
   {
-    name: "red",
-    value: "#E22929",
+    name: 'red',
+    value: '#E22929',
     selected: false,
   },
   {
-    name: "dark-yellow",
-    value: "#B2931E",
+    name: 'dark-yellow',
+    value: '#B2931E',
     selected: false,
   },
   {
-    name: "yellow",
-    value: "#EBC128",
+    name: 'yellow',
+    value: '#EBC128',
     selected: false,
   },
   {
-    name: "dark-orange",
-    value: "#A73509",
+    name: 'dark-orange',
+    value: '#A73509',
     selected: false,
   },
   {
-    name: "orange",
-    value: "#EB5E28",
+    name: 'orange',
+    value: '#EB5E28',
     selected: false,
   },
   {
-    name: "dark-green",
-    value: "#0F590F",
+    name: 'dark-green',
+    value: '#0F590F',
     selected: false,
   },
   {
-    name: "green",
-    value: "#21BF21",
+    name: 'green',
+    value: '#21BF21',
     selected: false,
   },
   {
-    name: "purple",
-    value: "#792BFF",
+    name: 'purple',
+    value: '#792BFF',
     selected: false,
   },
   {
-    name: "pink",
-    value: "#EB2870",
+    name: 'pink',
+    value: '#EB2870',
     selected: false,
   },
 ]);
 const customColor = reactive({
-  name: "custom",
-  value: "#000000",
+  name: 'custom',
+  value: '#000000',
   selected: false,
 });
 const thicknesses = reactive([
@@ -176,14 +176,14 @@ const opacityAttributes = reactive({
   step: 1,
   value: 100,
 });
-const color = ref("#1A120F");
+const color = ref('#1A120F');
 const lineWidth = ref(8);
 const opacity = ref(100);
-const tool = ref("pen");
+const tool = ref('pen');
 
 function updateColor(selectedColor) {
-  if (selectedColor.name === "custom") {
-    customColor.value = selectedColor.value || "#000000";
+  if (selectedColor.name === 'custom') {
+    customColor.value = selectedColor.value || '#000000';
     customColor.selected = true;
 
     colors.forEach((c) => {

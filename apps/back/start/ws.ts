@@ -289,6 +289,8 @@ app.ready(() => {
             },
           ],
         })
+
+        io?.to(data.party_id).emit('start-timer')
       }
     })
 
