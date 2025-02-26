@@ -452,7 +452,7 @@ export default class PartiesController {
       .firstOrFail()
     const playersInTeam = await User.query()
       .where('team_id', team.id)
-      .select('pseudo', 'image', 'socket_id')
+      .select('id', 'pseudo', 'image', 'socket_id')
 
     return response.json({
       team: {

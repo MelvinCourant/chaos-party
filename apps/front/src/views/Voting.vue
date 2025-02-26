@@ -31,6 +31,7 @@ const votingDuration = ref(1);
 const defilement = ref(null);
 const timer = ref(0);
 const elapsed = ref(0);
+const disabledVote = ref(false);
 let interval = null;
 
 provide('duration', votingDuration);
@@ -58,6 +59,14 @@ async function getVoting() {
     defilement.value = json.party.defilement;
     mission.value = json.mission;
     team.value = json.team;
+
+    const playerIsOnTeam = team.value.players.some(
+      (player) => player.id === user.id,
+    );
+
+    if (playerIsOnTeam) {
+      disabledVote.value = true;
+    }
 
     socket.emit('voting-player-ready', {
       party_id: partyId,
@@ -242,6 +251,7 @@ watch(step, (value) => {
       <Votes
         :votes="votes"
         :notesSelected="notesSelected"
+        :disabled="disabledVote"
         v-if="votes.length > 0"
         @noteSelected="selectNote"
       />

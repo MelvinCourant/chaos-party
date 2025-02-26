@@ -24,6 +24,11 @@
     }
   }
 
+  &--disabled {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
   &__input {
     position: relative;
     z-index: 2;
@@ -35,6 +40,7 @@
     height: 56px;
     border-radius: var(--card-radius);
     @include mixins.font('xl title');
+    color: var(--black);
     transition: 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 
     &[data-note="0"] {

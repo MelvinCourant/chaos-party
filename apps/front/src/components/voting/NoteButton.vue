@@ -10,15 +10,26 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 defineEmits(['click']);
 </script>
 
 <template>
-  <div :class="['vote-button', { 'vote-button--selected': isSelected }]">
+  <div
+    :class="[
+      'vote-button',
+      { 'vote-button--selected': isSelected },
+      { 'vote-button--disabled': disabled },
+    ]"
+  >
     <button
       class="vote-button__input"
       :data-note="note"
+      :disabled="disabled"
       @click="$emit('click', note)"
     >
       {{ note }}
