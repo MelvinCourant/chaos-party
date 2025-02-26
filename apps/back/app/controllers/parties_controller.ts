@@ -460,7 +460,10 @@ export default class PartiesController {
         draw: team.draw,
         players: playersInTeam,
       },
-      voting_time: party.voting_time,
+      party: {
+        voting_time: party.voting_time,
+        defilement: party.defilement,
+      },
       mission: i18n.t(`messages.${mission.description}`),
       teams_length: teams.length,
     })

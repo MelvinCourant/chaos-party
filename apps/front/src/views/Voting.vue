@@ -28,6 +28,7 @@ const step = ref(1);
 const votes = ref([]);
 const previousNotesSelected = ref([]);
 const votingDuration = ref(1);
+const defilement = ref(null);
 const timer = ref(0);
 const elapsed = ref(0);
 let interval = null;
@@ -53,7 +54,8 @@ async function getVoting() {
   if (response.ok) {
     const json = await response.json();
 
-    votingDuration.value = parseInt(json.voting_time);
+    votingDuration.value = parseInt(json.party.voting_time);
+    defilement.value = json.party.defilement;
     mission.value = json.mission;
     team.value = json.team;
 
@@ -203,6 +205,14 @@ watch(step, (value) => {
       locale: userStore.language,
     });
   }
+
+  if (defilement.value === 'auto') {
+    if (value === 2 || value === 3) {
+      setTimeout(() => {
+        step.value++;
+      }, 2000);
+    }
+  }
 });
 </script>
 
@@ -210,7 +220,13 @@ watch(step, (value) => {
   <main
     ref="voting"
     :class="['voting', `voting--step-${step}`]"
-    @click.stop="nextStep"
+    @click.stop="
+      () => {
+        if (defilement === 'manual') {
+          nextStep;
+        }
+      }
+    "
   >
     <h1 class="hidden-title">{{ t('voting') }}</h1>
     <Loading v-show="step === 1" />
