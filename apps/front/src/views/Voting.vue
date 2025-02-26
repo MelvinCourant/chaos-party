@@ -99,6 +99,13 @@ function selectNote({ vote_id, note }) {
   });
 
   previousNotesSelected.value.push([vote_id, note.note]);
+
+  socket.emit('player-vote', {
+    party_id: partyId,
+    socket_id: socket.id,
+    vote_id,
+    note: note.note.toString(),
+  });
 }
 
 onMounted(() => {
@@ -118,6 +125,20 @@ onMounted(() => {
       vote.notes.forEach((note) => {
         note.selected = false;
       });
+    });
+  });
+
+  socket.on('player-vote', (data) => {
+    if (data.socket_id === socket.id) return;
+
+    const vote = votes.value.find((v) => v.id === data.vote_id);
+
+    vote.notes.forEach((n) => {
+      if (n.note === data.new_note) {
+        n.quantity++;
+      } else if (n.note === data.previous_note && n.quantity > 0) {
+        n.quantity--;
+      }
     });
   });
 });

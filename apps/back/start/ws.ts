@@ -291,5 +291,23 @@ app.ready(() => {
         })
       }
     })
+
+    socket.on('player-vote', async (data) => {
+      const { vote_id, note } = data
+      const previousNote = socket.data.votes?.[vote_id] || null
+
+      if (!socket.data.votes) {
+        socket.data.votes = {}
+      }
+
+      socket.data.votes[vote_id] = note
+
+      io?.to(data.party_id).emit('player-vote', {
+        socket_id: data.socket_id,
+        vote_id,
+        previous_note: Number.parseInt(previousNote),
+        new_note: Number.parseInt(note),
+      })
+    })
   })
 })

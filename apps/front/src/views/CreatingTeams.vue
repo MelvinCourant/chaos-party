@@ -475,6 +475,7 @@ onMounted(() => {
         option.selected = option.value === newTeams.length;
       });
       teams.value = newTeams;
+      maxPlayersInTeam.value = config.max_players / teams.value.length;
     }
   });
 
