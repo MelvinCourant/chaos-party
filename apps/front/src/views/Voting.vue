@@ -220,10 +220,15 @@ onMounted(() => {
 });
 
 watch(step, (value) => {
-  if (defilement.value === 'auto') {
+  if (defilement.value === 'auto' && user.id === hostId.value) {
     if (value === 2 || value === 3) {
       setTimeout(() => {
         step.value++;
+
+        socket.emit('next-step', {
+          party_id: partyId,
+          socket_id: socket.id,
+        });
       }, 2000);
     }
   }
