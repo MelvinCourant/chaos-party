@@ -240,13 +240,13 @@ app.ready(() => {
     })
 
     socket.on('step-voting', async (data) => {
-      if (data.step === 'mission') {
-        const i18n = i18nManager.locale(data.locale)
+      const i18n = i18nManager.locale(data.locale)
+      const team = await Team.query()
+        .where('id', data.team_id)
+        .select('id', 'mission_id')
+        .firstOrFail()
 
-        const team = await Team.query()
-          .where('id', data.team_id)
-          .select('id', 'mission_id')
-          .firstOrFail()
+      if (data.step === 'mission') {
         const mission = await Mission.query()
           .where('id', team.mission_id)
           .select('category_id')
@@ -289,6 +289,44 @@ app.ready(() => {
             },
           ],
         })
+
+        io?.to(data.party_id).emit('start-timer')
+      } else if (data.step === 'sabotage') {
+        const player = await User.query()
+          .where('socket_id', data.socket_id)
+          .select('team_id')
+          .firstOrFail()
+
+        if (player.team_id === team.id) {
+          let score = 0
+
+          for (let vote of data.votes) {
+            let maxQuantity = 0
+            let maxNotes = []
+
+            for (let note of vote.notes) {
+              if (note.quantity > maxQuantity) {
+                maxQuantity = note.quantity
+                maxNotes = [note.note]
+              } else if (note.quantity === maxQuantity) {
+                maxNotes.push(note.note)
+              }
+            }
+
+            if (maxNotes.length === 1) {
+              score += maxNotes[0]
+            } else {
+              score += maxNotes.reduce((a, b) => a + b, 0) / maxNotes.length
+            }
+          }
+
+          socket.data.score += score
+        }
+
+        /*io?.to(data.party_id).emit('player-sabotage', {
+          title: i18n.t('messages.voting.sabotage'),
+          type: 'sabotage',
+        })*/
 
         io?.to(data.party_id).emit('start-timer')
       }

@@ -6,11 +6,12 @@ import TeamDraw from '../components/voting/TeamDraw.vue';
 import { useUserStore } from '../stores/user.js';
 import { usePartyStore } from '../stores/party.js';
 import { useSocketStore } from '../stores/socket.js';
-import { onMounted, provide, ref, watch } from 'vue';
+import { onMounted, provide, reactive, ref, watch } from 'vue';
 import Loading from '../components/voting/Loading.vue';
 import { useRouter } from 'vue-router';
 import Votes from '../components/voting/Votes.vue';
 import Timer from '../components/utils/Timer.vue';
+import VotingPlayers from '../components/voting/VotingPlayers.vue';
 
 const { t } = useI18n();
 const env = import.meta.env;
@@ -32,6 +33,10 @@ const defilement = ref(null);
 const timer = ref(0);
 const elapsed = ref(0);
 const disabledVote = ref(false);
+const votingPlayers = reactive({
+  title: '',
+  type: '',
+});
 let interval = null;
 
 provide('duration', votingDuration);
@@ -150,6 +155,8 @@ watch(timer, (value) => {
     socket.emit('timer-finished', {
       party_id: partyId,
     });
+
+    step.value++;
   }
 });
 
@@ -204,12 +211,21 @@ onMounted(() => {
     }
   });
 
-  socket.on('timer-finished', () => {
-    step.value++;
-  });
+  /*socket.on('player-sabotage', (data) => {
+    votingPlayers.title = data.title;
+    votingPlayers.type = data.type;
+  });*/
 });
 
 watch(step, (value) => {
+  if (defilement.value === 'auto') {
+    if (value === 2 || value === 3) {
+      setTimeout(() => {
+        step.value++;
+      }, 2000);
+    }
+  }
+
   if (value === 4) {
     socket.emit('step-voting', {
       party_id: partyId,
@@ -219,12 +235,27 @@ watch(step, (value) => {
     });
   }
 
-  if (defilement.value === 'auto') {
-    if (value === 2 || value === 3) {
-      setTimeout(() => {
-        step.value++;
-      }, 2000);
-    }
+  if (value === 5) {
+    const votesCleaned = votes.value.map((vote) => {
+      return {
+        id: vote.id,
+        notes: vote.notes.map((note) => {
+          return {
+            note: note.note,
+            quantity: note.quantity,
+          };
+        }),
+      };
+    });
+
+    socket.emit('step-voting', {
+      party_id: partyId,
+      socket_id: socket.id,
+      team_id: team.value.id,
+      step: 'sabotage',
+      locale: userStore.language,
+      votes: votesCleaned,
+    });
   }
 });
 </script>
@@ -259,6 +290,13 @@ watch(step, (value) => {
         v-if="votes.length > 0"
         @noteSelected="selectNote"
       />
+      <!--      <VotingPlayers
+        :title="votingPlayers.title"
+        :type="votingPlayers.type"
+        :players="team.players"
+        :disabled="disabledVote"
+        v-if="step === 5 || step === 7"
+      />-->
     </div>
     <Settings />
   </main>

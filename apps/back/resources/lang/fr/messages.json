@@ -90,6 +90,7 @@
     "creatures_monsters": "Est-ce que la créature ou le monstre semble crédible ?",
     "machines_inventions": "Est-ce que la machine ou l’invention semble fonctionner ?",
     "nature_landscapes": "Est-ce que la nature ou le paysage semble réel ?",
-    "originality_creativity": "Originalité/créativité"
+    "originality_creativity": "Originalité/créativité",
+    "sabotage": "Qui a saboté ?"
   }
 }
