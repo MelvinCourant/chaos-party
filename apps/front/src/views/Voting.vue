@@ -81,8 +81,6 @@ async function getVoting() {
   }
 }
 
-getVoting();
-
 function nextStep() {
   if (step.value !== 1 && step.value !== 4) {
     step.value++;
@@ -161,6 +159,10 @@ watch(timer, (value) => {
 });
 
 onMounted(() => {
+  socket.on('all-draws-saved', async () => {
+    await getVoting();
+  });
+
   socket.on('voting-start', () => {
     step.value = 2;
   });
@@ -287,16 +289,16 @@ watch(step, (value) => {
         :votes="votes"
         :notesSelected="notesSelected"
         :disabled="disabledVote"
-        v-if="votes.length > 0"
+        v-if="votes.length > 0 && step === 4"
         @noteSelected="selectNote"
       />
-      <!--      <VotingPlayers
+      <VotingPlayers
         :title="votingPlayers.title"
         :type="votingPlayers.type"
         :players="team.players"
         :disabled="disabledVote"
         v-if="step === 5 || step === 7"
-      />-->
+      />
     </div>
     <Settings />
   </main>

@@ -210,6 +210,12 @@ app.ready(() => {
 
         team.draw = filename
         await team.save()
+
+        const teams = await Team.query().where('party_id', party.id).select('id', 'draw')
+
+        if (teams.every((t) => t.draw)) {
+          io?.to(data.party_id).emit('all-draws-saved')
+        }
       }
 
       if (party.step === 'drawing') {
