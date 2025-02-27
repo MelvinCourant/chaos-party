@@ -78,14 +78,8 @@ async function getVoting() {
 
 getVoting();
 
-function nextStep(e) {
-  if (
-    user.id === hostId.value &&
-    step.value !== 1 &&
-    step.value !== 4 &&
-    !e.target.closest('.settings') &&
-    !e.target.closest('.popin')
-  ) {
+function nextStep() {
+  if (step.value !== 1 && step.value !== 4) {
     step.value++;
 
     socket.emit('next-step', {
@@ -119,6 +113,11 @@ function selectNote({ vote_id, note }) {
   });
 
   previousNotesSelected.value.push([vote_id, note.note]);
+
+  const maxQuantity = Math.max(...vote.notes.map((n) => n.quantity));
+  vote.notes.forEach((n) => {
+    n.most_voted = n.quantity === maxQuantity;
+  });
 
   socket.emit('player-vote', {
     party_id: partyId,
@@ -186,6 +185,11 @@ onMounted(() => {
         n.quantity--;
       }
     });
+
+    const maxQuantity = Math.max(...vote.notes.map((n) => n.quantity));
+    vote.notes.forEach((n) => {
+      n.most_voted = n.quantity === maxQuantity;
+    });
   });
 
   socket.on('start-timer', startTimer);
@@ -231,8 +235,8 @@ watch(step, (value) => {
     :class="['voting', `voting--step-${step}`]"
     @click.stop="
       () => {
-        if (defilement === 'manual') {
-          nextStep;
+        if (defilement === 'manual' && user.id === hostId) {
+          nextStep();
         }
       }
     "

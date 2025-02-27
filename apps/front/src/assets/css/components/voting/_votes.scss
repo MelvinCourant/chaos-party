@@ -40,6 +40,10 @@
       -webkit-text-stroke-width: 2px;
       -webkit-text-stroke-color: var(--black);
       filter: drop-shadow(0 2px 0 var(--black));
+
+      &--most-voted {
+        color: var(--orange);
+      }
     }
   }
 }

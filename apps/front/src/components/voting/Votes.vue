@@ -27,7 +27,13 @@ defineEmits(['noteSelected']);
             :disabled="disabled"
             @click="$emit('noteSelected', { vote_id: vote.id, note: note })"
           />
-          <span class="vote__quantity">{{ note.quantity }}</span>
+          <span
+            :class="[
+              'vote__quantity',
+              { 'vote__quantity--most-voted': note.most_voted },
+            ]"
+            >{{ note.quantity }}</span
+          >
         </li>
       </ul>
     </li>
