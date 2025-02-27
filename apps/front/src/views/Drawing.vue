@@ -89,6 +89,7 @@ function startTimer() {
 function stopTimer() {
   clearInterval(interval);
   interval = null;
+  timer.value = 0;
 }
 
 onMounted(() => {

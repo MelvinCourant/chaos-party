@@ -83,8 +83,6 @@ async function getVoting() {
 
 function nextStep() {
   if (step.value !== 1 && step.value !== 4) {
-    step.value++;
-
     socket.emit('next-step', {
       party_id: partyId,
       socket_id: socket.id,
@@ -142,6 +140,7 @@ function startTimer() {
 function stopTimer() {
   clearInterval(interval);
   interval = null;
+  timer.value = 0;
 }
 
 watch(timer, (value) => {
@@ -167,9 +166,7 @@ onMounted(() => {
     step.value = 2;
   });
 
-  socket.on('next-step', (data) => {
-    if (socket.id === data.socket_id) return;
-
+  socket.on('next-step', () => {
     step.value++;
   });
 
@@ -213,18 +210,16 @@ onMounted(() => {
     }
   });
 
-  /*socket.on('player-sabotage', (data) => {
+  socket.on('player-sabotage', (data) => {
     votingPlayers.title = data.title;
     votingPlayers.type = data.type;
-  });*/
+  });
 });
 
 watch(step, (value) => {
   if (defilement.value === 'auto' && user.id === hostId.value) {
     if (value === 2 || value === 3) {
       setTimeout(() => {
-        step.value++;
-
         socket.emit('next-step', {
           party_id: partyId,
           socket_id: socket.id,
@@ -289,7 +284,12 @@ watch(step, (value) => {
       :img-src="team.draw"
     />
     <div class="voting__votes">
-      <Timer v-if="step === 4" :duration="votingDuration" :elapsed="elapsed" />
+      <Timer
+        v-if="step === 4 || step === 5"
+        :key="step"
+        :duration="votingDuration"
+        :elapsed="elapsed"
+      />
       <Votes
         :votes="votes"
         :notesSelected="notesSelected"

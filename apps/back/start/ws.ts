@@ -329,10 +329,10 @@ app.ready(() => {
           socket.data.score += score
         }
 
-        /*io?.to(data.party_id).emit('player-sabotage', {
+        io?.to(data.party_id).emit('player-sabotage', {
           title: i18n.t('messages.voting.sabotage'),
           type: 'sabotage',
-        })*/
+        })
 
         io?.to(data.party_id).emit('start-timer')
       }
