@@ -1,4 +1,5 @@
 <script setup>
+import '../../assets/css/components/voting/_voting-players.scss';
 import Player from '../utils/Player.vue';
 
 defineProps({
@@ -20,6 +21,8 @@ defineProps({
 <template>
   <div class="voting-players">
     <h2 class="voting-players__title">{{ title }}</h2>
-    <Player :player="player" v-for="player in players" :key="player.id" />
+    <div class="voting-players__list">
+      <Player :player="player" v-for="player in players" :key="player.id" />
+    </div>
   </div>
 </template>

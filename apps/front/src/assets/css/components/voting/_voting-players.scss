@@ -1,0 +1,25 @@
+@use "../../partials/mixins";
+
+.voting-players {
+  display: flex;
+  padding: 15px 25px;
+  flex-direction: column;
+  gap: 20px;
+  background-color: var(--black-transparent-10);
+  border-radius: var(--card-radius);
+
+  &__title {
+    @include mixins.font('title');
+    color: var(--text);
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    .player {
+      max-width: 308px;
+    }
+  }
+}

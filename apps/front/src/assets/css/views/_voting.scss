@@ -59,6 +59,8 @@
   &__votes {
     position: relative;
     padding-top: 136px;
+    max-width: 430px;
+    width: 100%;
 
     .timer {
       position: absolute;
