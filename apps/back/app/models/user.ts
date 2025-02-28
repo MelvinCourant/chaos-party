@@ -29,7 +29,10 @@ export default class User extends BaseModel {
   declare team_id: string | null
 
   @column()
-  declare role: 'host' | 'player' | 'saboteur'
+  declare role: 'host' | 'player'
+
+  @column()
+  declare is_saboteur: boolean
 
   @column()
   declare objective_id: string | null
@@ -39,6 +42,9 @@ export default class User extends BaseModel {
 
   @column()
   declare color: 'dark-blue' | 'red' | 'dark-green' | 'orange' | 'pink' | 'purple' | null
+
+  @column()
+  declare score: number
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

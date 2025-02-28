@@ -11,12 +11,14 @@ export default class extends BaseSchema {
       table.string('image').nullable()
       table.uuid('party_id').nullable()
       table.uuid('team_id').nullable()
-      table.enum('role', ['host', 'player', 'saboteur']).notNullable().defaultTo('player')
+      table.enum('role', ['host', 'player']).notNullable().defaultTo('player')
+      table.boolean('is_saboteur').notNullable().defaultTo(false)
       table.integer('objective_id').nullable()
       table
         .enum('color', ['dark-blue', 'red', 'dark-green', 'orange', 'pink', 'purple'])
         .nullable()
         .defaultTo(null)
+      table.float('score').notNullable().defaultTo(0)
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

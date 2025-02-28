@@ -300,11 +300,12 @@ app.ready(() => {
       } else if (data.step === 'sabotage') {
         const player = await User.query()
           .where('socket_id', data.socket_id)
-          .select('team_id')
+          .select('id', 'team_id', 'score', 'is_saboteur')
           .firstOrFail()
 
         if (player.team_id === team.id) {
           let score = 0
+          let scoreSaboteur = 0
 
           for (let vote of data.votes) {
             let maxQuantity = 0
@@ -321,12 +322,22 @@ app.ready(() => {
 
             if (maxNotes.length === 1) {
               score += maxNotes[0]
+              scoreSaboteur += 3 - maxNotes[0]
             } else {
               score += maxNotes.reduce((a, b) => a + b, 0) / maxNotes.length
+              scoreSaboteur += (3 - maxNotes.reduce((a, b) => a + b, 0) / maxNotes.length) * 3
             }
           }
 
-          socket.data.score += score
+          if (player.is_saboteur) {
+            socket.data.score += score
+            player.score = score
+          } else {
+            socket.data.score += scoreSaboteur
+            player.score = scoreSaboteur
+          }
+
+          await player.save()
         }
 
         io?.to(data.party_id).emit('player-sabotage', {

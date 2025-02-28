@@ -237,7 +237,7 @@ export default class TeamsController {
 
     const user = await User.query()
       .where('id', userId)
-      .select('id', 'pseudo', 'party_id', 'team_id', 'role', 'objective_id')
+      .select('id', 'pseudo', 'party_id', 'team_id', 'role', 'is_saboteur', 'objective_id')
       .firstOrFail()
     const team = await Team.query()
       .where('id', user.team_id)
@@ -266,7 +266,7 @@ export default class TeamsController {
       .andWhere('id', '!=', user.id)
       .select('pseudo', 'socket_id', 'color')
 
-    if (user.role === 'saboteur') {
+    if (user.is_saboteur) {
       return response.json({
         drawing_time: party.drawing_time,
         team_id: team.id,

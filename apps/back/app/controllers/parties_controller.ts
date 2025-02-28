@@ -340,7 +340,7 @@ export default class PartiesController {
 
     const players = await User.query()
       .where('party_id', party.id)
-      .select('id', 'team_id', 'socket_id')
+      .select('id', 'team_id', 'socket_id', 'is_saboteur')
     const playersWithoutTeam = players.filter((player) => !player.team_id)
 
     if (playersWithoutTeam.length > 0) {
@@ -385,7 +385,7 @@ export default class PartiesController {
 
         if (playersInTeam.length > 0) {
           const saboteurIndex = Math.floor(Math.random() * playersInTeam.length)
-          playersInTeam[saboteurIndex].role = 'saboteur'
+          playersInTeam[saboteurIndex].is_saboteur = true
           await playersInTeam[saboteurIndex].save()
 
           const objectives = await Objective.query().where('category_id', category.id).select('id')
