@@ -36,6 +36,17 @@
     }
   }
 
+  &--vote {
+    .avatar {
+      &__container {
+        width: 34px;
+        height: 34px;
+        border: var(--tool-border);
+        background: var(--black-transparent-50);
+      }
+    }
+  }
+
   &__container {
     border-radius: 50%;
   }

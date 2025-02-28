@@ -18,8 +18,27 @@
     flex-direction: column;
     gap: 7px;
 
+    > li {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
     .player {
       max-width: 308px;
+      flex: 1;
+    }
+  }
+
+  &__votes {
+    position: relative;
+    width: 34px;
+    height: 34px;
+
+    .avatar {
+      position: absolute;
+      top: 50%;
+      left: 0;
     }
   }
 }

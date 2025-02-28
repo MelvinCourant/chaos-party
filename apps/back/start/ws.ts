@@ -355,5 +355,15 @@ app.ready(() => {
         new_note: Number.parseInt(note),
       })
     })
+
+    socket.on('player-vote-saboteur', async (data) => {
+      io?.to(data.party_id).emit('player-vote-saboteur', {
+        party_id: data.party_id,
+        socket_id: data.socket_id,
+        player_id: data.player_id,
+        user_id: data.user_id,
+        user_image: data.user_image,
+      })
+    })
   })
 })

@@ -37,6 +37,7 @@ const votingPlayers = reactive({
   title: '',
   type: '',
 });
+const saboteurVotes = ref([]);
 let interval = null;
 
 provide('duration', votingDuration);
@@ -82,7 +83,7 @@ async function getVoting() {
 }
 
 function nextStep() {
-  if (step.value !== 1 && step.value !== 4) {
+  if (step.value !== 1 && step.value !== 4 && step.value !== 5) {
     socket.emit('next-step', {
       party_id: partyId,
       socket_id: socket.id,
@@ -141,6 +142,54 @@ function stopTimer() {
   clearInterval(interval);
   interval = null;
   timer.value = 0;
+}
+
+function updateSaboteurVotes(playerId, user) {
+  const saboteurTargeted = saboteurVotes.value.find(
+    (vote) => vote.player_id === playerId,
+  );
+
+  const existingVote = saboteurVotes.value.find((vote) =>
+    vote.votes.some((v) => v.user_id === user.id),
+  );
+
+  if (existingVote) {
+    existingVote.votes = existingVote.votes.filter(
+      (v) => v.user_id !== user.id,
+    );
+  }
+
+  if (saboteurTargeted) {
+    saboteurTargeted.votes.push({
+      user_id: user.id,
+      user_image: user.image,
+    });
+  } else {
+    saboteurVotes.value.push({
+      player_id: playerId,
+      votes: [
+        {
+          user_id: user.id,
+          user_image: user.image,
+        },
+      ],
+    });
+  }
+}
+
+function votingToSaboteur(playerId) {
+  updateSaboteurVotes(playerId, {
+    id: user.id,
+    image: user.image,
+  });
+
+  socket.emit('player-vote-saboteur', {
+    party_id: partyId,
+    socket_id: socket.id,
+    player_id: playerId,
+    user_id: user.id,
+    user_image: user.image,
+  });
 }
 
 watch(timer, (value) => {
@@ -214,6 +263,15 @@ onMounted(() => {
     votingPlayers.title = data.title;
     votingPlayers.type = data.type;
   });
+
+  socket.on('player-vote-saboteur', (data) => {
+    if (data.socket_id === socket.id) return;
+
+    updateSaboteurVotes(data.player_id, {
+      id: data.user_id,
+      image: data.user_image,
+    });
+  });
 });
 
 watch(step, (value) => {
@@ -258,6 +316,8 @@ watch(step, (value) => {
       locale: userStore.language,
       votes: votesCleaned,
     });
+
+    disabledVote.value = !disabledVote.value;
   }
 });
 </script>
@@ -283,7 +343,7 @@ watch(step, (value) => {
       :number-team="numberTeam"
       :img-src="team.draw"
     />
-    <div class="voting__votes">
+    <div class="voting__votes" v-if="(step >= 4 && step <= 5) || step === 7">
       <Timer
         v-if="step === 4 || step === 5"
         :key="step"
@@ -302,6 +362,8 @@ watch(step, (value) => {
         :type="votingPlayers.type"
         :players="team.players"
         :disabled="disabledVote"
+        :saboteurVotes="saboteurVotes"
+        @playerSelected="votingToSaboteur"
         v-if="step === 5 || step === 7"
       />
     </div>
