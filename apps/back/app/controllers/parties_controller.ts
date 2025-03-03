@@ -43,6 +43,7 @@ export default class PartiesController {
           userExist.image = image
           userExist.party_id = party.id
           userExist.role = 'host'
+          userExist.score = 0
           await userExist.save()
 
           return response.json({
@@ -126,6 +127,7 @@ export default class PartiesController {
             userExist.role = 'player'
             userExist.objective_id = null
             userExist.team_id = null
+            userExist.score = 0
           }
 
           await userExist.save()

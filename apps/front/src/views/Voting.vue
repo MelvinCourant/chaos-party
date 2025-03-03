@@ -289,6 +289,7 @@ watch(step, (value) => {
   if (value === 4) {
     socket.emit('step-voting', {
       party_id: partyId,
+      socket_id: socket.id,
       team_id: team.value.id,
       step: 'mission',
       locale: userStore.language,
@@ -315,6 +316,19 @@ watch(step, (value) => {
       step: 'sabotage',
       locale: userStore.language,
       votes: votesCleaned,
+    });
+
+    disabledVote.value = !disabledVote.value;
+  }
+
+  if (value === 6) {
+    socket.emit('step-voting', {
+      party_id: partyId,
+      socket_id: socket.id,
+      team_id: team.value.id,
+      step: 'objectives',
+      locale: userStore.language,
+      votes: saboteurVotes.value,
     });
 
     disabledVote.value = !disabledVote.value;
@@ -354,7 +368,7 @@ watch(step, (value) => {
         :votes="votes"
         :notesSelected="notesSelected"
         :disabled="disabledVote"
-        v-if="votes.length > 0 && step === 4"
+        v-if="(votes.length > 0 && step === 4) || step === 6"
         @noteSelected="selectNote"
       />
       <VotingPlayers

@@ -251,6 +251,10 @@ app.ready(() => {
         .where('id', data.team_id)
         .select('id', 'mission_id')
         .firstOrFail()
+      const player = await User.query()
+        .where('socket_id', data.socket_id)
+        .select('id', 'team_id', 'score', 'is_saboteur')
+        .firstOrFail()
 
       if (data.step === 'mission') {
         const mission = await Mission.query()
@@ -298,11 +302,6 @@ app.ready(() => {
 
         io?.to(data.party_id).emit('start-timer')
       } else if (data.step === 'sabotage') {
-        const player = await User.query()
-          .where('socket_id', data.socket_id)
-          .select('id', 'team_id', 'score', 'is_saboteur')
-          .firstOrFail()
-
         if (player.team_id === team.id) {
           let score = 0
           let scoreSaboteur = 0
@@ -344,6 +343,43 @@ app.ready(() => {
           title: i18n.t('messages.voting.sabotage'),
           type: 'sabotage',
         })
+
+        io?.to(data.party_id).emit('start-timer')
+      } else if (data.step === 'objectives') {
+        const voteCounts = {}
+        for (let vote of data.votes) {
+          if (voteCounts[vote.player_id]) {
+            voteCounts[vote.player_id] += vote.votes.length
+          } else {
+            voteCounts[vote.player_id] = vote.votes.length
+          }
+        }
+
+        let majorityPlayerId = null
+        let maxVotes = 0
+        for (let playerId in voteCounts) {
+          if (voteCounts[playerId] > maxVotes) {
+            maxVotes = voteCounts[playerId]
+            majorityPlayerId = playerId
+          }
+        }
+
+        if (majorityPlayerId) {
+          const majorityPlayer = await User.query()
+            .where('id', majorityPlayerId)
+            .select('id', 'is_saboteur')
+            .firstOrFail()
+
+          if (
+            (player.team_id && player.id !== majorityPlayerId && player.is_saboteur) ||
+            (player.team_id && majorityPlayer.is_saboteur)
+          ) {
+            data.score += 6
+            player.score += 6
+          }
+        }
+
+        await player.save()
 
         io?.to(data.party_id).emit('start-timer')
       }
