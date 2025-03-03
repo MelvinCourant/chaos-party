@@ -9,6 +9,7 @@ import path from 'node:path'
 import Category from '#models/category'
 import i18nManager from '@adonisjs/i18n/services/main'
 import Mission from '#models/mission'
+import Objective from '#models/objective'
 
 app.ready(() => {
   Ws.boot()
@@ -255,6 +256,24 @@ app.ready(() => {
         .where('socket_id', data.socket_id)
         .select('id', 'team_id', 'score', 'is_saboteur')
         .firstOrFail()
+      const notes = [
+        {
+          note: 0,
+          quantity: 0,
+        },
+        {
+          note: 1,
+          quantity: 0,
+        },
+        {
+          note: 2,
+          quantity: 0,
+        },
+        {
+          note: 3,
+          quantity: 0,
+        },
+      ]
 
       if (data.step === 'mission') {
         const mission = await Mission.query()
@@ -265,25 +284,6 @@ app.ready(() => {
           .where('id', mission.category_id)
           .select('id', 'name')
           .firstOrFail()
-
-        const notes = [
-          {
-            note: 0,
-            quantity: 0,
-          },
-          {
-            note: 1,
-            quantity: 0,
-          },
-          {
-            note: 2,
-            quantity: 0,
-          },
-          {
-            note: 3,
-            quantity: 0,
-          },
-        ]
 
         io?.to(data.party_id).emit('votes', {
           votes: [
@@ -381,7 +381,36 @@ app.ready(() => {
 
         await player.save()
 
-        io?.to(data.party_id).emit('start-timer')
+        const teamPlayers = await User.query()
+          .where('team_id', team.id)
+          .andWhereNotNull('objective_id')
+          .select('id', 'objective_id')
+        let votes = []
+
+        if (teamPlayers) {
+          let index = 3
+
+          for (let teamPlayer of teamPlayers) {
+            const objective = await Objective.query()
+              .where('id', teamPlayer.objective_id)
+              .select('id', 'description')
+              .firstOrFail()
+
+            votes.push({
+              id: index,
+              title: i18n.t(`messages.voting.${objective.description}`),
+              notes,
+            })
+
+            index++
+          }
+
+          io?.to(data.party_id).emit('votes', {
+            votes: votes,
+          })
+
+          io?.to(data.party_id).emit('start-timer')
+        }
       }
     })
 

@@ -83,7 +83,12 @@ async function getVoting() {
 }
 
 function nextStep() {
-  if (step.value !== 1 && step.value !== 4 && step.value !== 5) {
+  if (
+    step.value !== 1 &&
+    step.value !== 4 &&
+    step.value !== 5 &&
+    step.value !== 6
+  ) {
     socket.emit('next-step', {
       party_id: partyId,
       socket_id: socket.id,
@@ -226,6 +231,7 @@ onMounted(() => {
         note.selected = false;
       });
     });
+    previousNotesSelected.value = [];
   });
 
   socket.on('player-vote', (data) => {
@@ -357,7 +363,7 @@ watch(step, (value) => {
       :number-team="numberTeam"
       :img-src="team.draw"
     />
-    <div class="voting__votes" v-if="(step >= 4 && step <= 5) || step === 7">
+    <div class="voting__votes" v-if="step >= 4">
       <Timer
         v-if="step === 4 || step === 5"
         :key="step"
@@ -366,9 +372,8 @@ watch(step, (value) => {
       />
       <Votes
         :votes="votes"
-        :notesSelected="notesSelected"
         :disabled="disabledVote"
-        v-if="(votes.length > 0 && step === 4) || step === 6"
+        v-if="step === 4 || step === 6"
         @noteSelected="selectNote"
       />
       <VotingPlayers

@@ -386,18 +386,24 @@ export default class PartiesController {
           .firstOrFail()
 
         if (playersInTeam.length > 0) {
-          const saboteurIndex = Math.floor(Math.random() * playersInTeam.length)
-          playersInTeam[saboteurIndex].is_saboteur = true
-          await playersInTeam[saboteurIndex].save()
+          const existingSaboteurs = playersInTeam.filter((player) => player.is_saboteur)
 
-          const objectives = await Objective.query().where('category_id', category.id).select('id')
+          if (existingSaboteurs.length === 0) {
+            const saboteurIndex = Math.floor(Math.random() * playersInTeam.length)
+            playersInTeam[saboteurIndex].is_saboteur = true
+            await playersInTeam[saboteurIndex].save()
 
-          for (const [i, player] of playersInTeam.entries()) {
-            if (i !== saboteurIndex) {
-              const randomObjective = objectives[Math.floor(Math.random() * objectives.length)]
+            const objectives = await Objective.query()
+              .where('category_id', category.id)
+              .select('id')
 
-              player.objective_id = randomObjective.id
-              await player.save()
+            for (const [i, player] of playersInTeam.entries()) {
+              if (i !== saboteurIndex) {
+                const randomObjective = objectives[Math.floor(Math.random() * objectives.length)]
+
+                player.objective_id = randomObjective.id
+                await player.save()
+              }
             }
           }
         }
@@ -466,7 +472,7 @@ export default class PartiesController {
         voting_time: party.voting_time,
         defilement: party.defilement,
       },
-      mission: i18n.t(`messages.${mission.description}`),
+      mission: i18n.t(`messages.missions.${mission.description}`),
       teams_length: teams.length,
     })
   }

@@ -270,7 +270,7 @@ export default class TeamsController {
       return response.json({
         drawing_time: party.drawing_time,
         team_id: team.id,
-        mission: i18n.t(`messages.${mission.description}`),
+        mission: i18n.t(`messages.missions.${mission.description}`),
         sabotage: i18n.t('messages.sabotage'),
         players: othersPlayersInTeam,
       })
@@ -284,8 +284,8 @@ export default class TeamsController {
     return response.json({
       drawing_time: party.drawing_time,
       team_id: team.id,
-      mission: i18n.t(`messages.${mission.description}`),
-      objective: i18n.t(`messages.${objective.description}`),
+      mission: i18n.t(`messages.missions.${mission.description}`),
+      objective: i18n.t(`messages.objectives.${objective.description}`),
       players: othersPlayersInTeam,
     })
   }
