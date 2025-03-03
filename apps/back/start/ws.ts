@@ -405,6 +405,12 @@ app.ready(() => {
             index++
           }
 
+          votes.push({
+            id: index + 1,
+            title: i18n.t('messages.voting.sabotage_level'),
+            notes,
+          })
+
           io?.to(data.party_id).emit('votes', {
             votes: votes,
           })
