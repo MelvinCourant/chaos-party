@@ -35,6 +35,9 @@ export default class User extends BaseModel {
   declare is_saboteur: boolean
 
   @column()
+  declare saboteur_revealed: boolean
+
+  @column()
   declare objective_id: string | null
 
   @belongsTo(() => Objective)

@@ -36,6 +36,7 @@
   "settings": "Settings",
   "start_game": "Start game",
   "team_number_drew": "Team {number} drew ...",
+  "the_saboteur_was": "The saboteur was ...",
   "tutorial_1": {
     "title": "Your mission if you accept it",
     "description": "Each team will be given a drawing to work on together (a futuristic car, a legendary animal, etc.)."

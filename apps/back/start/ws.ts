@@ -252,10 +252,18 @@ app.ready(() => {
         .where('id', data.team_id)
         .select('id', 'mission_id')
         .firstOrFail()
-      const player = await User.query()
-        .where('socket_id', data.socket_id)
-        .select('id', 'team_id', 'score', 'is_saboteur')
-        .firstOrFail()
+      const players = await User.query()
+        .where('team_id', team.id)
+        .select(
+          'id',
+          'score',
+          'is_saboteur',
+          'pseudo',
+          'image',
+          'saboteur_revealed',
+          'objective_id'
+        )
+      const saboteur = players.find((p) => p.is_saboteur)
       const notes = [
         {
           note: 0,
@@ -275,10 +283,100 @@ app.ready(() => {
         },
       ]
 
+      async function calculateScore() {
+        const playerScores = {}
+        let scoreSaboteur = 0
+
+        if (saboteur) {
+          for (let vote of data.votes) {
+            let maxQuantity = 0
+            let maxNotes = []
+            let maxQuantitySaboteur = 0
+            let maxNotesSaboteur = []
+
+            for (let note of vote.notes) {
+              if (
+                (note.quantity > maxQuantity && vote.team_id) ||
+                (note.quantity > maxQuantity && vote.user_id !== saboteur.id)
+              ) {
+                maxQuantity = note.quantity
+                maxNotes = [note.note]
+              } else if (
+                (note.quantity === maxQuantity && vote.team_id) ||
+                (note.quantity === maxQuantity && vote.user_id !== saboteur.id)
+              ) {
+                maxNotes.push(note.note)
+              } else if (note.quantity > maxQuantitySaboteur && vote.user_id === saboteur.id) {
+                maxQuantitySaboteur = note.quantity
+                maxNotesSaboteur = [note.note]
+              } else if (note.quantity === maxQuantitySaboteur && vote.user_id === saboteur.id) {
+                maxNotesSaboteur.push(note.note)
+              }
+            }
+
+            let pointsAttributed = 0
+
+            if (vote.team_id) {
+              // Attribuer les points à l'équipe, sauf au saboteur
+              for (let player of players) {
+                if (!player.is_saboteur) {
+                  if (!playerScores[player.id]) {
+                    playerScores[player.id] = 0
+                  }
+                  if (maxNotes.length === 1) {
+                    playerScores[player.id] += maxNotes[0]
+                    pointsAttributed = maxNotes[0]
+                  } else if (maxNotes.length > 1) {
+                    const averageScore = maxNotes.reduce((a, b) => a + b, 0) / maxNotes.length
+                    playerScores[player.id] += averageScore
+                    pointsAttributed = averageScore
+                  }
+                }
+              }
+            } else if (vote.user_id !== saboteur.id) {
+              // Attribuer les points à un joueur spécifique
+              const player = players.find((p) => p.id === vote.user_id)
+              if (player && !player.is_saboteur) {
+                if (!playerScores[player.id]) {
+                  playerScores[player.id] = 0
+                }
+                if (maxNotes.length === 1) {
+                  playerScores[player.id] += maxNotes[0]
+                  pointsAttributed = maxNotes[0]
+                } else if (maxNotes.length > 1) {
+                  const averageScore = maxNotes.reduce((a, b) => a + b, 0) / maxNotes.length
+                  playerScores[player.id] += averageScore
+                  pointsAttributed = averageScore
+                }
+              }
+            }
+
+            // Le saboteur gagne les points non attribués
+            scoreSaboteur += 3 - pointsAttributed
+
+            if (maxNotesSaboteur.length === 1) {
+              scoreSaboteur += maxNotesSaboteur[0]
+            } else if (maxNotesSaboteur.length > 1) {
+              scoreSaboteur += maxNotesSaboteur.reduce((a, b) => a + b, 0) / maxNotesSaboteur.length
+            }
+          }
+        }
+
+        for (let player of players) {
+          if (!player.is_saboteur) {
+            player.score += playerScores[player.id] || 0
+          } else {
+            player.score += scoreSaboteur
+          }
+
+          await player.save()
+        }
+      }
+
       if (data.step === 'mission') {
         const mission = await Mission.query()
           .where('id', team.mission_id)
-          .select('category_id')
+          .select('id', 'category_id')
           .firstOrFail()
         const category = await Category.query()
           .where('id', mission.category_id)
@@ -289,11 +387,13 @@ app.ready(() => {
           votes: [
             {
               id: 1,
+              team_id: team.id,
               title: i18n.t(`messages.voting.${category.name}`),
               notes,
             },
             {
               id: 2,
+              team_id: team.id,
               title: i18n.t('messages.voting.originality_creativity'),
               notes,
             },
@@ -302,42 +402,7 @@ app.ready(() => {
 
         io?.to(data.party_id).emit('start-timer')
       } else if (data.step === 'sabotage') {
-        if (player.team_id === team.id) {
-          let score = 0
-          let scoreSaboteur = 0
-
-          for (let vote of data.votes) {
-            let maxQuantity = 0
-            let maxNotes = []
-
-            for (let note of vote.notes) {
-              if (note.quantity > maxQuantity) {
-                maxQuantity = note.quantity
-                maxNotes = [note.note]
-              } else if (note.quantity === maxQuantity) {
-                maxNotes.push(note.note)
-              }
-            }
-
-            if (maxNotes.length === 1) {
-              score += maxNotes[0]
-              scoreSaboteur += 3 - maxNotes[0]
-            } else {
-              score += maxNotes.reduce((a, b) => a + b, 0) / maxNotes.length
-              scoreSaboteur += (3 - maxNotes.reduce((a, b) => a + b, 0) / maxNotes.length) * 3
-            }
-          }
-
-          if (player.is_saboteur) {
-            socket.data.score += score
-            player.score = score
-          } else {
-            socket.data.score += scoreSaboteur
-            player.score = scoreSaboteur
-          }
-
-          await player.save()
-        }
+        await calculateScore()
 
         io?.to(data.party_id).emit('player-sabotage', {
           title: i18n.t('messages.voting.sabotage'),
@@ -346,7 +411,7 @@ app.ready(() => {
 
         io?.to(data.party_id).emit('start-timer')
       } else if (data.step === 'objectives') {
-        const voteCounts = {}
+        const voteCounts: any = {}
         for (let vote of data.votes) {
           if (voteCounts[vote.player_id]) {
             voteCounts[vote.player_id] += vote.votes.length
@@ -367,47 +432,52 @@ app.ready(() => {
         if (majorityPlayerId) {
           const majorityPlayer = await User.query()
             .where('id', majorityPlayerId)
-            .select('id', 'is_saboteur')
+            .select('id', 'is_saboteur', 'saboteur_revealed')
             .firstOrFail()
 
-          if (
-            (player.team_id && player.id !== majorityPlayerId && player.is_saboteur) ||
-            (player.team_id && majorityPlayer.is_saboteur)
-          ) {
-            data.score += 6
-            player.score += 6
+          for (let player of players) {
+            if (
+              (player.id !== majorityPlayerId && player.is_saboteur) ||
+              (player.id !== saboteur.id && majorityPlayer.is_saboteur)
+            ) {
+              player.score += 6
+            }
+
+            await player.save()
+          }
+
+          if (majorityPlayer.is_saboteur) {
+            majorityPlayer.saboteur_revealed = true
           }
         }
 
-        await player.save()
-
-        const teamPlayers = await User.query()
-          .where('team_id', team.id)
-          .andWhereNotNull('objective_id')
-          .select('id', 'objective_id')
         let votes = []
 
-        if (teamPlayers) {
+        if (players) {
           let index = 3
 
-          for (let teamPlayer of teamPlayers) {
-            const objective = await Objective.query()
-              .where('id', teamPlayer.objective_id)
-              .select('id', 'description')
-              .firstOrFail()
+          for (let player of players) {
+            if (player.objective_id) {
+              const objective = await Objective.query()
+                .where('id', player.objective_id)
+                .select('id', 'description')
+                .firstOrFail()
 
-            votes.push({
-              id: index,
-              title: i18n.t(`messages.voting.${objective.description}`),
-              notes,
-            })
+              votes.push({
+                id: index,
+                title: i18n.t(`messages.voting.${objective.description}`),
+                user_id: player.id,
+                notes,
+              })
 
-            index++
+              index++
+            }
           }
 
           votes.push({
             id: index + 1,
             title: i18n.t('messages.voting.sabotage_level'),
+            user_id: saboteur.id,
             notes,
           })
 
@@ -417,6 +487,13 @@ app.ready(() => {
 
           io?.to(data.party_id).emit('start-timer')
         }
+      } else if (data.step === 'team-result') {
+        await calculateScore()
+
+        io?.to(data.party_id).emit('team-result', {
+          saboteur: saboteur,
+          players: players,
+        })
       }
     })
 

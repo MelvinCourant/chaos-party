@@ -13,6 +13,7 @@ export default class extends BaseSchema {
       table.uuid('team_id').nullable()
       table.enum('role', ['host', 'player']).notNullable().defaultTo('player')
       table.boolean('is_saboteur').notNullable().defaultTo(false)
+      table.boolean('saboteur_revealed').notNullable().defaultTo(false)
       table.integer('objective_id').nullable()
       table
         .enum('color', ['dark-blue', 'red', 'dark-green', 'orange', 'pink', 'purple'])

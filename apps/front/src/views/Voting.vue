@@ -12,6 +12,8 @@ import { useRouter } from 'vue-router';
 import Votes from '../components/voting/Votes.vue';
 import Timer from '../components/utils/Timer.vue';
 import VotingPlayers from '../components/voting/VotingPlayers.vue';
+import SaboteurReveal from '../components/voting/SaboteurReveal.vue';
+import Scores from '../components/utils/Scores.vue';
 
 const { t } = useI18n();
 const env = import.meta.env;
@@ -38,6 +40,10 @@ const votingPlayers = reactive({
   type: '',
 });
 const saboteurVotes = ref([]);
+const saboteurReveal = reactive({
+  title: t('the_saboteur_was'),
+  player: null,
+});
 let interval = null;
 
 provide('duration', votingDuration);
@@ -278,65 +284,85 @@ onMounted(() => {
       image: data.user_image,
     });
   });
+
+  socket.on('team-result', (data) => {
+    saboteurReveal.player = data.saboteur;
+    team.value.players = data.players;
+  });
 });
 
 watch(step, (value) => {
-  if (defilement.value === 'auto' && user.id === hostId.value) {
-    if (value === 2 || value === 3) {
-      setTimeout(() => {
-        socket.emit('next-step', {
+  if (user.id === hostId.value) {
+    if (defilement.value === 'auto') {
+      if (value === 2 || value === 3) {
+        setTimeout(() => {
+          socket.emit('next-step', {
+            party_id: partyId,
+            socket_id: socket.id,
+          });
+        }, 2000);
+      }
+    }
+
+    if (value === 4) {
+      socket.emit('step-voting', {
+        party_id: partyId,
+        socket_id: socket.id,
+        team_id: team.value.id,
+        step: 'mission',
+        locale: userStore.language,
+      });
+    }
+
+    if (value === 5 || value === 7) {
+      const votesCleaned = votes.value.map((vote) => {
+        return {
+          id: vote.id,
+          team_id: vote.team_id,
+          user_id: vote.user_id,
+          notes: vote.notes.map((note) => {
+            return {
+              note: note.note,
+              quantity: note.quantity,
+            };
+          }),
+        };
+      });
+
+      if (value === 5) {
+        socket.emit('step-voting', {
           party_id: partyId,
           socket_id: socket.id,
+          team_id: team.value.id,
+          step: 'sabotage',
+          locale: userStore.language,
+          votes: votesCleaned,
         });
-      }, 2000);
+      } else {
+        socket.emit('step-voting', {
+          party_id: partyId,
+          socket_id: socket.id,
+          team_id: team.value.id,
+          step: 'team-result',
+          locale: userStore.language,
+          votes: votesCleaned,
+        });
+      }
+    }
+
+    if (value === 6) {
+      socket.emit('step-voting', {
+        party_id: partyId,
+        socket_id: socket.id,
+        team_id: team.value.id,
+        step: 'objectives',
+        locale: userStore.language,
+        votes: saboteurVotes.value,
+      });
     }
   }
 
-  if (value === 4) {
-    socket.emit('step-voting', {
-      party_id: partyId,
-      socket_id: socket.id,
-      team_id: team.value.id,
-      step: 'mission',
-      locale: userStore.language,
-    });
-  }
-
-  if (value === 5) {
-    const votesCleaned = votes.value.map((vote) => {
-      return {
-        id: vote.id,
-        notes: vote.notes.map((note) => {
-          return {
-            note: note.note,
-            quantity: note.quantity,
-          };
-        }),
-      };
-    });
-
-    socket.emit('step-voting', {
-      party_id: partyId,
-      socket_id: socket.id,
-      team_id: team.value.id,
-      step: 'sabotage',
-      locale: userStore.language,
-      votes: votesCleaned,
-    });
-
-    disabledVote.value = !disabledVote.value;
-  }
-
-  if (value === 6) {
-    socket.emit('step-voting', {
-      party_id: partyId,
-      socket_id: socket.id,
-      team_id: team.value.id,
-      step: 'objectives',
-      locale: userStore.language,
-      votes: saboteurVotes.value,
-    });
-
+  if (value >= 5 && value <= 7) {
     disabledVote.value = !disabledVote.value;
   }
 });
@@ -365,12 +391,13 @@ watch(step, (value) => {
     />
     <div class="voting__votes" v-if="step >= 4">
       <Timer
-        v-if="step === 4 || step === 5"
+        v-if="step >= 4 || step <= 6"
         :key="step"
         :duration="votingDuration"
         :elapsed="elapsed"
       />
       <Votes
+        :key="step"
         :votes="votes"
         :disabled="disabledVote"
         v-if="step === 4 || step === 6"
@@ -383,8 +410,10 @@ watch(step, (value) => {
         :disabled="disabledVote"
         :saboteurVotes="saboteurVotes"
         @playerSelected="votingToSaboteur"
-        v-if="step === 5 || step === 7"
+        v-if="step === 5"
       />
+      <SaboteurReveal :saboteurReveal="saboteurReveal" v-if="step === 7" />
+      <Scores title="Scores" :players="team.players" v-if="step === 7" />
     </div>
     <Settings />
   </main>

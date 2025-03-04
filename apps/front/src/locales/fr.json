@@ -36,6 +36,7 @@
   "settings": "Paramètres",
   "start_game": "Démarrer la partie",
   "team_number_drew": "L'équipe {number} a dessiné ...",
+  "the_saboteur_was": "Le saboteur était ...",
   "tutorial_1": {
     "title": "Votre mission si vous l’acceptez",
     "description": "Chaque équipe recevra un dessin à réaliser en coopération (une voiture futuriste, un animal légendaire...etc)"
