@@ -23,23 +23,28 @@ const user = userStore.user;
 const partyStore = usePartyStore();
 const partyId = partyStore.partyId;
 const hostId = ref(partyStore.hostId);
-const numberTeamsSelect = reactive([
-  {
-    label: t('number_teams', { quantity: 2 }),
-    value: 2,
-    selected: true,
+const numberTeamsSelect = reactive({
+  attributes: {
+    disabled: hostId.value !== user.id,
   },
-  {
-    label: t('number_teams', { quantity: 3 }),
-    value: 3,
-    selected: false,
-  },
-  {
-    label: t('number_teams', { quantity: 4 }),
-    value: 4,
-    selected: false,
-  },
-]);
+  options: [
+    {
+      label: t('number_teams', { quantity: 2 }),
+      value: 2,
+      selected: true,
+    },
+    {
+      label: t('number_teams', { quantity: 3 }),
+      value: 3,
+      selected: false,
+    },
+    {
+      label: t('number_teams', { quantity: 4 }),
+      value: 4,
+      selected: false,
+    },
+  ],
+});
 const configurations = reactive([
   {
     title: t('drawing_time.title'),
@@ -141,7 +146,7 @@ async function getPartyConfigurations() {
 
   if (response.ok) {
     const partyConfigurations = await response.json();
-    numberTeamsSelect.forEach((option) => {
+    numberTeamsSelect.options.forEach((option) => {
       if (option.value === partyConfigurations.teams.length) {
         option.selected = true;
       } else {
@@ -315,7 +320,7 @@ async function updateNumberTeams(quantity) {
   const json = await response.json();
 
   if (response.ok) {
-    numberTeamsSelect.forEach((option) => {
+    numberTeamsSelect.options.forEach((option) => {
       option.selected = option.value === json.teams.length;
     });
     teams.value = json.teams;
@@ -453,10 +458,12 @@ onMounted(() => {
     partyStore.updateHostId(host.id);
 
     if (host.id === user.id) {
+      numberTeamsSelect.attributes.disabled = false;
       configurations.forEach((configuration) => {
         configuration.attributes.disabled = false;
       });
     } else {
+      numberTeamsSelect.attributes.disabled = true;
       configurations.forEach((configuration) => {
         configuration.attributes.disabled = true;
       });
@@ -471,7 +478,7 @@ onMounted(() => {
 
   socket.on('update-number-teams', (newTeams) => {
     if (hostId !== user.id) {
-      numberTeamsSelect.forEach((option) => {
+      numberTeamsSelect.options.forEach((option) => {
         option.selected = option.value === newTeams.length;
       });
       teams.value = newTeams;
