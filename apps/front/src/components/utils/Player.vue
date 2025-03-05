@@ -45,7 +45,7 @@ defineEmits(['click']);
   >
     <div class="player__container">
       <div class="player__profile">
-        <Avatar type="player" :selected="player.image" />
+        <Avatar type="player" />
         <p class="player__pseudo" v-if="player.pseudo">
           {{ player.pseudo }}
         </p>

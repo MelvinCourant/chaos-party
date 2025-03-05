@@ -1,6 +1,6 @@
 <script setup>
+import '../../assets/css/components/utils/_scores.scss';
 import Player from '../utils/Player.vue';
-import Avatar from './Avatar.vue';
 
 defineProps({
   title: {

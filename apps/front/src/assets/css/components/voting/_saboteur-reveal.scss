@@ -1,0 +1,38 @@
+@use "../../partials/mixins";
+
+.saboteur-reveal {
+  display: flex;
+  padding: 15px 25px;
+  flex-direction: column;
+  gap: 16px;
+  background-color: var(--black-transparent-10);
+  border-radius: var(--card-radius);
+  color: var(--text);
+
+  &__title {
+    @include mixins.font('title');
+  }
+
+  &__player {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__identity {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__pseudo {
+    @include mixins.font('xl pseudo');
+  }
+
+  &__points {
+    span {
+      @include mixins.font('title');
+      color: var(--orange);
+    }
+  }
+}

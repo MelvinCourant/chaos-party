@@ -43,8 +43,8 @@ const saboteurVotes = ref([]);
 const saboteurReveal = reactive({
   title: t('the_saboteur_was'),
   player: {
-    image: null,
     pseudo: '',
+    image: '',
     saboteur_revealed: false,
   },
 });
@@ -290,24 +290,28 @@ onMounted(() => {
   });
 
   socket.on('team-result', (data) => {
-    saboteurReveal.player = data.saboteur;
+    saboteurReveal.player = {
+      pseudo: data.saboteur.pseudo,
+      image: data.saboteur.image || '',
+      saboteur_revealed: data.saboteur_revealed,
+    };
     team.value.players = data.players;
   });
 });
 
 watch(step, (value) => {
-  if (user.id === hostId.value) {
-    if (defilement.value === 'auto') {
-      if (value === 2 || value === 3) {
-        setTimeout(() => {
-          socket.emit('next-step', {
-            party_id: partyId,
-            socket_id: socket.id,
-          });
-        }, 2000);
-      }
+  if (defilement.value === 'auto') {
+    if (value === 2 || value === 3) {
+      setTimeout(() => {
+        socket.emit('next-step', {
+          party_id: partyId,
+          socket_id: socket.id,
+        });
+      }, 2000);
     }
+  }
 
+  if (user.id === hostId.value) {
     if (value === 4) {
       socket.emit('step-voting', {
         party_id: partyId,
@@ -395,7 +399,7 @@ watch(step, (value) => {
     />
     <div class="voting__votes" v-if="step >= 4">
       <Timer
-        v-if="step >= 4 || step <= 6"
+        v-if="step >= 4 && step <= 6"
         :key="step"
         :duration="votingDuration"
         :elapsed="elapsed"

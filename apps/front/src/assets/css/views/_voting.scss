@@ -57,6 +57,9 @@
   }
 
   &__votes {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
     position: relative;
     padding-top: 136px;
     max-width: 430px;

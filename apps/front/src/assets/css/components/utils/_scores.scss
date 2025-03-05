@@ -1,0 +1,38 @@
+@use "../../partials/mixins";
+
+.scores {
+  display: flex;
+  padding: 15px 25px;
+  flex-direction: column;
+  gap: 20px;
+  background-color: var(--black-transparent-10);
+  border-radius: var(--card-radius);
+
+  &__title {
+    @include mixins.font('title');
+    color: var(--text);
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    > li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .player {
+      max-width: 308px;
+      flex: 1;
+    }
+  }
+
+  &__points {
+    @include mixins.font('title');
+    color: var(--orange);
+  }
+}
