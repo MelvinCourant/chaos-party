@@ -280,6 +280,8 @@ function rectangleDraw(step, player) {
     ctx.value.globalAlpha = opacity;
     ctx.value.lineWidth = lineWidth;
     ctx.value.globalCompositeOperation = 'source-over';
+    ctx.value.lineCap = 'round';
+    ctx.value.lineJoin = 'round';
 
     if (tool === 'empty-rectangle') {
       ctx.value.strokeStyle = color;
@@ -290,6 +292,8 @@ function rectangleDraw(step, player) {
 
     tempCtx.value.globalAlpha = opacity;
     tempCtx.value.lineWidth = lineWidth;
+    tempCtx.value.lineCap = 'round';
+    tempCtx.value.lineJoin = 'round';
     tempFirstPoints.value.push({
       socket_id: socketId,
       x: x,

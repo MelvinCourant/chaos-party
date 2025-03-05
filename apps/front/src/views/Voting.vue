@@ -42,7 +42,11 @@ const votingPlayers = reactive({
 const saboteurVotes = ref([]);
 const saboteurReveal = reactive({
   title: t('the_saboteur_was'),
-  player: null,
+  player: {
+    image: null,
+    pseudo: '',
+    saboteur_revealed: false,
+  },
 });
 let interval = null;
 

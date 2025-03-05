@@ -15,7 +15,7 @@ defineProps({
     <div class="saboteur-reveal__player">
       <div>
         <Avatar
-          v-if="saboteurReveal.player.image"
+          v-if="saboteurReveal.player.image !== null"
           type="saboteur"
           :img="saboteurReveal.player.image"
         />
@@ -24,7 +24,7 @@ defineProps({
         </p>
       </div>
       <div class="saboteur-reveal__points">
-        <span v-if="!saboteurReveal.saboteur_revealed">+6</span>
+        <span v-if="!saboteurReveal.player.saboteur_revealed">+6</span>
         <span v-else>0</span>
       </div>
     </div>
