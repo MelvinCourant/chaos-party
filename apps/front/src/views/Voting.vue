@@ -71,7 +71,7 @@ async function getVoting() {
   if (response.ok) {
     const json = await response.json();
 
-    votingDuration.value = parseInt(json.party.voting_time);
+    votingDuration.value = parseFloat(json.party.voting_time);
     defilement.value = json.party.defilement;
     mission.value = json.mission;
     team.value = json.team;
