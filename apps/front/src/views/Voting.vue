@@ -27,6 +27,7 @@ const router = useRouter();
 const mission = ref('');
 const numberTeam = ref(1);
 const team = ref({});
+const teamsLength = ref(1);
 const step = ref(1);
 const votes = ref([]);
 const previousNotesSelected = ref([]);
@@ -75,6 +76,7 @@ async function getVoting() {
     defilement.value = json.party.defilement;
     mission.value = json.mission;
     team.value = json.team;
+    teamsLength.value = json.teams_length;
 
     const playerIsOnTeam = team.value.players.some(
       (player) => player.id === user.id,
@@ -299,7 +301,7 @@ onMounted(() => {
   });
 });
 
-watch(step, (value) => {
+watch(step, async (value) => {
   if (defilement.value === 'auto') {
     if (value === 2 || value === 3) {
       setTimeout(() => {
@@ -372,6 +374,12 @@ watch(step, (value) => {
 
   if (value >= 5 && value <= 7) {
     disabledVote.value = !disabledVote.value;
+  }
+
+  if (value === 8 && numberTeam.value < teamsLength.value) {
+    numberTeam.value++;
+    await getVoting();
+    step.value = 1;
   }
 });
 </script>
