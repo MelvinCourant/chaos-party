@@ -30,7 +30,13 @@ defineEmits(['click']);
       class="vote-button__input"
       :data-note="note"
       :disabled="disabled"
-      @click="$emit('click', note)"
+      @click="
+        () => {
+          if (!isSelected) {
+            $emit('click', note);
+          }
+        }
+      "
     >
       {{ note }}
     </button>
