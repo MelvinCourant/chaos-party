@@ -157,9 +157,6 @@ export default class TeamsController {
       await player.save()
 
       teamIndex = (teamIndex + 1) % teams.length
-      if (teamIndex === 0 && players.length / teams.length > maxPlayersInTeam) {
-        break
-      }
     }
 
     const teamsWithPlayers = teams.map((team) => {
