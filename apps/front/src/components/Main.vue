@@ -9,19 +9,16 @@ const musicAttributes = reactive({
   muted: true,
   loop: true,
   controls: true,
-  volume: 0,
+  volume: settings.musicVolume,
   id: 'music-intro',
 });
 
 watch(settings, (value) => {
   musicAttributes.volume = value.musicVolume;
-
-  if (value.musicVolume === 0) {
-    musicAttributes.muted = true;
-  } else {
-    musicAttributes.muted = false;
-  }
+  musicAttributes.muted = value.musicVolume === 0;
 });
+
+musicAttributes.muted = settings.musicVolume === 0;
 </script>
 
 <template>
