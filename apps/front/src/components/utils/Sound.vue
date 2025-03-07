@@ -1,6 +1,6 @@
 <script setup>
 import '../../assets/css/components/utils/_sound.scss';
-import { onMounted } from 'vue';
+import { watch } from 'vue';
 
 const props = defineProps({
   sound: {
@@ -11,18 +11,24 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  play: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 function generateSoundUrl(sound) {
-  return new URL(`../../assets/audios/musics/${sound}.mp3`, import.meta.url)
-    .href;
+  return new URL(`../../assets/audios/${sound}.mp3`, import.meta.url).href;
 }
 
-onMounted(() => {
-  document.body.addEventListener('click', () => {
-    document.querySelector(`#${props.attributes.id}`).play();
-  });
-});
+watch(
+  () => props.play,
+  (value) => {
+    if (value) {
+      document.querySelector(`#${props.attributes.id}`).play();
+    }
+  },
+);
 </script>
 
 <template>

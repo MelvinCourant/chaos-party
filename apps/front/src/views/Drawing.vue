@@ -27,6 +27,7 @@ const mouseUp = ref(false);
 const drawingDuration = ref(3);
 const timer = ref(0);
 const elapsed = ref(0);
+const playSound = ref(false);
 let interval = null;
 
 provide('mission', mission);
@@ -36,6 +37,7 @@ provide('players', players);
 provide('teamId', teamId);
 provide('duration', drawingDuration);
 provide('elapsed', elapsed);
+provide('play', playSound);
 
 async function getDrawingDatas() {
   const response = await fetch(`${env.VITE_URL}/api/teams/show-drawing`, {
@@ -83,6 +85,11 @@ function startTimer() {
   }
   interval = setInterval(() => {
     timer.value += 100;
+
+    // Play timer sound at 10 seconds left
+    if (drawingDuration.value * 60 * 1000 - timer.value <= 10000) {
+      playSound.value = true;
+    }
   }, 100);
 }
 

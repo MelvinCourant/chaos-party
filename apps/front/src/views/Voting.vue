@@ -35,6 +35,7 @@ const votingDuration = ref(1);
 const defilement = ref(null);
 const timer = ref(0);
 const elapsed = ref(0);
+const playSound = ref(false);
 const disabledVote = ref(false);
 const votingPlayers = reactive({
   title: '',
@@ -53,6 +54,7 @@ let interval = null;
 
 provide('duration', votingDuration);
 provide('elapsed', elapsed);
+provide('play', playSound);
 
 async function getVoting() {
   const response = await fetch(`${env.VITE_URL}/api/parties/voting`, {
@@ -152,6 +154,11 @@ function startTimer() {
   }
   interval = setInterval(() => {
     timer.value += 100;
+
+    // Play timer sound at 10 seconds left
+    if (votingDuration.value * 60 * 1000 - timer.value <= 10000) {
+      playSound.value = true;
+    }
   }, 100);
 }
 
@@ -159,6 +166,10 @@ function stopTimer() {
   clearInterval(interval);
   interval = null;
   timer.value = 0;
+
+  if (playSound.value) {
+    playSound.value = false;
+  }
 }
 
 function updateSaboteurVotes(playerId, user) {
