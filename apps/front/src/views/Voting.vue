@@ -313,7 +313,7 @@ onMounted(() => {
 });
 
 watch(step, async (value) => {
-  if (defilement.value === 'auto') {
+  if (defilement.value === 'auto' && user.id === hostId.value) {
     if (value === 2 || value === 3) {
       setTimeout(() => {
         socket.emit('next-step', {
@@ -321,6 +321,14 @@ watch(step, async (value) => {
           socket_id: socket.id,
         });
       }, 2000);
+    }
+
+    if (value === 7 && numberTeam.value < teamsLength.value) {
+      setTimeout(async () => {
+        numberTeam.value++;
+        await getVoting();
+        step.value = 2;
+      }, 10000);
     }
   }
 
@@ -390,7 +398,7 @@ watch(step, async (value) => {
   if (value === 8 && numberTeam.value < teamsLength.value) {
     numberTeam.value++;
     await getVoting();
-    step.value = 1;
+    step.value = 2;
   }
 });
 </script>
