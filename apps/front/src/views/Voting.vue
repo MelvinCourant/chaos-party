@@ -329,6 +329,10 @@ watch(step, async (value) => {
         await getVoting();
         step.value = 2;
       }, 10000);
+    } else if (value === 7 && numberTeam.value === teamsLength.value) {
+      setTimeout(async () => {
+        await router.push({ path: '/final-scores' });
+      }, 10000);
     }
   }
 
@@ -399,6 +403,8 @@ watch(step, async (value) => {
     numberTeam.value++;
     await getVoting();
     step.value = 2;
+  } else if (value === 8 && numberTeam.value === teamsLength.value) {
+    await router.push({ path: '/final-scores' });
   }
 });
 </script>

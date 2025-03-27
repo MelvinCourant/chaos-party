@@ -48,6 +48,10 @@ router
     router.post('/voting', async (data) => {
       return partiesController.voting(data)
     })
+
+    router.post('/end-party', async (data) => {
+      return partiesController.end(data)
+    })
   })
   .prefix('api/parties')
 

@@ -4,6 +4,7 @@ import Lobby from '../views/Lobby.vue';
 import CreatingTeams from '../views/CreatingTeams.vue';
 import Drawing from '../views/Drawing.vue';
 import Voting from '../views/Voting.vue';
+import FinalScores from '../views/FinalScores.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -31,6 +32,10 @@ const router = createRouter({
     {
       path: '/voting',
       component: Voting,
+    },
+    {
+      path: '/final-scores',
+      component: FinalScores,
     },
   ],
 });

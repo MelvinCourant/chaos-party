@@ -475,4 +475,37 @@ export default class PartiesController {
       teams_length: teams.length,
     })
   }
+
+  public async end({ i18n, request, response }: HttpContext) {
+    const payload = await request.validateUsing(votingValidator)
+    const partyId = payload.party_id
+    const socketId = payload.socket_id
+    const userId = payload.user_id
+
+    if (!Ws.io?.sockets.adapter.rooms.has(partyId)) {
+      return response.status(404).json({ message: i18n.t('messages.party_not_found') })
+    } else {
+      // @ts-ignore
+      if (!Ws.io?.sockets.adapter.rooms.get(partyId).has(socketId)) {
+        return response.status(403).json({ message: i18n.t('messages.forbidden') })
+      }
+    }
+
+    const user = await User.query().where('id', userId).select('role', 'party_id').firstOrFail()
+    const party = await Party.findOrFail(partyId)
+
+    if (user.party_id !== party.id) {
+      return response.status(403).json({ message: i18n.t('messages.forbidden') })
+    }
+
+    const draws = await Team.query().where('party_id', party.id).select('id', 'draw')
+    const players = await User.query()
+      .where('party_id', party.id)
+      .select('id', 'pseudo', 'image', 'score')
+
+    return response.json({
+      draws: draws,
+      players: players,
+    })
+  }
 }
