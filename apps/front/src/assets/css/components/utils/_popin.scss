@@ -12,7 +12,7 @@
   
   @media screen and (max-width: 767px) {
     padding: 30px 30px 50px 30px;
-    width: 90%;
+    width: calc(100% - 40px) !important;
     min-height: initial;
   }
 
@@ -20,6 +20,10 @@
     background: var(--yellow);
     min-height: 300px;
     z-index: 9998;
+
+    @media screen and (max-width: 767px) {
+      min-height: initial;
+    }
   }
 
   &--error {
@@ -35,6 +39,10 @@
   &__title {
     @include mixins.font('xl title');
     margin-bottom: 40px;
+
+    @media screen and (max-width: 767px) {
+      margin-bottom: 20px;
+    }
   }
 
   &__list {
@@ -58,6 +66,11 @@
     display: flex;
     justify-content: space-between;
 
+    @media screen and (max-width: 767px) {
+      flex-direction: column;
+      gap: 10px;
+    }
+
     &-title {
       @include mixins.font('title');
     }
@@ -69,6 +82,10 @@
 
   &__label {
     max-width: 230px;
+
+    @media screen and (max-width: 767px) {
+      max-width: 100%;
+    }
   }
 
   &__actions {

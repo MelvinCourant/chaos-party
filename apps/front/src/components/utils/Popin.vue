@@ -26,7 +26,7 @@ defineEmits(['actionClick']);
     <p class="popin__title">{{ title }}</p>
     <slot></slot>
 
-    <div class="popin__actions" v-if="actions">
+    <div class="popin__actions" v-if="actions.length">
       <Button
         v-for="(action, index) in actions"
         :key="index"

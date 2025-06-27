@@ -1,51 +1,64 @@
 @use "fonts";
+@use 'functions';
 
 @mixin font($text-type) {
   @if($text-type == 'xxl title') {
     font-family: fonts.$lilita-one;
-    font-size: 3rem; // 48px
+    font-size: functions.rem(48);
     font-weight: 400;
     text-transform: uppercase;
   } @else if($text-type == 'xl title') {
     font-family: fonts.$lilita-one;
-    font-size: 2rem; // 32px
+    font-size: functions.rem(32);
     font-weight: 400;
     text-transform: uppercase;
+
+    @media screen and (max-width: 767px) {
+      font-size: functions.rem(24);
+    }
   } @else if($text-type == 'title') {
     font-family: fonts.$lilita-one;
-    font-size: 1.5rem; // 24px
+    font-size: functions.rem(24);
     font-weight: 400;
     text-transform: uppercase;
+
+    @media screen and (max-width: 767px) {
+      font-size: functions.rem(20);
+    }
   } @else if($text-type == 'xl pseudo') {
     font-family: fonts.$lilita-one;
     font-weight: 400;
-    font-size: 1.5rem; // 24px
+    font-size: functions.rem(24);
   } @else if($text-type == 'small title') {
     font-family: fonts.$lilita-one;
-    font-size: 1.25rem; // 20px
+    font-size: functions.rem(20);
     font-weight: 400;
     text-transform: uppercase;
   } @else if($text-type == 'input') {
     font-family: fonts.$lilita-one;
-    font-size: 1.5rem; // 24px
+    font-size: functions.rem(24);
     font-weight: 400;
   } @else if($text-type == 'footer') {
     font-family: fonts.$lilita-one;
-    font-size: 1rem; // 16px
+    font-size: functions.rem(16);
     font-weight: 400;
     text-transform: uppercase;
   } @else if($text-type == 'pseudo') {
     font-family: fonts.$lilita-one;
     font-weight: 400;
-    font-size: 1rem; // 16px
+    font-size: functions.rem(16);
   }  @else if($text-type == 'big text') {
     font-family: fonts.$inter;
     font-weight: 600;
-    font-size: 1.5rem; // 24px
+    font-size: functions.rem(24);
   } @else if($text-type == 'text') {
     font-family: fonts.$inter;
     font-weight: 600;
-    font-size: 0.938rem; // 15px
+    font-size: functions.rem(15);
+
+    @media screen and (max-width: 767px) {
+      font-size: functions.rem(14);
+    }
   }
 }
 
