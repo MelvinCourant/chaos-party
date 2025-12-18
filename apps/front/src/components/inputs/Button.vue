@@ -10,6 +10,10 @@ defineProps({
     type: String,
     default: 'default'
   },
+  htmlType: {
+    type: String,
+    default: 'button'
+  },
   rounded: {
     type: Boolean,
     default: false
@@ -33,6 +37,7 @@ defineEmits(['click'])
   >
     <div class="button__container">
       <button
+        :type="htmlType"
         class="button__input"
         :popovertarget="popovertarget"
         @click="$emit('click')"

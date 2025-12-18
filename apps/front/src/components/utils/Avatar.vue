@@ -29,7 +29,12 @@ function generateAvatarUrl(avatar) {
         class="avatar__image"
       />
     </div>
-    <Button v-if="type === 'choice'" type="default" rounded>
+    <Button
+      v-if="type === 'choice'"
+      type="default"
+      rounded
+      popovertarget="avatar"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="18"

@@ -6,7 +6,7 @@ import Icon from './Icon.vue';
 defineProps({
   type: {
     type: String,
-    required: true,
+    default: 'default',
   },
   title: {
     type: String,

@@ -10,6 +10,7 @@ import Avatar from '../utils/Avatar.vue';
 import Field from '../inputs/Field.vue';
 import Button from '../inputs/Button.vue';
 import Icon from '../utils/Icon.vue';
+import Popin from '../utils/Popin.vue';
 
 defineEmits(['submitPlayer']);
 
@@ -36,11 +37,9 @@ const avatars = reactive(
   Object.keys(avatarModules).map((path) => {
     const filename = path.split('/').pop();
     return filename.replace('.svg', '');
-  })
+  }),
 );
-const avatarSelected = ref(
-  avatars[Math.floor(Math.random() * avatars.length)]
-);
+const avatarSelected = ref(avatars[Math.floor(Math.random() * avatars.length)]);
 const pseudoInputAttributes = {
   id: 'pseudo',
   type: 'text',
@@ -113,9 +112,25 @@ function updateLanguage(value) {
         :attributes="pseudoInputAttributes"
         @updateValue="formValues.pseudo = $event"
       />
-      <Button type="primary" :text="partyButton.text">
+      <Button type="primary" :text="partyButton.text" html-type="submit">
         <Icon :icon="partyButton.icon" type="button" />
       </Button>
     </form>
   </div>
+  <Popin id="avatar" :title="t('avatar_selection')">
+    <div class="popin__avatars">
+      <button
+        v-for="(avatar, index) in avatars"
+        :key="index"
+        type="button"
+        :class="[
+          'popin__avatar',
+          { 'popin__avatar--selected': avatar === avatarSelected },
+        ]"
+        @click="avatarSelected = avatar"
+      >
+        <Avatar :avatar="avatar" type="selection" />
+      </button>
+    </div>
+  </Popin>
 </template>

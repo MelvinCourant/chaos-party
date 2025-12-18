@@ -1,3 +1,5 @@
+@use "../../partials/mixins";
+
 .player-planel {
   display: flex;
   flex-direction: column;
@@ -28,5 +30,51 @@
     flex-direction: column;
     align-items: center;
     gap: 40px;
+  }
+}
+
+#avatar {
+  width: fit-content !important;
+
+  @media screen and (max-width: 991px) {
+    width: 556px !important;
+  }
+
+  @media screen and (max-width: 767px) {
+    width: calc(100% - 40px) !important;
+  }
+
+  .popin__avatars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: 540px;
+
+    @media screen and (max-width: 991px) {
+      width: 100%;
+    }
+
+    @media screen and (max-width: 767px) {
+      justify-content: center;
+    }
+  }
+
+  .popin__avatar {
+    @include mixins.resetButton(none, transparent);
+    width: 92px;
+    border-radius: 7px;
+
+    &:hover,
+    &:focus {
+      background: var(--dark-orange);
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &--selected {
+      background: var(--orange) !important;
+    }
   }
 }
