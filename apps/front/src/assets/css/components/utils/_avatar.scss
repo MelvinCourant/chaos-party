@@ -1,22 +1,24 @@
 .avatar {
+  display: flex;
+  width: fit-content;
+  height: fit-content;
+  position: relative;
+
   &--choice {
     .avatar {
       &__container {
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
         width: 170px;
         height: 170px;
         border: var(--avatar-border);
         box-shadow: var(--avatar-shadow);
-
-        .button {
-          position: absolute;
-          right: 0;
-          bottom: -13px;
-        }
+        overflow: hidden;
       }
+    }
+
+    .button {
+      position: absolute;
+      right: 0;
+      bottom: -13px;
     }
   }
 
