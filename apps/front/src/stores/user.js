@@ -10,24 +10,24 @@ export const useUserStore = defineStore('user', () => {
 
   let id = '';
   let pseudo = '';
-  let image = '';
+  let avatar = '';
   const user = ref({});
 
   user.value = {
     id: id,
     pseudo: pseudo,
-    image: image,
+    avatar: avatar,
   };
 
   if (localStorageUser) {
     id = localStorageUser.id;
     pseudo = localStorageUser.pseudo;
-    image = localStorageUser.image;
+    avatar = localStorageUser.avatar;
 
     user.value = {
       id: id,
       pseudo: pseudo,
-      image: image,
+      avatar: avatar,
     };
   }
 

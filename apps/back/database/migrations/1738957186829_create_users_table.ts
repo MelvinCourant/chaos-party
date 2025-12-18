@@ -8,7 +8,7 @@ export default class extends BaseSchema {
       table.uuid('id').primary()
       table.string('socket_id').notNullable()
       table.string('pseudo').notNullable()
-      table.string('image').nullable()
+      table.string('avatar').nullable()
       table.uuid('party_id').nullable()
       table.uuid('team_id').nullable()
       table.enum('role', ['host', 'player']).notNullable().defaultTo('player')

@@ -23,13 +23,6 @@ const partyStore = usePartyStore();
 const { socket } = useSocketStore();
 const formValues = ref({});
 const errors = ref('');
-const errorsAction = [
-  {
-    type: 'primary',
-    text: t('back-home'),
-    icon: 'back',
-  },
-];
 
 partyStore.updateHostId('');
 

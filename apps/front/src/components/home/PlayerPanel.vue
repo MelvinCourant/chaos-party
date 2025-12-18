@@ -53,7 +53,7 @@ const partyButton = reactive({
 });
 const formValues = reactive({
   pseudo: user.pseudo || '',
-  image: '',
+  avatar: user.avatar || avatarSelected,
 });
 
 if (id) {
@@ -127,7 +127,10 @@ function updateLanguage(value) {
           'popin__avatar',
           { 'popin__avatar--selected': avatar === avatarSelected },
         ]"
-        @click="avatarSelected = avatar"
+        @click="
+          avatarSelected = avatar;
+          formValues.avatar = avatar;
+        "
       >
         <Avatar :avatar="avatar" type="selection" />
       </button>

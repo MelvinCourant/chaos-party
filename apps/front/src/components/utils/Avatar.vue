@@ -9,11 +9,13 @@ defineProps({
   },
   avatar: {
     type: String,
-    default: 'cat',
+    default: '',
   },
 });
 
 function generateAvatarUrl(avatar) {
+  if (!avatar) return '';
+
   return new URL(`../../assets/imgs/avatars/${avatar}.svg`, import.meta.url)
     .href;
 }

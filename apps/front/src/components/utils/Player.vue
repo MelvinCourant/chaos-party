@@ -15,7 +15,7 @@ defineProps({
       id: '',
       pseudo: '',
       role: 'empty',
-      image: '',
+      avatar: '',
     },
   },
   disabled: {
@@ -45,7 +45,7 @@ defineEmits(['click']);
   >
     <div class="player__container">
       <div class="player__profile">
-        <Avatar type="player" />
+        <Avatar type="player" :avatar="player.avatar || ''" />
         <p class="player__pseudo" v-if="player.pseudo">
           {{ player.pseudo }}
         </p>

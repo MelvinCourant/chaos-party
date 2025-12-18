@@ -20,7 +20,7 @@ export default class User extends BaseModel {
   declare pseudo: string
 
   @column()
-  declare image: string | null
+  declare avatar: string | null
 
   @column()
   declare party_id: string | null

@@ -24,7 +24,7 @@ export default class PartiesController {
     const userId = payload.user_id
     const socketId = payload.socket_id
     const pseudo = payload.pseudo
-    const image = payload.image
+    const avatar = payload.avatar
 
     const party = await Party.create({
       step: 'lobby',
@@ -40,7 +40,7 @@ export default class PartiesController {
         if (userExist) {
           userExist.socket_id = socket.id
           userExist.pseudo = pseudo
-          userExist.image = image
+          userExist.avatar = avatar
           userExist.party_id = party.id
           userExist.role = 'host'
           userExist.score = 0
@@ -56,7 +56,7 @@ export default class PartiesController {
       const newUser = await User.create({
         socket_id: socket.id,
         pseudo: pseudo,
-        image: image,
+        avatar: avatar,
         party_id: party.id,
         role: 'host',
       })
@@ -72,7 +72,7 @@ export default class PartiesController {
     const payload = await request.validateUsing(joinPartyValidator)
     const userId = payload.user_id
     const pseudo = payload.pseudo
-    const image = payload.image
+    const avatar = payload.avatar
     const partyId = payload.party_id
     const socketId = payload.socket_id
 
@@ -105,7 +105,7 @@ export default class PartiesController {
         if (userExist) {
           userExist.socket_id = socket.id
           userExist.pseudo = pseudo
-          userExist.image = image
+          userExist.avatar = avatar
 
           if (party.in_progress) {
             const playerExistInParty = await User.query().where('party_id', party.id).first()
@@ -145,7 +145,7 @@ export default class PartiesController {
       const newUser = await User.create({
         socket_id: socket.id,
         pseudo: pseudo,
-        image: image,
+        avatar: avatar,
         party_id: party.id,
         role: 'player',
       })
@@ -459,7 +459,7 @@ export default class PartiesController {
       .firstOrFail()
     const playersInTeam = await User.query()
       .where('team_id', team.id)
-      .select('id', 'pseudo', 'image', 'socket_id')
+      .select('id', 'pseudo', 'avatar', 'socket_id')
 
     return response.json({
       team: {
