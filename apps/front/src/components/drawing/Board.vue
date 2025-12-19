@@ -1,7 +1,14 @@
 <script setup>
 import '../../assets/css/components/drawing/_board.scss';
 import Cursor from './Cursor.vue';
-import { inject, onMounted, ref, useTemplateRef, watch } from 'vue';
+import {
+  inject,
+  onMounted,
+  onUnmounted,
+  ref,
+  useTemplateRef,
+  watch,
+} from 'vue';
 import { useSocketStore } from '../../stores/socket.js';
 import { useI18n } from 'vue-i18n';
 import { usePartyStore } from '../../stores/party.js';

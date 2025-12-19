@@ -10,6 +10,7 @@
     "title": "Défilement",
     "description": "Enchaîner les dessins et votes en automatique ou en manuel"
   },
+  "download": "Télécharger",
   "draw_dots": "Dessine ...",
   "drawing": "Dessin",
   "drawing_time": {

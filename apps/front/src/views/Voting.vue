@@ -14,6 +14,7 @@ import Timer from '../components/utils/Timer.vue';
 import VotingPlayers from '../components/voting/VotingPlayers.vue';
 import SaboteurReveal from '../components/voting/SaboteurReveal.vue';
 import Scores from '../components/utils/Scores.vue';
+import Draws from '../components/voting/Draws.vue';
 
 const { t } = useI18n();
 const env = import.meta.env;
@@ -29,6 +30,7 @@ const numberTeam = ref(1);
 const team = ref({});
 const teamsLength = ref(1);
 const step = ref(1);
+const scoreStep = ref('team-score');
 const votes = ref([]);
 const previousNotesSelected = ref([]);
 const votingDuration = ref(1);
@@ -50,6 +52,8 @@ const saboteurReveal = reactive({
     saboteur_revealed: false,
   },
 });
+const draws = ref([]);
+const endGame = ref(false);
 let interval = null;
 
 provide('duration', votingDuration);
@@ -310,6 +314,13 @@ onMounted(() => {
     };
     team.value.players = data.players;
   });
+
+  socket.on('final-score', (data) => {
+    team.value.players = data.players;
+    draws.value = data.draws;
+    scoreStep.value = 'final-score';
+    endGame.value = true;
+  });
 });
 
 watch(step, async (value) => {
@@ -399,6 +410,12 @@ watch(step, async (value) => {
     numberTeam.value++;
     await getVoting();
     step.value = 2;
+  } else if (value === 8 && numberTeam.value === teamsLength.value) {
+    socket.emit('final-score', {
+      socket_id: socket.id,
+      party_id: partyId,
+      locale: userStore.language,
+    });
   }
 });
 </script>
@@ -418,12 +435,13 @@ watch(step, async (value) => {
     <h1 class="hidden-title">{{ t('voting') }}</h1>
     <Loading v-show="step === 1" />
     <TeamDraw
-      v-show="step > 1"
+      v-show="step > 1 && step < 8"
       :step="step"
       :mission="mission"
       :number-team="numberTeam"
       :img-src="team.draw"
     />
+    <Draws v-if="endGame" :draws="draws" />
     <div class="voting__votes" v-if="step >= 4">
       <Timer
         v-if="step >= 4 && step <= 6"
@@ -448,7 +466,12 @@ watch(step, async (value) => {
         v-if="step === 5"
       />
       <SaboteurReveal :saboteurReveal="saboteurReveal" v-if="step === 7" />
-      <Scores title="Scores" :players="team.players" v-if="step === 7" />
+      <Scores
+        title="Scores"
+        :step="scoreStep"
+        :players="team.players"
+        v-if="step === 7 || endGame"
+      />
     </div>
     <Settings />
   </main>

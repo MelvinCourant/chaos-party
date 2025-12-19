@@ -3,6 +3,10 @@ import '../../assets/css/components/utils/_scores.scss';
 import Player from '../utils/Player.vue';
 
 defineProps({
+  step: {
+    type: String,
+    default: 'final-score',
+  },
   title: {
     type: String,
     required: true,
@@ -20,7 +24,9 @@ defineProps({
     <ul class="scores__list">
       <li v-for="player in players">
         <Player :player="player" :key="player.id" />
-        <span class="scores__points">+{{ player.score }}</span>
+        <p :class="`scores__points scores__points--${step}`">
+          <span v-if="step === 'team-score'">+</span>{{ player.score }}
+        </p>
       </li>
     </ul>
   </div>

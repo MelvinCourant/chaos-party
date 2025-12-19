@@ -364,6 +364,7 @@ app.ready(() => {
 
         for (let player of players) {
           if (!player.is_saboteur) {
+            // @ts-ignore
             player.score += playerScores[player.id] || 0
           } else {
             player.score += scoreSaboteur
@@ -522,6 +523,42 @@ app.ready(() => {
         player_id: data.player_id,
         user_id: data.user_id,
         user_avatar: data.user_avatar,
+      })
+    })
+
+    socket.on('final-score', async (data) => {
+      const i18n = i18nManager.locale(data.locale)
+      const party = await Party.query()
+        .where('id', data.party_id)
+        .select('id', 'step', 'in_progress')
+        .firstOrFail()
+      party.step = 'results'
+      party.in_progress = false
+
+      const players = await User.query()
+        .where('party_id', data.party_id)
+        .select('id', 'pseudo', 'avatar', 'score', 'party_id')
+      const teams = await Team.query()
+        .where('party_id', data.party_id)
+        .select('party_id', 'draw', 'mission_id')
+      let draws = []
+
+      for (let team of teams) {
+        const mission = await Mission.query()
+          .where('id', team.mission_id)
+          .select('id', 'description')
+          .firstOrFail()
+
+        draws.push({
+          image: team.draw,
+          mission: i18n.t(`messages.missions.${mission.description}`),
+        })
+      }
+
+      io?.to(data.party_id).emit('final-score', {
+        socket_id: data.socket_id,
+        draws: draws,
+        players: players,
       })
     })
   })

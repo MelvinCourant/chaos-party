@@ -34,5 +34,9 @@
   &__points {
     @include mixins.font('title');
     color: var(--orange);
+
+    &--final-score {
+      color: var(--text);
+    }
   }
 }
