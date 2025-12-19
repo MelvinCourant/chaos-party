@@ -39,7 +39,9 @@ const avatars = reactive(
     return filename.replace('.svg', '');
   }),
 );
-const avatarSelected = ref(avatars[Math.floor(Math.random() * avatars.length)]);
+const avatarSelected = ref(
+  user.avatar || avatars[Math.floor(Math.random() * avatars.length)],
+);
 const pseudoInputAttributes = {
   id: 'pseudo',
   type: 'text',

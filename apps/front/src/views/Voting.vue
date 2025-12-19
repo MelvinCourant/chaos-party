@@ -46,7 +46,7 @@ const saboteurReveal = reactive({
   title: t('the_saboteur_was'),
   player: {
     pseudo: '',
-    image: '',
+    avatar: '',
     saboteur_revealed: false,
   },
 });
@@ -190,7 +190,7 @@ function updateSaboteurVotes(playerId, user) {
   if (saboteurTargeted) {
     saboteurTargeted.votes.push({
       user_id: user.id,
-      user_image: user.image,
+      user_avatar: user.avatar,
     });
   } else {
     saboteurVotes.value.push({
@@ -198,7 +198,7 @@ function updateSaboteurVotes(playerId, user) {
       votes: [
         {
           user_id: user.id,
-          user_image: user.image,
+          user_avatar: user.avatar,
         },
       ],
     });
@@ -208,7 +208,7 @@ function updateSaboteurVotes(playerId, user) {
 function votingToSaboteur(playerId) {
   updateSaboteurVotes(playerId, {
     id: user.id,
-    image: user.image,
+    avatar: user.avatar,
   });
 
   socket.emit('player-vote-saboteur', {
@@ -216,7 +216,7 @@ function votingToSaboteur(playerId) {
     socket_id: socket.id,
     player_id: playerId,
     user_id: user.id,
-    user_image: user.image,
+    user_avatar: user.avatar,
   });
 }
 
@@ -298,14 +298,14 @@ onMounted(() => {
 
     updateSaboteurVotes(data.player_id, {
       id: data.user_id,
-      image: data.user_image,
+      avatar: data.user_avatar,
     });
   });
 
   socket.on('team-result', (data) => {
     saboteurReveal.player = {
       pseudo: data.saboteur.pseudo,
-      image: data.saboteur.image || '',
+      avatar: data.saboteur.avatar || '',
       saboteur_revealed: data.saboteur_revealed,
     };
     team.value.players = data.players;

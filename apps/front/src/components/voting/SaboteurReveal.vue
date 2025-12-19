@@ -15,7 +15,7 @@ defineProps({
     <h2 class="saboteur-reveal__title">{{ saboteurReveal.title }}</h2>
     <div class="saboteur-reveal__player">
       <div class="saboteur-reveal__identity">
-        <Avatar type="saboteur" />
+        <Avatar type="saboteur" :avatar="saboteurReveal.player.avatar" />
         <p class="saboteur-reveal__pseudo">
           {{ saboteurReveal.player.pseudo }}
         </p>

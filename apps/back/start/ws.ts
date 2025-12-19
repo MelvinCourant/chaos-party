@@ -259,7 +259,7 @@ app.ready(() => {
           'score',
           'is_saboteur',
           'pseudo',
-          'image',
+          'avatar',
           'saboteur_revealed',
           'objective_id'
         )
@@ -521,7 +521,7 @@ app.ready(() => {
         socket_id: data.socket_id,
         player_id: data.player_id,
         user_id: data.user_id,
-        user_image: data.user_image,
+        user_avatar: data.user_avatar,
       })
     })
   })

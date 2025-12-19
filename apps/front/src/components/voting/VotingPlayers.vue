@@ -56,7 +56,7 @@ defineEmits(['playerSelected']);
             :key="vote.user_id"
             :style="`transform: translate(${index * 12}px, -50%); z-index: ${index};`"
           >
-            <Avatar type="vote" :img="vote.user_image" />
+            <Avatar type="vote" :img="vote.user_avatar" />
           </li>
         </ul>
       </li>
