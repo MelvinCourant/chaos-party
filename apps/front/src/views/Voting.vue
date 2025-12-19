@@ -432,47 +432,55 @@ watch(step, async (value) => {
       }
     "
   >
-    <h1 class="hidden-title">{{ t('voting') }}</h1>
-    <Loading v-show="step === 1" />
-    <TeamDraw
-      v-show="step > 1 && step < 8"
-      :step="step"
-      :mission="mission"
-      :number-team="numberTeam"
-      :img-src="team.draw"
-    />
-    <Draws v-if="endGame" :draws="draws" />
-    <div class="voting__votes" v-if="step >= 4">
-      <Timer
-        v-if="step >= 4 && step <= 6"
-        :key="step"
-        :duration="votingDuration"
-        :elapsed="elapsed"
+    <section class="voting__container">
+      <h1 class="hidden-title">{{ t('voting') }}</h1>
+      <Loading v-show="step === 1" />
+      <TeamDraw
+        v-show="step > 1 && step < 8"
+        :step="step"
+        :mission="mission"
+        :number-team="numberTeam"
+        :img-src="team.draw"
       />
-      <Votes
-        :key="step"
-        :votes="votes"
-        :disabled="disabledVote"
-        v-if="step === 4 || step === 6"
-        @noteSelected="selectNote"
-      />
-      <VotingPlayers
-        :title="votingPlayers.title"
-        :type="votingPlayers.type"
-        :players="team.players"
-        :disabled="disabledVote"
-        :saboteurVotes="saboteurVotes"
-        @playerSelected="votingToSaboteur"
-        v-if="step === 5"
-      />
-      <SaboteurReveal :saboteurReveal="saboteurReveal" v-if="step === 7" />
-      <Scores
-        title="Scores"
-        :step="scoreStep"
-        :players="team.players"
-        v-if="step === 7 || endGame"
-      />
+      <Draws v-if="endGame" :draws="draws" />
+      <div class="voting__votes" v-if="step >= 4">
+        <Timer
+          v-if="step >= 4 && step <= 6"
+          :key="step"
+          :duration="votingDuration"
+          :elapsed="elapsed"
+        />
+        <Votes
+          :key="step"
+          :votes="votes"
+          :disabled="disabledVote"
+          v-if="step === 4 || step === 6"
+          @noteSelected="selectNote"
+        />
+        <VotingPlayers
+          :title="votingPlayers.title"
+          :type="votingPlayers.type"
+          :players="team.players"
+          :disabled="disabledVote"
+          :saboteurVotes="saboteurVotes"
+          @playerSelected="votingToSaboteur"
+          v-if="step === 5"
+        />
+        <SaboteurReveal :saboteurReveal="saboteurReveal" v-if="step === 7" />
+        <Scores
+          title="Scores"
+          :step="scoreStep"
+          :players="team.players"
+          v-if="step === 7 || endGame"
+        />
+      </div>
+      <Settings />
+    </section>
+    <div
+      class="voting__host-instructions"
+      v-if="user.id === hostId && ((step >= 1 && step <= 3) || step === 7)"
+    >
+      {{ t('host_instructions') }}
     </div>
-    <Settings />
   </main>
 </template>

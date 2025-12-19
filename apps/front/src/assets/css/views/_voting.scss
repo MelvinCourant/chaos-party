@@ -1,23 +1,10 @@
+@use "../partials/mixins";
+
 .voting {
-  display: flex;
-  justify-content: center;
-  gap: 36px;
   background: var(--blue-gradient);
   padding: 40px 120px;
   max-height: 100vh;
   overflow: hidden;
-
-  @media screen and (max-width: 1499px) {
-    padding: 40px 120px;
-  }
-
-  @media screen and (max-width: 1099px) {
-    padding: 40px;
-  }
-
-  @media screen and (max-width: 767px) {
-    padding: 20px;
-  }
 
   &::before {
     content: "";
@@ -32,13 +19,33 @@
     z-index: 0;
   }
 
-  > * {
-    position: relative;
-    z-index: 1;
+  &__container {
+    display: flex;
+    justify-content: center;
+    gap: 36px;
+
+    @media screen and (max-width: 1499px) {
+      padding: 40px 120px;
+    }
+
+    @media screen and (max-width: 1099px) {
+      padding: 40px;
+    }
+
+    @media screen and (max-width: 767px) {
+      padding: 20px;
+    }
+
+    > * {
+      position: relative;
+      z-index: 1;
+    }
   }
 
   &--step-1 {
-    align-items: center;
+    .voting__container {
+      align-items: center;
+    }
   }
 
   .settings {
@@ -76,5 +83,12 @@
     .voting__votes {
       padding-top: 0;
     }
+  }
+
+  &__host-instructions {
+    text-align: center;
+    margin-top: 40px;
+    @include mixins.font('small title');
+    color: var(--text);
   }
 }
