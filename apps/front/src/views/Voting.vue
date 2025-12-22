@@ -331,14 +331,27 @@ watch(step, async (value) => {
           party_id: partyId,
           socket_id: socket.id,
         });
-      }, 2000);
+      }, 3000);
     }
 
     if (value === 7 && numberTeam.value < teamsLength.value) {
-      setTimeout(async () => {
-        numberTeam.value++;
-        await getVoting();
-        step.value = 2;
+      setTimeout(() => {
+        socket.emit('next-step', {
+          party_id: partyId,
+          socket_id: socket.id,
+        });
+      }, 10000);
+    } else if (value === 7 && numberTeam.value === teamsLength.value) {
+      setTimeout(() => {
+        socket.emit('final-score', {
+          socket_id: socket.id,
+          party_id: partyId,
+          locale: userStore.language,
+        });
+        socket.emit('next-step', {
+          party_id: partyId,
+          socket_id: socket.id,
+        });
       }, 10000);
     }
   }
@@ -478,7 +491,11 @@ watch(step, async (value) => {
     </section>
     <div
       class="voting__host-instructions"
-      v-if="user.id === hostId && ((step >= 1 && step <= 3) || step === 7)"
+      v-if="
+        user.id === hostId &&
+        ((step >= 1 && step <= 3) || step === 7) &&
+        defilement === 'manual'
+      "
     >
       {{ t('host_instructions') }}
     </div>
