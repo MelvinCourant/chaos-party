@@ -44,6 +44,8 @@ const history = ref([]);
 const historyIndex = ref(-1);
 const globalCompositeOperation = ref('source-over');
 const onSaving = ref(false);
+const resizeHandler = ref(null);
+const keydownHandler = ref(null);
 
 function saveState() {
   if (!canvas.value) return;
@@ -97,18 +99,6 @@ function restoreState(imageData) {
     ctx.value.drawImage(img, 0, 0);
   };
 }
-
-window.addEventListener('keydown', (event) => {
-  event.preventDefault();
-
-  if (!canvas.value) return;
-
-  if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
-    undo();
-  } else if ((event.ctrlKey || event.metaKey) && event.key === 'y') {
-    redo();
-  }
-});
 
 function hexToRgba(hex, alpha) {
   let r = parseInt(hex.substring(1, 3), 16);
@@ -829,9 +819,13 @@ onMounted(() => {
       observer.disconnect();
     }, 500);
 
-    window.addEventListener('resize', () => {
-      rect.value = canvas.value.getBoundingClientRect();
-    });
+    resizeHandler.value = () => {
+      if (canvas.value) {
+        rect.value = canvas.value.getBoundingClientRect();
+      }
+    };
+
+    window.addEventListener('resize', resizeHandler.value);
 
     canvas.value.width = canvas.value.offsetWidth;
     canvas.value.height = canvas.value.offsetHeight;
@@ -879,7 +873,21 @@ onMounted(() => {
     },
   );
 
-  socket.on('party-state', () => {
+  keydownHandler.value = (event) => {
+    if (!canvas.value) return;
+
+    if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
+      event.preventDefault();
+      undo();
+    } else if ((event.ctrlKey || event.metaKey) && event.key === 'y') {
+      event.preventDefault();
+      redo();
+    }
+  };
+
+  window.addEventListener('keydown', keydownHandler.value);
+
+  const handlePartyState = () => {
     if (!canvas.value) return;
 
     socket.emit('player-state', {
@@ -895,9 +903,9 @@ onMounted(() => {
       history: history.value,
       history_index: historyIndex.value,
     });
-  });
+  };
 
-  socket.on('canvas-state', (data) => {
+  const handleCanvasState = (data) => {
     if (!canvas.value || socket.id === data.socket_id) return;
 
     const img = new Image();
@@ -909,9 +917,9 @@ onMounted(() => {
 
     history.value = data.history;
     historyIndex.value = data.history_index;
-  });
+  };
 
-  socket.on('start-drawing', (data) => {
+  const handleStartDrawing = (data) => {
     if (socket.id === data.socket_id) return;
 
     startDrawing(null, {
@@ -924,9 +932,9 @@ onMounted(() => {
       socketId: data.socket_id,
       tool: data.tool,
     });
-  });
+  };
 
-  socket.on('start-drawing-shape', (data) => {
+  const handleStartDrawingShape = (data) => {
     if (socket.id === data.socket_id) return;
 
     startDrawing(null, {
@@ -938,9 +946,9 @@ onMounted(() => {
       socketId: data.socket_id,
       tool: data.tool,
     });
-  });
+  };
 
-  socket.on('draw', (data) => {
+  const handleDraw = (data) => {
     if (socket.id === data.socket_id) return;
 
     draw(null, {
@@ -951,9 +959,9 @@ onMounted(() => {
       socketId: data.socket_id,
       tool: data.tool,
     });
-  });
+  };
 
-  socket.on('stop-drawing', (data) => {
+  const handleStopDrawing = (data) => {
     if (socket.id === data.socket_id) return;
 
     stopDrawing({
@@ -964,27 +972,27 @@ onMounted(() => {
       socketId: data.socket_id,
       tool: data.tool,
     });
-  });
+  };
 
-  socket.on('undo', (data) => {
+  const handleUndo = (data) => {
     if (socket.id === data.socket_id) return;
 
     historyIndex.value = data.history_index;
     restoreState(history.value[historyIndex.value]);
-  });
+  };
 
-  socket.on('redo', (data) => {
+  const handleRedo = (data) => {
     if (socket.id === data.socket_id) return;
 
     historyIndex.value = data.history_index;
     restoreState(history.value[historyIndex.value]);
-  });
+  };
 
-  socket.on('on-saving-draw', () => {
+  const handleSavingDraw = () => {
     onSaving.value = true;
-  });
+  };
 
-  socket.on('timer-finished', () => {
+  const handleTimerFinished = () => {
     setTimeout(() => {
       if (!onSaving.value) {
         socket.emit('final-draw', {
@@ -994,7 +1002,39 @@ onMounted(() => {
         });
       }
     }, Math.random() * 500);
-  });
+  };
+
+  socket.on('party-state', handlePartyState);
+  socket.on('canvas-state', handleCanvasState);
+  socket.on('start-drawing', handleStartDrawing);
+  socket.on('start-drawing-shape', handleStartDrawingShape);
+  socket.on('draw', handleDraw);
+  socket.on('stop-drawing', handleStopDrawing);
+  socket.on('undo', handleUndo);
+  socket.on('redo', handleRedo);
+  socket.on('on-saving-draw', handleSavingDraw);
+  socket.on('timer-finished', handleTimerFinished);
+});
+
+onUnmounted(() => {
+  if (resizeHandler.value) {
+    window.removeEventListener('resize', resizeHandler.value);
+  }
+
+  if (keydownHandler.value) {
+    window.removeEventListener('keydown', keydownHandler.value);
+  }
+
+  socket.off('party-state');
+  socket.off('canvas-state');
+  socket.off('start-drawing');
+  socket.off('start-drawing-shape');
+  socket.off('draw');
+  socket.off('stop-drawing');
+  socket.off('undo');
+  socket.off('redo');
+  socket.off('on-saving-draw');
+  socket.off('timer-finished');
 });
 </script>
 
