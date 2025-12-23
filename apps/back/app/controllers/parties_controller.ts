@@ -19,6 +19,7 @@ import Objective from '#models/objective'
 import config from '../../../../cp-config.json' assert { type: 'json' }
 import app from '@adonisjs/core/services/app'
 import fs from 'node:fs'
+import path from 'node:path'
 
 export default class PartiesController {
   public async create({ request, response }: HttpContext) {
@@ -507,9 +508,9 @@ export default class PartiesController {
 
     for (const team of teams) {
       if (team.draw) {
-        const drawPath = app.makePath(team.draw)
+        const drawPath = path.join(uploadsDir, team.draw)
 
-        if (drawPath.startsWith(uploadsDir) && fs.existsSync(drawPath)) {
+        if (fs.existsSync(drawPath)) {
           fs.unlinkSync(drawPath)
         }
       }
