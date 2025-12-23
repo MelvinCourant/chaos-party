@@ -13,6 +13,7 @@
   &__actions {
     display: flex;
     flex-direction: column;
+    height: fit-content;
     position: absolute;
     z-index: 6;
     left: 0;
@@ -22,6 +23,26 @@
     box-shadow: var(--3d-shadow-small);
     border-radius: var(--card-radius);
     overflow: hidden;
+
+    @media screen and (max-width: 1099px) {
+      position: initial;
+      transform: translateY(0);
+    }
+
+    &-container {
+      @media screen and (max-width: 1099px) {
+        position: fixed;
+        z-index: 9999;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: var(--black-transparent-50);
+      }
+    }
 
     li {
       display: flex;

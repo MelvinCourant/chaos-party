@@ -14,7 +14,6 @@
   @media screen and (max-width: 1099px) {
     width: 100%;
     padding: 15px 0;
-    overflow: hidden;
   }
 
   &__title {
@@ -36,6 +35,7 @@
     @media screen and (max-width: 1099px) {
       flex-direction: row;
       overflow-x: auto;
+      overflow-y: visible;
       scrollbar-width: none;
       padding: 0 25px;
     }

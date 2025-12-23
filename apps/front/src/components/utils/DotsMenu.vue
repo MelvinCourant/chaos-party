@@ -44,18 +44,21 @@ const menuOpened = ref(false);
         />
       </svg>
     </button>
-    <ul class="dots-menu__actions" v-show="menuOpened">
-      <li v-for="action in actions" :key="action.id">
-        <button
-          :class="`dots-menu__action dots-menu__action--${action.type}`"
-          @click="
-            $emit('actionClicked', action.name);
-            menuOpened = !menuOpened;
-          "
-        >
-          {{ action.text }}
-        </button>
-      </li>
-    </ul>
+    <div
+      class="dots-menu__actions-container"
+      v-show="menuOpened"
+      @click="menuOpened = !menuOpened"
+    >
+      <ul class="dots-menu__actions">
+        <li v-for="action in actions" :key="action.id">
+          <button
+            :class="`dots-menu__action dots-menu__action--${action.type}`"
+            @click="$emit('actionClicked', action.name)"
+          >
+            {{ action.text }}
+          </button>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
