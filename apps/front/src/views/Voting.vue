@@ -6,7 +6,7 @@ import TeamDraw from '../components/voting/TeamDraw.vue';
 import { useUserStore } from '../stores/user.js';
 import { usePartyStore } from '../stores/party.js';
 import { useSocketStore } from '../stores/socket.js';
-import { onMounted, provide, reactive, ref, watch } from 'vue';
+import { onMounted, onUnmounted, provide, reactive, ref, watch } from 'vue';
 import Loading from '../components/voting/Loading.vue';
 import { useRouter } from 'vue-router';
 import Votes from '../components/voting/Votes.vue';
@@ -15,6 +15,8 @@ import VotingPlayers from '../components/voting/VotingPlayers.vue';
 import SaboteurReveal from '../components/voting/SaboteurReveal.vue';
 import Scores from '../components/utils/Scores.vue';
 import Draws from '../components/voting/Draws.vue';
+import Button from '../components/inputs/Button.vue';
+import Icon from '../components/utils/Icon.vue';
 
 const { t } = useI18n();
 const env = import.meta.env;
@@ -224,6 +226,25 @@ function votingToSaboteur(playerId) {
   });
 }
 
+async function newGame() {
+  const response = await fetch(`${env.VITE_URL}/api/parties/update-new-game`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept-Language': userStore.language,
+    },
+    body: JSON.stringify({
+      socket_id: socket.id,
+      user_id: user.id,
+      party_id: partyId,
+    }),
+  });
+
+  if (response.ok) {
+    await router.push({ path: '/lobby' });
+  }
+}
+
 watch(timer, (value) => {
   const maxTime = votingDuration.value * 60 * 1000;
 
@@ -320,6 +341,10 @@ onMounted(() => {
     draws.value = data.draws;
     scoreStep.value = 'final-score';
     endGame.value = true;
+  });
+
+  socket.on('new-game', async () => {
+    await router.push({ path: '/lobby' });
   });
 });
 
@@ -431,6 +456,21 @@ watch(step, async (value) => {
     });
   }
 });
+
+onUnmounted(() => {
+  socket.off('all-draws-saved');
+  socket.off('voting-start');
+  socket.off('next-step');
+  socket.off('votes');
+  socket.off('player-vote');
+  socket.off('start-timer');
+  socket.off('timer-state');
+  socket.off('player-sabotage');
+  socket.off('player-vote-saboteur');
+  socket.off('team-result');
+  socket.off('final-score');
+  socket.off('new-game');
+});
 </script>
 
 <template>
@@ -499,5 +539,13 @@ watch(step, async (value) => {
     >
       {{ t('host_instructions') }}
     </div>
+    <Button
+      v-if="user.id === hostId && endGame"
+      :text="t('new_game')"
+      type="primary"
+      @click="newGame"
+    >
+      <Icon icon="play" type="button" />
+    </Button>
   </main>
 </template>

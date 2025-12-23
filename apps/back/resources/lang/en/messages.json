@@ -52,6 +52,7 @@
     }
   },
   "mode_updated": "Mode updated",
+  "new_game_started": "A new game has started",
   "objectives": {
     "building_look_like_face": "Make a building look like a face",
     "character_ridiculous_accessory": "Give the character a ridiculous accessory",

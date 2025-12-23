@@ -52,6 +52,7 @@
     }
   },
   "mode_updated": "Mode mis à jour",
+  "new_game_started": "Une nouvelle partie a commencé",
   "objectives": {
     "building_look_like_face": "Faites en sorte qu’un bâtiment ait une forme de visage",
     "character_ridiculous_accessory": "Faites en sorte que le personnage ait un accessoire ridicule",

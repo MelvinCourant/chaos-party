@@ -48,6 +48,10 @@ router
     router.post('/voting', async (data) => {
       return partiesController.voting(data)
     })
+
+    router.post('/update-new-game', async (data) => {
+      return partiesController.updateNewGame(data)
+    })
   })
   .prefix('api/parties')
 

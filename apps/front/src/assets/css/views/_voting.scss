@@ -91,4 +91,12 @@
     @include mixins.font('small title');
     color: var(--text);
   }
+
+  > .button {
+    position: relative;
+    z-index: 1;
+    margin: 40px auto 0;
+    display: flex;
+    width: fit-content;
+  }
 }

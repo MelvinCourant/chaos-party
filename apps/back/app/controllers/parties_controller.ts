@@ -17,6 +17,8 @@ import Mission from '#models/mission'
 import Category from '#models/category'
 import Objective from '#models/objective'
 import config from '../../../../cp-config.json' assert { type: 'json' }
+import app from '@adonisjs/core/services/app'
+import fs from 'node:fs'
 
 export default class PartiesController {
   public async create({ request, response }: HttpContext) {
@@ -474,5 +476,61 @@ export default class PartiesController {
       mission: i18n.t(`messages.missions.${mission.description}`),
       teams_length: teams.length,
     })
+  }
+
+  public async updateNewGame({ i18n, request, response }: HttpContext) {
+    const payload = await request.validateUsing(defaultValidator)
+    const partyId = payload.party_id
+    const socketId = payload.socket_id
+    const userId = payload.user_id
+
+    if (!Ws.io?.sockets.adapter.rooms.has(partyId)) {
+      return response.status(404).json({ message: i18n.t('messages.party_not_found') })
+    } else {
+      // @ts-ignore
+      if (!Ws.io?.sockets.adapter.rooms.get(partyId).has(socketId)) {
+        return response.status(403).json({ message: i18n.t('messages.forbidden') })
+      }
+    }
+
+    const user = await User.query().where('id', userId).select('role', 'party_id').firstOrFail()
+    const party = await Party.findOrFail(partyId)
+
+    if (user.role !== 'host' || user.party_id !== party.id) {
+      return response.status(403).json({ message: i18n.t('messages.forbidden') })
+    }
+
+    party.step = 'lobby'
+
+    const teams = await Team.query().where('party_id', party.id)
+    const uploadsDir = app.makePath('uploads')
+
+    for (const team of teams) {
+      if (team.draw) {
+        const drawPath = app.makePath(team.draw)
+
+        if (drawPath.startsWith(uploadsDir) && fs.existsSync(drawPath)) {
+          fs.unlinkSync(drawPath)
+        }
+      }
+
+      await team.delete()
+    }
+
+    await party.save()
+
+    const players = await User.query().where('party_id', party.id)
+
+    for (const player of players) {
+      player.score = 0
+      player.is_saboteur = false
+      player.saboteur_revealed = false
+      player.team_id = null
+      await player.save()
+    }
+
+    Ws?.io?.to(partyId).emit('new-game')
+
+    return response.json({ message: i18n.t('messages.new_game_started') })
   }
 }
