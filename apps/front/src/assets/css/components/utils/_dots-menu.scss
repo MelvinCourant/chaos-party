@@ -1,0 +1,61 @@
+@use "../../partials/mixins";
+
+.dots-menu {
+  position: relative;
+
+  &__button {
+    @include mixins.resetButton(none, var(--dark-orange));
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    z-index: 6;
+    left: 0;
+    bottom: -5px;
+    transform: translateY(100%);
+    border: var(--input-black-border);
+    box-shadow: var(--3d-shadow-small);
+    border-radius: var(--card-radius);
+    overflow: hidden;
+
+    li {
+      display: flex;
+      height: fit-content;
+    }
+  }
+
+  &__action {
+    @include mixins.resetButton(none, var(--yellow));
+    text-wrap: nowrap;
+    display: flex;
+    padding: 8px 26px 8px 10px;
+    align-items: center;
+    width: 100%;
+    @include mixins.font("menus");
+
+    &--danger {
+      color: var(--red);
+    }
+
+    &:hover {
+      background: var(--dark-yellow);
+    }
+  }
+}
+
+.player--you {
+  .dots-menu {
+    &__button {
+      svg {
+        circle {
+          stroke: var(--light-orange);
+        }
+      }
+    }
+  }
+}

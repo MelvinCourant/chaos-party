@@ -228,7 +228,7 @@ function votingToSaboteur(playerId) {
 
 async function newGame() {
   const response = await fetch(`${env.VITE_URL}/api/parties/update-new-game`, {
-    method: 'POST',
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       'Accept-Language': userStore.language,

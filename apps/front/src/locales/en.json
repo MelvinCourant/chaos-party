@@ -1,7 +1,9 @@
 {
   "automatic": "Automatic",
+  "assign_host": "Assign the role of host",
   "avatar_selection": "Avatar selection",
   "back-home": "Back to home",
+  "ban": "Ban",
   "create_party": "Create party",
   "creating_teams": "Creating teams",
   "choose_pseudo": "Choose a pseudo",

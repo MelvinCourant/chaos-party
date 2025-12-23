@@ -38,7 +38,7 @@
     font-family: fonts.$lilita-one;
     font-size: functions.rem(24);
     font-weight: 400;
-  } @else if($text-type == 'footer') {
+  } @else if($text-type == 'menus') {
     font-family: fonts.$lilita-one;
     font-size: functions.rem(16);
     font-weight: 400;

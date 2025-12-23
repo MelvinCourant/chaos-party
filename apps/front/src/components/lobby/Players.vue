@@ -11,6 +11,7 @@ defineProps({
     required: true,
   },
 });
+defineEmits(['actionClicked']);
 </script>
 
 <template>
@@ -26,7 +27,10 @@ defineProps({
         :key="player.pseudo"
         class="players__player"
       >
-        <Player :player="player" />
+        <Player
+          :player="player"
+          @actionClicked="(...args) => $emit('actionClicked', ...args)"
+        />
       </li>
       <li
         v-for="index in 12 - players.length"

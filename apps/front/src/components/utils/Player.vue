@@ -3,6 +3,7 @@ import '../../assets/css/components/utils/_player.scss';
 import Avatar from './Avatar.vue';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from '../../stores/user.js';
+import DotsMenu from './DotsMenu.vue';
 
 const { t } = useI18n();
 const userStore = useUserStore();
@@ -23,7 +24,7 @@ defineProps({
     default: false,
   },
 });
-defineEmits(['click']);
+defineEmits(['click', 'actionClicked']);
 </script>
 
 <template>
@@ -67,6 +68,11 @@ defineEmits(['click']);
           />
         </svg>
       </div>
+      <DotsMenu
+        v-if="player.id && user.role === 'host' && player.id !== user.id"
+        :actions="hostActions"
+        @actionClicked="(value) => $emit('actionClicked', value, player.id)"
+      />
     </div>
   </div>
 </template>

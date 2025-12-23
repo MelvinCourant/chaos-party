@@ -1,5 +1,6 @@
 {
   "bad_request": "Bad request",
+  "became_host": "{pseudo} became the host",
   "categories": {
     "buildings_cities": "Buildings and cities",
     "characters_heroes": "Characters and heroes",
@@ -84,6 +85,7 @@
   "party_started": "Party started",
   "players_without_team": "Some players have no team",
   "sabotage": "Sabotage: ruin the drawing discreetly",
+  "selected_user_not_present": "The selected player is not present in the game",
   "teams_created": "{quantity} teams created",
   "voting": {
     "buildings_cities": "Does the building or city seem to stand up?",

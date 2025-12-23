@@ -11,6 +11,7 @@ import router from '@adonisjs/core/services/router'
 import PartiesController from '#controllers/parties_controller'
 import ModesController from '#controllers/modes_controller'
 import TeamsController from '#controllers/teams_controller'
+import UsersController from '#controllers/users_controller'
 import app from '@adonisjs/core/services/app'
 
 router
@@ -49,7 +50,7 @@ router
       return partiesController.voting(data)
     })
 
-    router.post('/update-new-game', async (data) => {
+    router.patch('/update-new-game', async (data) => {
       return partiesController.updateNewGame(data)
     })
   })
@@ -103,3 +104,11 @@ router
     })
   })
   .prefix('uploads')
+
+router
+  .group(() => {
+    router.patch('/update-host', async (data) => {
+      return UsersController.updateHost(data)
+    })
+  })
+  .prefix('api/users')

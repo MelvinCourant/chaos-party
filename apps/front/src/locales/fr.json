@@ -1,7 +1,9 @@
 {
   "automatic": "Automatique",
+  "assign_host": "Donner le role d’hôte",
   "avatar_selection": "Choix de l'avatar",
   "back-home": "Retour à l'accueil",
+  "ban": "Expulser",
   "create_party": "Créer la partie",
   "creating_teams": "Créer les équipes",
   "choose_pseudo": "Choisis un pseudo",

@@ -1,5 +1,6 @@
 {
   "bad_request": "Requête incorrecte",
+  "became_host": "{pseudo} est devenu l'hôte",
   "categories": {
     "buildings_cities": "Bâtiments et villes",
     "characters_heroes": "Personnages et héros",
@@ -84,6 +85,7 @@
   "party_started": "Partie commencée",
   "players_without_team": "Des joueurs n'ont pas d'équipe",
   "sabotage": "Sabotage: gâche le dessin en toute discrétion",
+  "selected_user_not_present": "Le joueur sélectionné n'est pas présent dans la partie",
   "teams_created": "{quantity} équipes créées",
   "voting": {
     "buildings_cities": "Est-ce que le bâtiment ou la ville semble tenir debout ?",

@@ -18,7 +18,7 @@
   &__copyright,
   &__link,
   &__dash {
-    @include mixins.font("footer");
+    @include mixins.font("menus");
   }
 
   &__links {

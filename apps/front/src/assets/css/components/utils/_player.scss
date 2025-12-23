@@ -2,7 +2,6 @@
 
 .player {
   border: var(--player-transparent-border);
-  overflow: hidden;
   border-radius: 60px;
 
   &__container {
@@ -12,6 +11,7 @@
     align-items: center;
     min-height: 60px;
     padding: 7.5px 25px 7.5px 7.5px;
+    border-radius: 60px;
   }
 
   &__profile {
