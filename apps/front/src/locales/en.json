@@ -63,6 +63,8 @@
     "title": "Find the impostor!",
     "description": "Vote for the player who sabotaged the mission to earn bonus points, be careful not to make a mistake!"
   },
+  "user_back_game": "{pseudo} is back in the game",
+  "user_left_game": "{pseudo} has left the game",
   "voting": "Voting",
   "voting_time": {
     "title": "Voting time",

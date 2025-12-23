@@ -1,0 +1,23 @@
+@use "../../partials/mixins";
+
+.alert {
+  position: fixed;
+  z-index: 9999;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: var(--input-black-border);
+  box-shadow: var(--3d-shadow-small);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  padding: 12px 20px;
+  @include mixins.font('text');
+
+  &--info {
+    background: var(--yellow);
+  }
+
+  &--danger {
+    background: var(--red);
+  }
+}

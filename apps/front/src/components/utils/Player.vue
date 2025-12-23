@@ -4,10 +4,12 @@ import Avatar from './Avatar.vue';
 import { useI18n } from 'vue-i18n';
 import { useUserStore } from '../../stores/user.js';
 import DotsMenu from './DotsMenu.vue';
+import { useRoute } from 'vue-router';
 
 const { t } = useI18n();
 const userStore = useUserStore();
 const user = userStore.user;
+const route = useRoute();
 
 defineProps({
   player: {
@@ -69,7 +71,12 @@ defineEmits(['click', 'actionClicked']);
         </svg>
       </div>
       <DotsMenu
-        v-if="player.id && user.role === 'host' && player.id !== user.id"
+        v-if="
+          player.id &&
+          user.role === 'host' &&
+          player.id !== user.id &&
+          route.path === '/lobby'
+        "
         :actions="hostActions"
         @actionClicked="(value) => $emit('actionClicked', value, player.id)"
       />

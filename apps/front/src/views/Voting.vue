@@ -17,6 +17,7 @@ import Scores from '../components/utils/Scores.vue';
 import Draws from '../components/voting/Draws.vue';
 import Button from '../components/inputs/Button.vue';
 import Icon from '../components/utils/Icon.vue';
+import Alert from '../components/utils/Alert.vue';
 
 const { t } = useI18n();
 const env = import.meta.env;
@@ -56,7 +57,13 @@ const saboteurReveal = reactive({
 });
 const draws = ref([]);
 const endGame = ref(false);
+const alert = reactive({
+  display: false,
+  type: 'info',
+  text: '',
+});
 let interval = null;
+let timeout = null;
 
 provide('duration', votingDuration);
 provide('elapsed', elapsed);
@@ -262,6 +269,28 @@ watch(timer, (value) => {
 onMounted(() => {
   socket.on('all-draws-saved', async () => {
     await getVoting();
+  });
+
+  socket.on('join', (player) => {
+    alert.type = 'info';
+    alert.text = t('user_back_game', { pseudo: player.pseudo });
+    alert.display = true;
+
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      alert.display = false;
+    }, 5000);
+  });
+
+  socket.on('leave-party', (data) => {
+    alert.type = 'danger';
+    alert.text = t('user_left_game', { pseudo: data.pseudo });
+    alert.display = true;
+
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      alert.display = false;
+    }, 5000);
   });
 
   socket.on('voting-start', () => {
@@ -547,5 +576,6 @@ onUnmounted(() => {
     >
       <Icon icon="play" type="button" />
     </Button>
+    <Alert :display="alert.display" :type="alert.type" :text="alert.text" />
   </main>
 </template>

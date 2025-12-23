@@ -4,10 +4,11 @@ import { useI18n } from 'vue-i18n';
 import { useSocketStore } from '../stores/socket.js';
 import { useUserStore } from '../stores/user.js';
 import { usePartyStore } from '../stores/party.js';
-import { onMounted, ref, provide, watch } from 'vue';
+import { onMounted, ref, provide, watch, reactive } from 'vue';
 import router from '../router/index.js';
 import Settings from '../components/inputs/Settings.vue';
 import Draw from '../components/drawing/Draw.vue';
+import Alert from '../components/utils/Alert.vue';
 import config from '../../../../cp-config.json';
 
 const env = import.meta.env;
@@ -28,7 +29,13 @@ const drawingDuration = ref(3);
 const timer = ref(0);
 const elapsed = ref(0);
 const playSound = ref(false);
+const alert = reactive({
+  display: false,
+  type: 'info',
+  text: '',
+});
 let interval = null;
+let timeout = null;
 
 provide('mission', mission);
 provide('objective', objective);
@@ -104,6 +111,15 @@ onMounted(() => {
 
   socket.on('join', (player) => {
     players.value.push(player);
+
+    alert.type = 'info';
+    alert.text = t('user_back_game', { pseudo: player.pseudo });
+    alert.display = true;
+
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      alert.display = false;
+    }, 5000);
   });
 
   socket.on('leave-party', (data) => {
@@ -111,6 +127,15 @@ onMounted(() => {
       players.value.findIndex((player) => player.socketId === data.socket_id),
       1,
     );
+
+    alert.type = 'danger';
+    alert.text = t('user_left_game', { pseudo: data.pseudo });
+    alert.display = true;
+
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      alert.display = false;
+    }, 5000);
   });
 
   socket.on('player-move', (data) => {
@@ -191,5 +216,6 @@ onMounted(() => {
     <h1 class="hidden-title">{{ t('drawing') }}</h1>
     <Settings />
     <Draw :mouseMoving="mouseMoving" :mouseUp="mouseUp" />
+    <Alert :display="alert.display" :type="alert.type" :text="alert.text" />
   </main>
 </template>

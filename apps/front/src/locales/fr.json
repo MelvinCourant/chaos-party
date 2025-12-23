@@ -63,6 +63,8 @@
     "title": "Trouver l’imposteur !",
     "description": "Votez pour le joueur qui a saboté la mission pour gagner des points bonus, attention à ne pas vous tromper !"
   },
+  "user_back_game": "{pseudo} est revenu dans la partie",
+  "user_left_game": "{pseudo} a quitté la partie",
   "voting": "Vote",
   "voting_time": {
     "title": "Temps de vote",
